@@ -1,0 +1,179 @@
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pieta.care'
+
+function getToken(): string | null {
+  if (typeof window === 'undefined') return null
+  return localStorage.getItem('token')
+}
+
+export function setToken(token: string) {
+  localStorage.setItem('token', token)
+}
+
+export function clearToken() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('elderly_id')
+}
+
+export function getElderlyId(): number | null {
+  if (typeof window === 'undefined') return null
+  const v = localStorage.getItem('elderly_id')
+  return v ? parseInt(v) : null
+}
+
+export function setElderlyId(id: number) {
+  localStorage.setItem('elderly_id', String(id))
+}
+
+async function request<T>(
+  path: string,
+  options: RequestInit = {}
+): Promise<T> {
+  const token = getToken()
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    ...(options.headers as Record<string, string>),
+  }
+  if (token) headers['Authorization'] = `Bearer ${token}`
+
+  const res = await fetch(`${BASE}${path}`, { ...options, headers })
+  if (res.status === 401) {
+    clearToken()
+    window.location.href = '/login'
+    throw new Error('Unauthorized')
+  }
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ detail: res.statusText }))
+    throw new Error(err.detail ?? 'Erro desconhecido')
+  }
+  if (res.status === 204) return undefined as T
+  return res.json()
+}
+
+export const api = {
+  // auth
+  login: (email: string, password: string) =>
+    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    }),
+
+  register: (email: string, password: string, full_name: string) =>
+    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password, full_name }),
+    }),
+
+  me: () => request<import('./types').User>('/api/v1/auth/me'),
+
+  acceptInvite: (token: string, password: string, full_name: string) =>
+    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
+      method: 'POST',
+      body: JSON.stringify({ token, password, full_name }),
+    }),
+
+  // elderly
+  listElderly: () => request<import('./types').Elderly[]>('/api/v1/elderly'),
+
+  createElderly: (data: Partial<import('./types').Elderly>) =>
+    request<import('./types').Elderly>('/api/v1/elderly', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateElderly: (id: number, data: Partial<import('./types').Elderly>) =>
+    request<import('./types').Elderly>(`/api/v1/elderly/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  inviteFamily: (elderlyId: number, email: string, relation?: string) =>
+    request(`/api/v1/elderly/${elderlyId}/invite`, {
+      method: 'POST',
+      body: JSON.stringify({ email, relation }),
+    }),
+
+  removeFamilyMember: (elderlyId: number, memberId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/members/${memberId}`, { method: 'DELETE' }),
+
+  // medications
+  listMedications: (elderlyId: number) =>
+    request<import('./types').Medication[]>(`/api/v1/elderly/${elderlyId}/medications`),
+
+  createMedication: (elderlyId: number, data: { name: string; dosage: string; schedule_times: string[]; instructions?: string }) =>
+    request<import('./types').Medication>(`/api/v1/elderly/${elderlyId}/medications`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateMedication: (elderlyId: number, medId: number, data: Partial<import('./types').Medication>) =>
+    request<import('./types').Medication>(`/api/v1/elderly/${elderlyId}/medications/${medId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteMedication: (elderlyId: number, medId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/medications/${medId}`, { method: 'DELETE' }),
+
+  dailySchedule: (elderlyId: number, date?: string) =>
+    request<import('./types').DailyScheduleItem[]>(
+      `/api/v1/elderly/${elderlyId}/medications/schedule/today${date ? `?for_date=${date}` : ''}`
+    ),
+
+  confirmMedication: (elderlyId: number, medication_id: number, scheduled_time: string, status: string) =>
+    request(`/api/v1/elderly/${elderlyId}/medications/confirm`, {
+      method: 'POST',
+      body: JSON.stringify({ medication_id, scheduled_time, status }),
+    }),
+
+  // calendar events
+  listEvents: (elderlyId: number) =>
+    request<import('./types').CalendarEvent[]>(`/api/v1/elderly/${elderlyId}/events`),
+
+  createEvent: (elderlyId: number, data: Partial<import('./types').CalendarEvent>) =>
+    request<import('./types').CalendarEvent>(`/api/v1/elderly/${elderlyId}/events`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteEvent: (elderlyId: number, eventId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/events/${eventId}`, { method: 'DELETE' }),
+
+  // tasks
+  listTasks: (elderlyId: number) =>
+    request<import('./types').Task[]>(`/api/v1/elderly/${elderlyId}/tasks`),
+
+  createTask: (elderlyId: number, data: Partial<import('./types').Task>) =>
+    request<import('./types').Task>(`/api/v1/elderly/${elderlyId}/tasks`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateTask: (elderlyId: number, taskId: number, data: Partial<import('./types').Task>) =>
+    request<import('./types').Task>(`/api/v1/elderly/${elderlyId}/tasks/${taskId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteTask: (elderlyId: number, taskId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/tasks/${taskId}`, { method: 'DELETE' }),
+
+  // documents
+  listDocuments: (elderlyId: number) =>
+    request<import('./types').Document[]>(`/api/v1/elderly/${elderlyId}/documents`),
+
+  uploadDocument: (elderlyId: number, file: File, name: string, notes?: string) => {
+    const token = getToken()
+    const form = new FormData()
+    form.append('file', file)
+    form.append('name', name)
+    if (notes) form.append('notes', notes)
+    return fetch(`${BASE}/api/v1/elderly/${elderlyId}/documents`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    }).then(r => r.json()) as Promise<import('./types').Document>
+  },
+
+  deleteDocument: (elderlyId: number, docId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/documents/${docId}`, { method: 'DELETE' }),
+}
