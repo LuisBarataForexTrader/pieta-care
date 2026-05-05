@@ -32,3 +32,4 @@ class MedicationLog(Base):
     notes: Mapped[str | None] = mapped_column(Text)
 
     medication: Mapped["Medication"] = relationship(back_populates="logs")
+    confirmed_by_user: Mapped["User"] = relationship(foreign_keys=[confirmed_by])
