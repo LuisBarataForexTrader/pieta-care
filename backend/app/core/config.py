@@ -24,6 +24,7 @@ class Settings(BaseSettings):
     HETZNER_STORAGE_ENDPOINT: str = "https://fsn1.your-objectstorage.com"
 
     FRONTEND_URL: str = "https://pieta.care"
+    FRONTEND_URL_VERCEL: str = "https://pieta-care.vercel.app"
     BACKEND_PUBLIC_URL: str = "https://api.pieta.care"
 
     # TOConline (faturação PT)
