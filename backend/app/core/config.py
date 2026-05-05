@@ -12,6 +12,9 @@ class Settings(BaseSettings):
 
     STRIPE_SECRET_KEY: str = ""
     STRIPE_WEBHOOK_SECRET: str = ""
+    STRIPE_PRICE_FAMILIA: str = ""
+    STRIPE_PRICE_FAMILIA_PLUS: str = ""
+    STRIPE_PRICE_CUIDADOR_PRO: str = ""
 
     FIREBASE_CREDENTIALS_JSON: str = ""
 
