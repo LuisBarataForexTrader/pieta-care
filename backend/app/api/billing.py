@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
+from app.core import toconline
+from app.core.stripe_client import PLANS, STRIPE_PRICE_TO_PLAN
 from app.models.user import User
 from app.schemas.billing import (
     SubscribeRequest,
@@ -80,11 +82,12 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
     except BillingError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
-    # Handle subscription lifecycle events
     event_type = event["type"]
     obj = event["data"]
 
-    if event_type == "customer.subscription.updated":
+    if event_type == "invoice.paid":
+        await _on_invoice_paid(db, obj)
+    elif event_type == "customer.subscription.updated":
         _sync_subscription_status(db, obj)
     elif event_type == "customer.subscription.deleted":
         _sync_subscription_status(db, obj, force_status="canceled")
@@ -92,6 +95,47 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
         _sync_subscription_status(db, obj.get("subscription"), force_status="past_due")
 
     return {"received": True}
+
+
+async def _on_invoice_paid(db: Session, invoice_obj: dict) -> None:
+    """Emite fatura TOConline após pagamento Stripe confirmado."""
+    # Só processa faturas reais (não trials sem cobrança)
+    amount_paid = invoice_obj.get("amount_paid", 0)
+    if amount_paid == 0:
+        return
+
+    customer_id = invoice_obj.get("customer")
+    if not customer_id:
+        return
+
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        return
+
+    # Identificar plano a partir do line item da fatura Stripe
+    lines = invoice_obj.get("lines", {}).get("data", [])
+    plan_key = "familia"
+    for line in lines:
+        price_id = (line.get("price") or {}).get("id", "")
+        if price_id in STRIPE_PRICE_TO_PLAN:
+            plan_key = STRIPE_PRICE_TO_PLAN[price_id]
+            break
+
+    plan = PLANS.get(plan_key, PLANS["familia"])
+
+    # Emite fatura TOConline com valor SEM IVA
+    await toconline.create_invoice(
+        email=user.email,
+        name=user.full_name,
+        amount_excl_vat=plan["amount_excl_vat"],    # ex: 35.00 (sem IVA)
+        description=plan["description"],
+        item_code=plan["item_code"],
+        country="PT",                                # default PT; expandir com dados do user
+    )
+
+    # Atualiza estado da subscrição
+    user.subscription_status = "active"
+    db.commit()
 
 
 def _sync_subscription_status(db: Session, sub_obj, force_status: str | None = None):

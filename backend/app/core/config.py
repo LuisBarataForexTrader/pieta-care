@@ -24,6 +24,20 @@ class Settings(BaseSettings):
     HETZNER_STORAGE_ENDPOINT: str = "https://fsn1.your-objectstorage.com"
 
     FRONTEND_URL: str = "https://pieta.care"
+    BACKEND_PUBLIC_URL: str = "https://api.pieta.care"
+
+    # TOConline (faturação PT)
+    TOCONLINE_CLIENT_ID: str = ""
+    TOCONLINE_CLIENT_SECRET: str = ""
+    TOCONLINE_SERIES_ID: str = ""
+    TOCONLINE_EXEMPTION_NON_EU: str = ""
+
+    # Email (SMTP)
+    SMTP_HOST: str = ""
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = "noreply@pieta.care"
 
     class Config:
         env_file = ".env"
