@@ -14,7 +14,7 @@ class FamilyMember(Base):
     role: Mapped[str] = mapped_column(String(50), default="member")  # owner, admin, member, viewer
     relation: Mapped[str | None] = mapped_column(String(100))  # filho, filha, neto, etc.
     is_accepted: Mapped[bool] = mapped_column(Boolean, default=False)
-    invite_token: Mapped[str | None] = mapped_column(String(100))
+    invite_token: Mapped[str | None] = mapped_column(String(512))
     can_manage_medications: Mapped[bool] = mapped_column(Boolean, default=True)
     can_manage_documents: Mapped[bool] = mapped_column(Boolean, default=True)
     can_invite_others: Mapped[bool] = mapped_column(Boolean, default=False)

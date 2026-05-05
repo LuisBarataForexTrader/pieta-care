@@ -7,8 +7,9 @@ class MedicationCreateRequest(BaseModel):
     name: str
     dosage: str
     instructions: str | None = None
-    schedule_times: list[str]  # ["08:00", "14:00", "20:00"]
+    schedule_times: list[str] = []
     is_active: bool = True
+    is_prn: bool = False
 
     @field_validator("schedule_times")
     @classmethod
@@ -20,6 +21,11 @@ class MedicationCreateRequest(BaseModel):
             except Exception:
                 raise ValueError(f"Horário inválido: {t}. Use formato HH:MM")
         return v
+
+
+class PRNLogRequest(BaseModel):
+    reason: str | None = None
+    notes: str | None = None
 
 
 class MedicationUpdateRequest(BaseModel):
@@ -38,6 +44,7 @@ class MedicationResponse(BaseModel):
     instructions: str | None
     schedule_times: list[str]
     is_active: bool
+    is_prn: bool = False
     created_at: datetime
 
     model_config = {"from_attributes": True}

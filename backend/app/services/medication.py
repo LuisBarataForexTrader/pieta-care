@@ -224,3 +224,29 @@ def get_medication_history(
         query = query.filter(MedicationLog.medication_id == medication_id)
 
     return query.order_by(MedicationLog.scheduled_time.desc()).all()
+
+
+def log_prn_medication(
+    db: Session, elderly_id: int, medication_id: int, user: User, notes: str | None = None
+) -> MedicationLog:
+    _check_access(db, elderly_id, user, require_manage=True)
+    med = db.query(Medication).filter(
+        Medication.id == medication_id,
+        Medication.elderly_id == elderly_id,
+        Medication.is_prn == True,
+        Medication.is_active == True,
+    ).first()
+    if not med:
+        raise MedicationError("Medicamento PRN não encontrado", 404)
+    log = MedicationLog(
+        medication_id=medication_id,
+        confirmed_by=user.id,
+        scheduled_time=datetime.utcnow(),
+        confirmed_at=datetime.utcnow(),
+        status="taken",
+        notes=notes,
+    )
+    db.add(log)
+    db.commit()
+    db.refresh(log)
+    return log

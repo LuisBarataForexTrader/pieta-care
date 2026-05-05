@@ -11,6 +11,7 @@ from app.schemas.medication import (
     MedicationLogRequest,
     MedicationLogResponse,
     DailyScheduleItem,
+    PRNLogRequest,
 )
 from app.services.medication import (
     create_medication,
@@ -20,6 +21,7 @@ from app.services.medication import (
     get_daily_schedule,
     confirm_medication,
     get_medication_history,
+    log_prn_medication,
     MedicationError,
 )
 
@@ -131,5 +133,20 @@ def history(
                 notes=log.notes,
             ))
         return result
+    except MedicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.post("/{medication_id}/prn", status_code=201)
+def prn_log(
+    elderly_id: int,
+    medication_id: int,
+    data: PRNLogRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        log = log_prn_medication(db, elderly_id, medication_id, user, data.notes)
+        return {"message": "Medicação PRN registada", "log_id": log.id}
     except MedicationError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

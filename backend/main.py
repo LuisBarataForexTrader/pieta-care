@@ -4,7 +4,7 @@ from contextlib import asynccontextmanager
 
 from app.core.config import settings
 from app.core.stripe_client import build_price_map
-from app.api import auth, elderly, medication, calendar, document, billing
+from app.api import auth, elderly, medication, calendar, document, billing, health
 
 
 @asynccontextmanager
@@ -34,6 +34,7 @@ app.include_router(medication.router, prefix="/api/v1")
 app.include_router(calendar.router, prefix="/api/v1")
 app.include_router(document.router, prefix="/api/v1")
 app.include_router(billing.router, prefix="/api/v1")
+app.include_router(health.router, prefix="/api/v1")
 
 
 @app.get("/health")
