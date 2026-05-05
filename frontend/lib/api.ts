@@ -7,11 +7,13 @@ function getToken(): string | null {
 
 export function setToken(token: string) {
   localStorage.setItem('token', token)
+  document.cookie = `token=${token}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Lax`
 }
 
 export function clearToken() {
   localStorage.removeItem('token')
   localStorage.removeItem('elderly_id')
+  document.cookie = 'token=; path=/; max-age=0'
 }
 
 export function getElderlyId(): number | null {
