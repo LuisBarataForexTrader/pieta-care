@@ -1,14 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from app.core.config import settings
+from app.core.stripe_client import build_price_map
 from app.api import auth, elderly, medication, calendar, document, billing
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    build_price_map()
+    yield
 
 app = FastAPI(
     title=settings.APP_NAME,
     version=settings.VERSION,
     docs_url="/docs" if settings.DEBUG else None,
     redoc_url=None,
+    lifespan=lifespan,
 )
 
 app.add_middleware(
