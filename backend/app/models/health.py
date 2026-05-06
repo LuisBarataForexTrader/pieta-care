@@ -12,13 +12,13 @@ class VitalSign(Base):
     elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
     recorded_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     measured_at: Mapped[datetime] = mapped_column(DateTime)
-    blood_pressure_sys: Mapped[int | None] = mapped_column(Integer)   # mmHg
-    blood_pressure_dia: Mapped[int | None] = mapped_column(Integer)   # mmHg
-    heart_rate: Mapped[int | None] = mapped_column(Integer)           # bpm
-    temperature: Mapped[Decimal | None] = mapped_column(Numeric(4, 1))  # °C
-    weight: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))    # kg
-    oxygen_saturation: Mapped[int | None] = mapped_column(Integer)   # %
-    blood_glucose: Mapped[Decimal | None] = mapped_column(Numeric(5, 1))  # mg/dL
+    blood_pressure_sys: Mapped[int | None] = mapped_column(Integer)
+    blood_pressure_dia: Mapped[int | None] = mapped_column(Integer)
+    heart_rate: Mapped[int | None] = mapped_column(Integer)
+    temperature: Mapped[Decimal | None] = mapped_column(Numeric(4, 1))
+    weight: Mapped[Decimal | None] = mapped_column(Numeric(5, 2))
+    oxygen_saturation: Mapped[int | None] = mapped_column(Integer)
+    blood_glucose: Mapped[Decimal | None] = mapped_column(Numeric(5, 1))
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -33,10 +33,10 @@ class WellbeingLog(Base):
     elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
     recorded_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     logged_date: Mapped[date] = mapped_column(Date)
-    mood: Mapped[int] = mapped_column(Integer)           # 1-5
-    energy: Mapped[int | None] = mapped_column(Integer)  # 1-5
-    pain_level: Mapped[int | None] = mapped_column(Integer)  # 0-10
-    appetite: Mapped[int | None] = mapped_column(Integer)    # 1-5
+    mood: Mapped[int] = mapped_column(Integer)
+    energy: Mapped[int | None] = mapped_column(Integer)
+    pain_level: Mapped[int | None] = mapped_column(Integer)
+    appetite: Mapped[int | None] = mapped_column(Integer)
     notes: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
@@ -51,13 +51,47 @@ class Incident(Base):
     elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
     reported_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
     occurred_at: Mapped[datetime] = mapped_column(DateTime)
-    type: Mapped[str] = mapped_column(String(50))   # queda, medicacao, emergencia, hospitalizacao, outro
-    severity: Mapped[str] = mapped_column(String(20))  # baixa, media, alta, critica
+    type: Mapped[str] = mapped_column(String(50))
+    severity: Mapped[str] = mapped_column(String(20))
     description: Mapped[str] = mapped_column(Text)
     actions_taken: Mapped[str | None] = mapped_column(Text)
     follow_up_required: Mapped[bool] = mapped_column(Boolean, default=False)
     resolved: Mapped[bool] = mapped_column(Boolean, default=False)
+    body_zone: Mapped[str | None] = mapped_column(String(50))
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     elderly: Mapped["ElderlyProfile"] = relationship()
     reported_by: Mapped["User"] = relationship(foreign_keys=[reported_by_id])
+
+
+class DailyNote(Base):
+    __tablename__ = "daily_notes"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
+    recorded_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    note_date: Mapped[date] = mapped_column(Date)
+    shift: Mapped[str] = mapped_column(String(20))   # manha, tarde, noite
+    content: Mapped[str] = mapped_column(Text)
+    mood_observed: Mapped[str | None] = mapped_column(String(50))
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    elderly: Mapped["ElderlyProfile"] = relationship()
+    recorded_by: Mapped["User"] = relationship(foreign_keys=[recorded_by_id])
+
+
+class CarePlanItem(Base):
+    __tablename__ = "care_plan_items"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    category: Mapped[str] = mapped_column(String(50))   # higiene, nutricao, mobilidade, social, medico, outro
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str | None] = mapped_column(Text)
+    frequency: Mapped[str | None] = mapped_column(String(50))   # diario, semanal, mensal, conforme_necessario
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    elderly: Mapped["ElderlyProfile"] = relationship()
+    created_by: Mapped["User"] = relationship(foreign_keys=[created_by_id])

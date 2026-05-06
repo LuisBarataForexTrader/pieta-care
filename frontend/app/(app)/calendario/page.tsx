@@ -3,8 +3,14 @@ import { useEffect, useState } from 'react'
 import { api, getElderlyId } from '@/lib/api'
 import type { CalendarEvent, Task } from '@/lib/types'
 
-function fmtDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-PT', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+function fmtEventDate(iso: string) {
+  const d = new Date(iso)
+  return {
+    day: d.getDate(),
+    month: d.toLocaleDateString('pt-PT', { month: 'short' }),
+    time: d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' }),
+    full: d.toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'long' }),
+  }
 }
 
 export default function CalendarioPage() {
@@ -21,7 +27,7 @@ export default function CalendarioPage() {
   async function load() {
     if (!elderlyId) return
     const [ev, tk] = await Promise.all([api.listEvents(elderlyId), api.listTasks(elderlyId)])
-    setEvents(ev)
+    setEvents(ev.sort((a, b) => a.starts_at.localeCompare(b.starts_at)))
     setTasks(tk)
   }
 
@@ -75,132 +81,227 @@ export default function CalendarioPage() {
 
   const pendingTasks = tasks.filter(t => !t.is_completed)
   const doneTasks = tasks.filter(t => t.is_completed)
+  const upcomingEvents = events.filter(e => new Date(e.starts_at) >= new Date())
+  const pastEvents = events.filter(e => new Date(e.starts_at) < new Date())
 
   return (
     <div>
-      <div className="page-header">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Agenda</h1>
-          <button
-            onClick={() => { setShowForm(v => !v); setError('') }}
-            style={{ background: 'var(--sage)', color: 'white', border: 'none', borderRadius: 10, padding: '8px 16px', fontWeight: 600, fontSize: 14, cursor: 'pointer' }}
-          >
-            {showForm ? '✕' : '+ Adicionar'}
-          </button>
+      <div className="page-top">
+        <div>
+          <div className="page-title">📅 Agenda</div>
+          <div className="page-subtitle">{upcomingEvents.length} consulta{upcomingEvents.length !== 1 ? 's' : ''} · {pendingTasks.length} tarefa{pendingTasks.length !== 1 ? 's' : ''} pendente{pendingTasks.length !== 1 ? 's' : ''}</div>
         </div>
-        {/* tabs */}
-        <div style={{ display: 'flex', gap: 0, marginTop: 12, background: '#F3F4F6', borderRadius: 10, padding: 3 }}>
+        <button
+          onClick={() => { setShowForm(v => !v); setError('') }}
+          className={showForm ? 'btn-ghost' : 'btn-primary'}
+          style={{ width: 'auto', padding: '10px 20px' }}
+        >
+          {showForm ? '✕ Cancelar' : '+ Adicionar'}
+        </button>
+      </div>
+
+      <div className="page-body">
+        {/* Tab switcher */}
+        <div style={{ display: 'flex', gap: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 4, marginBottom: 24, width: 'fit-content' }}>
           {(['eventos', 'tarefas'] as const).map(t => (
             <button
               key={t}
               onClick={() => setTab(t)}
               style={{
-                flex: 1,
-                background: tab === t ? 'white' : 'transparent',
+                background: tab === t ? 'var(--brand)' : 'transparent',
                 border: 'none',
-                borderRadius: 8,
-                padding: '8px 0',
-                fontWeight: tab === t ? 700 : 500,
-                color: tab === t ? 'var(--text)' : 'var(--muted)',
+                borderRadius: 9,
+                padding: '8px 20px',
+                fontWeight: 700,
+                color: tab === t ? 'white' : 'var(--text-3)',
                 cursor: 'pointer',
                 fontSize: 14,
-                boxShadow: tab === t ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s',
               }}
             >
-              {t === 'eventos' ? `Consultas (${events.length})` : `Tarefas (${pendingTasks.length})`}
+              {t === 'eventos' ? `📅 Consultas (${events.length})` : `✅ Tarefas (${pendingTasks.length})`}
             </button>
           ))}
         </div>
-      </div>
 
-      <div style={{ padding: 16 }}>
-        {/* add event form */}
+        {/* Add event form */}
         {showForm && tab === 'eventos' && (
-          <form onSubmit={saveEvent} className="card" style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Nova consulta / evento</h2>
+          <form onSubmit={saveEvent} className="card card-lg" style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="section-title">Nova consulta / evento</div>
             <div>
-              <label className="label">Título</label>
-              <input className="input" value={eForm.title} onChange={e => setEForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Consulta de cardiologia" required />
+              <label className="field-label">Título</label>
+              <input className="field-input" value={eForm.title} onChange={e => setEForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Consulta de cardiologia" required />
             </div>
-            <div>
-              <label className="label">Data e hora</label>
-              <input className="input" type="datetime-local" value={eForm.starts_at} onChange={e => setEForm(f => ({ ...f, starts_at: e.target.value }))} required />
+            <div className="grid-2">
+              <div>
+                <label className="field-label">Data e hora</label>
+                <input className="field-input" type="datetime-local" value={eForm.starts_at} onChange={e => setEForm(f => ({ ...f, starts_at: e.target.value }))} required />
+              </div>
+              <div>
+                <label className="field-label">Local (opcional)</label>
+                <input className="field-input" value={eForm.location} onChange={e => setEForm(f => ({ ...f, location: e.target.value }))} placeholder="Ex: Hospital Santa Maria" />
+              </div>
             </div>
-            <div>
-              <label className="label">Local (opcional)</label>
-              <input className="input" value={eForm.location} onChange={e => setEForm(f => ({ ...f, location: e.target.value }))} placeholder="Ex: Hospital Santa Maria" />
-            </div>
-            {error && <p style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>{error}</p>}
+            {error && <div className="alert-error">{error}</div>}
             <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : 'Guardar evento'}</button>
           </form>
         )}
 
-        {/* add task form */}
+        {/* Add task form */}
         {showForm && tab === 'tarefas' && (
-          <form onSubmit={saveTask} className="card" style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <h2 style={{ margin: 0, fontSize: 16, fontWeight: 700 }}>Nova tarefa</h2>
-            <div>
-              <label className="label">Título</label>
-              <input className="input" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Ir à farmácia" required />
+          <form onSubmit={saveTask} className="card card-lg" style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="section-title">Nova tarefa</div>
+            <div className="grid-2">
+              <div>
+                <label className="field-label">Título</label>
+                <input className="field-input" value={tForm.title} onChange={e => setTForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Ir à farmácia" required />
+              </div>
+              <div>
+                <label className="field-label">Data limite (opcional)</label>
+                <input className="field-input" type="date" value={tForm.due_date} onChange={e => setTForm(f => ({ ...f, due_date: e.target.value }))} />
+              </div>
             </div>
-            <div>
-              <label className="label">Data limite (opcional)</label>
-              <input className="input" type="date" value={tForm.due_date} onChange={e => setTForm(f => ({ ...f, due_date: e.target.value }))} />
-            </div>
-            {error && <p style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>{error}</p>}
+            {error && <div className="alert-error">{error}</div>}
             <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : 'Guardar tarefa'}</button>
           </form>
         )}
 
-        {/* events list */}
+        {/* Events tab */}
         {tab === 'eventos' && (
-          events.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--muted)' }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>📅</div>
-              <p style={{ fontWeight: 600 }}>Sem eventos</p>
+          upcomingEvents.length === 0 && pastEvents.length === 0 ? (
+            <div className="card">
+              <div className="empty-state">
+                <div className="empty-state-icon">📅</div>
+                <div className="empty-state-title">Sem consultas agendadas</div>
+                <div className="empty-state-text">Regista consultas e exames para não perderes nenhum compromisso</div>
+                <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
+                  + Marcar consulta
+                </button>
+              </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-              {events.sort((a, b) => a.starts_at.localeCompare(b.starts_at)).map(ev => (
-                <div key={ev.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 16 }}>{ev.title}</div>
-                    <div style={{ color: 'var(--sage)', fontSize: 13, marginTop: 3, fontWeight: 600 }}>{fmtDate(ev.starts_at)}</div>
-                    {ev.location && <div style={{ color: 'var(--muted)', fontSize: 13, marginTop: 2 }}>📍 {ev.location}</div>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+              {upcomingEvents.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                    Próximas
                   </div>
-                  <button onClick={() => delEvent(ev.id)} style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 18, cursor: 'pointer', padding: '0 0 0 12px' }}>🗑</button>
+                  <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    {upcomingEvents.map((ev, i) => {
+                      const d = fmtEventDate(ev.starts_at)
+                      return (
+                        <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: i < upcomingEvents.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div className="event-date-box">
+                            <div className="event-day">{d.day}</div>
+                            <div className="event-month">{d.month}</div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div className="event-title">{ev.title}</div>
+                            <div className="event-meta">
+                              🕐 {d.time}
+                              {ev.location && <> · 📍 {ev.location}</>}
+                            </div>
+                          </div>
+                          <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                        </div>
+                      )
+                    })}
+                  </div>
                 </div>
-              ))}
+              )}
+
+              {pastEvents.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                    Passadas
+                  </div>
+                  <div className="card" style={{ padding: 0, overflow: 'hidden', opacity: 0.6 }}>
+                    {pastEvents.slice().reverse().map((ev, i) => {
+                      const d = fmtEventDate(ev.starts_at)
+                      return (
+                        <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px', borderBottom: i < pastEvents.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div className="event-date-box" style={{ background: 'var(--bg)' }}>
+                            <div className="event-day" style={{ color: 'var(--text-3)' }}>{d.day}</div>
+                            <div className="event-month">{d.month}</div>
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div className="event-title" style={{ textDecoration: 'line-through', color: 'var(--text-3)' }}>{ev.title}</div>
+                            <div className="event-meta">🕐 {d.time}{ev.location && <> · 📍 {ev.location}</>}</div>
+                          </div>
+                          <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                        </div>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           )
         )}
 
-        {/* tasks list */}
+        {/* Tasks tab */}
         {tab === 'tarefas' && (
           tasks.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '48px 0', color: 'var(--muted)' }}>
-              <div style={{ fontSize: 48, marginBottom: 12 }}>✅</div>
-              <p style={{ fontWeight: 600 }}>Sem tarefas</p>
+            <div className="card">
+              <div className="empty-state">
+                <div className="empty-state-icon">✅</div>
+                <div className="empty-state-title">Sem tarefas</div>
+                <div className="empty-state-text">Cria tarefas para te lembrares de coisas importantes</div>
+                <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
+                  + Nova tarefa
+                </button>
+              </div>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-              {pendingTasks.map(t => (
-                <div key={t.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <button onClick={() => toggleTask(t)} style={{ width: 24, height: 24, borderRadius: 6, border: '2px solid var(--border)', background: 'white', cursor: 'pointer', flexShrink: 0 }} />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: 600 }}>{t.title}</div>
-                    {t.due_date && <div style={{ fontSize: 13, color: 'var(--muted)' }}>até {new Date(t.due_date).toLocaleDateString('pt-PT')}</div>}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+              {pendingTasks.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                    Pendentes ({pendingTasks.length})
                   </div>
-                  <button onClick={() => delTask(t.id)} style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 18, cursor: 'pointer' }}>🗑</button>
+                  <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                    {pendingTasks.map((t, i) => (
+                      <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderBottom: i < pendingTasks.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                        <button
+                          onClick={() => toggleTask(t)}
+                          className="task-check"
+                          title="Marcar como feita"
+                        />
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 15, fontWeight: 600 }}>{t.title}</div>
+                          {t.due_date && (
+                            <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+                              📅 até {new Date(t.due_date).toLocaleDateString('pt-PT')}
+                            </div>
+                          )}
+                        </div>
+                        <button onClick={() => delTask(t.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
-              {doneTasks.map(t => (
-                <div key={t.id} className="card" style={{ display: 'flex', alignItems: 'center', gap: 12, opacity: 0.5 }}>
-                  <button onClick={() => toggleTask(t)} style={{ width: 24, height: 24, borderRadius: 6, border: '2px solid var(--sage)', background: 'var(--sage)', cursor: 'pointer', flexShrink: 0, color: 'white', fontSize: 14 }}>✓</button>
-                  <div style={{ flex: 1, textDecoration: 'line-through', color: 'var(--muted)' }}>{t.title}</div>
-                  <button onClick={() => delTask(t.id)} style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 18, cursor: 'pointer' }}>🗑</button>
+              )}
+
+              {doneTasks.length > 0 && (
+                <div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                    Concluídas ({doneTasks.length})
+                  </div>
+                  <div className="card" style={{ padding: 0, overflow: 'hidden', opacity: 0.6 }}>
+                    {doneTasks.map((t, i) => (
+                      <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderBottom: i < doneTasks.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                        <button
+                          onClick={() => toggleTask(t)}
+                          className="task-check done"
+                          title="Desmarcar"
+                        />
+                        <div style={{ flex: 1, textDecoration: 'line-through', color: 'var(--text-3)', fontSize: 15 }}>{t.title}</div>
+                        <button onClick={() => delTask(t.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              ))}
+              )}
             </div>
           )
         )}

@@ -101,7 +101,7 @@ export const api = {
   listMedications: (elderlyId: number) =>
     request<import('./types').Medication[]>(`/api/v1/elderly/${elderlyId}/medications`),
 
-  createMedication: (elderlyId: number, data: { name: string; dosage: string; schedule_times: string[]; instructions?: string }) =>
+  createMedication: (elderlyId: number, data: { name: string; dosage: string; schedule_times: string[]; instructions?: string; is_prn?: boolean }) =>
     request<import('./types').Medication>(`/api/v1/elderly/${elderlyId}/medications`, {
       method: 'POST',
       body: JSON.stringify(data),
@@ -126,6 +126,11 @@ export const api = {
       method: 'POST',
       body: JSON.stringify({ medication_id, scheduled_time, status }),
     }),
+
+  medicationHistory: (elderlyId: number, days = 30) =>
+    request<import('./types').MedicationLog[]>(
+      `/api/v1/elderly/${elderlyId}/medications/history?days=${days}`
+    ),
 
   // calendar events
   listEvents: (elderlyId: number) =>
@@ -178,4 +183,88 @@ export const api = {
 
   deleteDocument: (elderlyId: number, docId: number) =>
     request(`/api/v1/elderly/${elderlyId}/documents/${docId}`, { method: 'DELETE' }),
+
+  // vitals
+  listVitals: (elderlyId: number, days = 30) =>
+    request<import('./types').VitalSign[]>(`/api/v1/elderly/${elderlyId}/vitals?days=${days}`),
+
+  createVital: (elderlyId: number, data: Partial<import('./types').VitalSign>) =>
+    request<import('./types').VitalSign>(`/api/v1/elderly/${elderlyId}/vitals`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteVital: (elderlyId: number, vitalId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/vitals/${vitalId}`, { method: 'DELETE' }),
+
+  // wellbeing
+  listWellbeing: (elderlyId: number, days = 30) =>
+    request<import('./types').WellbeingLog[]>(`/api/v1/elderly/${elderlyId}/wellbeing?days=${days}`),
+
+  todayWellbeing: (elderlyId: number) =>
+    request<import('./types').WellbeingLog | null>(`/api/v1/elderly/${elderlyId}/wellbeing/today`),
+
+  logWellbeing: (elderlyId: number, data: Partial<import('./types').WellbeingLog>) =>
+    request<import('./types').WellbeingLog>(`/api/v1/elderly/${elderlyId}/wellbeing`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // incidents
+  listIncidents: (elderlyId: number, includeResolved = false) =>
+    request<import('./types').Incident[]>(`/api/v1/elderly/${elderlyId}/incidents?include_resolved=${includeResolved}`),
+
+  createIncident: (elderlyId: number, data: Partial<import('./types').Incident>) =>
+    request<import('./types').Incident>(`/api/v1/elderly/${elderlyId}/incidents`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateIncident: (elderlyId: number, incidentId: number, data: Partial<import('./types').Incident>) =>
+    request<import('./types').Incident>(`/api/v1/elderly/${elderlyId}/incidents/${incidentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteIncident: (elderlyId: number, incidentId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/incidents/${incidentId}`, { method: 'DELETE' }),
+
+  // PRN medication
+  logPrn: (elderlyId: number, medicationId: number, notes?: string) =>
+    request(`/api/v1/elderly/${elderlyId}/medications/${medicationId}/prn`, {
+      method: 'POST',
+      body: JSON.stringify({ notes }),
+    }),
+
+  // daily notes
+  listNotes: (elderlyId: number, days = 30) =>
+    request<import('./types').DailyNote[]>(`/api/v1/elderly/${elderlyId}/notes?days=${days}`),
+
+  createNote: (elderlyId: number, data: Partial<import('./types').DailyNote>) =>
+    request<import('./types').DailyNote>(`/api/v1/elderly/${elderlyId}/notes`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteNote: (elderlyId: number, noteId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/notes/${noteId}`, { method: 'DELETE' }),
+
+  // care plan
+  listCarePlan: (elderlyId: number, includeInactive = false) =>
+    request<import('./types').CarePlanItem[]>(`/api/v1/elderly/${elderlyId}/care-plan?include_inactive=${includeInactive}`),
+
+  createCarePlanItem: (elderlyId: number, data: Partial<import('./types').CarePlanItem>) =>
+    request<import('./types').CarePlanItem>(`/api/v1/elderly/${elderlyId}/care-plan`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateCarePlanItem: (elderlyId: number, itemId: number, data: Partial<import('./types').CarePlanItem>) =>
+    request<import('./types').CarePlanItem>(`/api/v1/elderly/${elderlyId}/care-plan/${itemId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteCarePlanItem: (elderlyId: number, itemId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/care-plan/${itemId}`, { method: 'DELETE' }),
 }

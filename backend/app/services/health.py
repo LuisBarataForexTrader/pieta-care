@@ -1,10 +1,13 @@
 from datetime import datetime, date, timedelta
 from sqlalchemy.orm import Session
 
-from app.models.health import VitalSign, WellbeingLog, Incident
+from app.models.health import VitalSign, WellbeingLog, Incident, DailyNote, CarePlanItem
 from app.models.family import FamilyMember
 from app.models.user import User
-from app.schemas.health import VitalSignCreate, WellbeingCreate, IncidentCreate, IncidentUpdate
+from app.schemas.health import (
+    VitalSignCreate, WellbeingCreate, IncidentCreate, IncidentUpdate,
+    DailyNoteCreate, CarePlanItemCreate, CarePlanItemUpdate,
+)
 
 
 class HealthError(Exception):
@@ -28,11 +31,7 @@ def _check_access(db: Session, elderly_id: int, user: User):
 
 def create_vital(db: Session, elderly_id: int, data: VitalSignCreate, user: User) -> VitalSign:
     _check_access(db, elderly_id, user)
-    vital = VitalSign(
-        elderly_id=elderly_id,
-        recorded_by_id=user.id,
-        **data.model_dump(),
-    )
+    vital = VitalSign(elderly_id=elderly_id, recorded_by_id=user.id, **data.model_dump())
     db.add(vital)
     db.commit()
     db.refresh(vital)
@@ -106,11 +105,7 @@ def today_wellbeing(db: Session, elderly_id: int, user: User) -> WellbeingLog | 
 
 def create_incident(db: Session, elderly_id: int, data: IncidentCreate, user: User) -> Incident:
     _check_access(db, elderly_id, user)
-    incident = Incident(
-        elderly_id=elderly_id,
-        reported_by_id=user.id,
-        **data.model_dump(),
-    )
+    incident = Incident(elderly_id=elderly_id, reported_by_id=user.id, **data.model_dump())
     db.add(incident)
     db.commit()
     db.refresh(incident)
@@ -147,4 +142,75 @@ def delete_incident(db: Session, elderly_id: int, incident_id: int, user: User):
     if not incident:
         raise HealthError("Incidente não encontrado", 404)
     db.delete(incident)
+    db.commit()
+
+
+# ── DAILY NOTES ───────────────────────────────────────────
+
+def create_note(db: Session, elderly_id: int, data: DailyNoteCreate, user: User) -> DailyNote:
+    _check_access(db, elderly_id, user)
+    note = DailyNote(elderly_id=elderly_id, recorded_by_id=user.id, **data.model_dump())
+    db.add(note)
+    db.commit()
+    db.refresh(note)
+    return note
+
+
+def list_notes(db: Session, elderly_id: int, user: User, days: int = 30) -> list[DailyNote]:
+    _check_access(db, elderly_id, user)
+    since = date.today() - timedelta(days=days)
+    return (
+        db.query(DailyNote)
+        .filter(DailyNote.elderly_id == elderly_id, DailyNote.note_date >= since)
+        .order_by(DailyNote.note_date.desc(), DailyNote.created_at.desc())
+        .all()
+    )
+
+
+def delete_note(db: Session, elderly_id: int, note_id: int, user: User):
+    _check_access(db, elderly_id, user)
+    note = db.query(DailyNote).filter(DailyNote.id == note_id, DailyNote.elderly_id == elderly_id).first()
+    if not note:
+        raise HealthError("Nota não encontrada", 404)
+    db.delete(note)
+    db.commit()
+
+
+# ── CARE PLAN ─────────────────────────────────────────────
+
+def create_care_plan_item(db: Session, elderly_id: int, data: CarePlanItemCreate, user: User) -> CarePlanItem:
+    _check_access(db, elderly_id, user)
+    item = CarePlanItem(elderly_id=elderly_id, created_by_id=user.id, **data.model_dump())
+    db.add(item)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def list_care_plan(db: Session, elderly_id: int, user: User, include_inactive: bool = False) -> list[CarePlanItem]:
+    _check_access(db, elderly_id, user)
+    q = db.query(CarePlanItem).filter(CarePlanItem.elderly_id == elderly_id)
+    if not include_inactive:
+        q = q.filter(CarePlanItem.is_active == True)
+    return q.order_by(CarePlanItem.category, CarePlanItem.created_at).all()
+
+
+def update_care_plan_item(db: Session, elderly_id: int, item_id: int, data: CarePlanItemUpdate, user: User) -> CarePlanItem:
+    _check_access(db, elderly_id, user)
+    item = db.query(CarePlanItem).filter(CarePlanItem.id == item_id, CarePlanItem.elderly_id == elderly_id).first()
+    if not item:
+        raise HealthError("Item não encontrado", 404)
+    for k, v in data.model_dump(exclude_none=True).items():
+        setattr(item, k, v)
+    db.commit()
+    db.refresh(item)
+    return item
+
+
+def delete_care_plan_item(db: Session, elderly_id: int, item_id: int, user: User):
+    _check_access(db, elderly_id, user)
+    item = db.query(CarePlanItem).filter(CarePlanItem.id == item_id, CarePlanItem.elderly_id == elderly_id).first()
+    if not item:
+        raise HealthError("Item não encontrado", 404)
+    db.delete(item)
     db.commit()

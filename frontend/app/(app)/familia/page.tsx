@@ -3,6 +3,10 @@ import { useEffect, useState } from 'react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, FamilyMember } from '@/lib/types'
 
+function initials(name: string) {
+  return name.split(' ').map(w => w[0]).slice(0, 2).join('').toUpperCase()
+}
+
 export default function FamiliaPage() {
   const [elderly, setElderly] = useState<Elderly | null>(null)
   const [email, setEmail] = useState('')
@@ -25,6 +29,7 @@ export default function FamiliaPage() {
     if (!elderlyId) return
     setSending(true)
     setError('')
+    setSent(false)
     try {
       await api.inviteFamily(elderlyId, email, relation || undefined)
       setSent(true)
@@ -39,83 +44,124 @@ export default function FamiliaPage() {
   }
 
   async function remove(member: FamilyMember) {
-    if (!elderlyId || !confirm(`Remover ${member.invited_email}?`)) return
+    if (!elderlyId || !confirm(`Remover ${member.full_name ?? member.invited_email}?`)) return
     await api.removeFamilyMember(elderlyId, member.id)
     await load()
   }
 
   const members = elderly?.family_members ?? []
+  const active = members.filter(m => m.is_accepted)
+  const pending = members.filter(m => !m.is_accepted)
 
   return (
     <div>
-      <div className="page-header">
-        <h1 style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>Família</h1>
+      <div className="page-top">
+        <div>
+          <div className="page-title">👨‍👩‍👧 Família</div>
+          <div className="page-subtitle">{active.length} membro{active.length !== 1 ? 's' : ''} activo{active.length !== 1 ? 's' : ''}{pending.length > 0 ? ` · ${pending.length} convite${pending.length !== 1 ? 's' : ''} pendente${pending.length !== 1 ? 's' : ''}` : ''}</div>
+        </div>
       </div>
 
-      <div style={{ padding: 16 }}>
-        {/* invite form */}
-        <div className="card" style={{ marginBottom: 20 }}>
-          <h2 style={{ fontSize: 16, fontWeight: 700, margin: '0 0 14px' }}>Convidar familiar</h2>
-          <form onSubmit={invite} style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div>
-              <label className="label">Email</label>
-              <input className="input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@exemplo.com" required />
+      <div className="page-body">
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 340px', gap: 24, alignItems: 'start' }}>
+
+          {/* Members list */}
+          <div>
+            {members.length === 0 ? (
+              <div className="card">
+                <div className="empty-state">
+                  <div className="empty-state-icon">👨‍👩‍👧</div>
+                  <div className="empty-state-title">Ainda não há membros</div>
+                  <div className="empty-state-text">Convida familiares para acompanharem os cuidados em conjunto</div>
+                </div>
+              </div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+                {active.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                      Membros activos ({active.length})
+                    </div>
+                    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                      {active.map((m, i) => (
+                        <div key={m.id} className="member-item" style={{ padding: '16px 20px', borderBottom: i < active.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div className="member-avatar">
+                            {m.full_name ? initials(m.full_name) : m.invited_email[0].toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 700, fontSize: 15 }}>{m.full_name ?? m.invited_email}</div>
+                            {m.full_name && <div style={{ fontSize: 13, color: 'var(--text-3)' }}>{m.invited_email}</div>}
+                            <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
+                              {m.relation && (
+                                <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>{m.relation}</span>
+                              )}
+                              <span className="pill pill-taken">Activo</span>
+                            </div>
+                          </div>
+                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Remover">🗑</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {pending.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+                      Convites pendentes ({pending.length})
+                    </div>
+                    <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
+                      {pending.map((m, i) => (
+                        <div key={m.id} className="member-item" style={{ padding: '16px 20px', borderBottom: i < pending.length - 1 ? '1px solid var(--border)' : 'none', opacity: 0.75 }}>
+                          <div className="member-avatar" style={{ background: 'var(--bg)' }}>
+                            {m.invited_email[0].toUpperCase()}
+                          </div>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontWeight: 600, fontSize: 15 }}>{m.invited_email}</div>
+                            {m.relation && <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>{m.relation}</div>}
+                            <span className="pill pill-pending" style={{ marginTop: 5 }}>Aguarda aceitação</span>
+                          </div>
+                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Cancelar convite">🗑</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Invite form */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+            <div className="card card-lg">
+              <div className="section-title" style={{ marginBottom: 16 }}>✉️ Convidar familiar</div>
+              <form onSubmit={invite} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                <div>
+                  <label className="field-label">Email</label>
+                  <input className="field-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="email@exemplo.com" required />
+                </div>
+                <div>
+                  <label className="field-label">Relação (opcional)</label>
+                  <input className="field-input" value={relation} onChange={e => setRelation(e.target.value)} placeholder="Ex: Filha, Neto…" />
+                </div>
+                {error && <div className="alert-error">{error}</div>}
+                {sent && <div className="alert-success">✓ Convite enviado com sucesso!</div>}
+                <button className="btn-primary" type="submit" disabled={sending}>
+                  {sending ? 'A enviar…' : 'Enviar convite'}
+                </button>
+              </form>
             </div>
-            <div>
-              <label className="label">Relação (opcional)</label>
-              <input className="input" value={relation} onChange={e => setRelation(e.target.value)} placeholder="Ex: Filha, Neto…" />
+
+            <div className="card" style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', marginBottom: 8 }}>🔒 Partilha segura</div>
+              <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>
+                O familiar convidado receberá um email para criar a sua conta e aceder à informação do doente. Podes remover o acesso a qualquer momento.
+              </div>
             </div>
-            {error && <p style={{ color: 'var(--danger)', fontSize: 14, margin: 0 }}>{error}</p>}
-            {sent && <p style={{ color: 'var(--success)', fontSize: 14, margin: 0 }}>✓ Convite enviado!</p>}
-            <button className="btn-primary" type="submit" disabled={sending}>
-              {sending ? 'A enviar…' : 'Enviar convite'}
-            </button>
-          </form>
+          </div>
         </div>
 
-        {/* members list */}
-        <p style={{ fontWeight: 700, fontSize: 13, color: 'var(--muted)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '0 0 10px' }}>
-          Membros ({members.length})
-        </p>
-
-        {members.length === 0 ? (
-          <p style={{ color: 'var(--muted)', textAlign: 'center', padding: '32px 0', fontSize: 14 }}>
-            Ainda não há membros da família. Convida alguém!
-          </p>
-        ) : (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            {members.map(m => (
-              <div key={m.id} className="card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <div style={{ fontWeight: 600 }}>{m.full_name ?? m.invited_email}</div>
-                  {m.full_name && <div style={{ fontSize: 13, color: 'var(--muted)' }}>{m.invited_email}</div>}
-                  <div style={{ fontSize: 12, marginTop: 4, display: 'flex', gap: 6 }}>
-                    {m.relation && (
-                      <span style={{ background: 'var(--sage-light)', color: 'var(--sage-dark)', padding: '2px 8px', borderRadius: 99, fontWeight: 600 }}>
-                        {m.relation}
-                      </span>
-                    )}
-                    <span style={{
-                      background: m.is_accepted ? '#DCFCE7' : '#FEF9C3',
-                      color: m.is_accepted ? '#16A34A' : '#92400E',
-                      padding: '2px 8px',
-                      borderRadius: 99,
-                      fontWeight: 600,
-                    }}>
-                      {m.is_accepted ? 'Activo' : 'Pendente'}
-                    </span>
-                  </div>
-                </div>
-                <button
-                  onClick={() => remove(m)}
-                  style={{ background: 'none', border: 'none', color: 'var(--muted)', fontSize: 20, cursor: 'pointer' }}
-                >
-                  🗑
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
+        <style>{`@media(max-width:900px){.familia-grid{grid-template-columns:1fr!important}}`}</style>
       </div>
     </div>
   )

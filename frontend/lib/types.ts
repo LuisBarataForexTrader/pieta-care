@@ -50,6 +50,7 @@ export interface Medication {
   instructions: string | null
   schedule_times: string[]
   is_active: boolean
+  is_prn: boolean
   created_at: string
 }
 
@@ -88,6 +89,85 @@ export interface Task {
   is_completed: boolean
   priority: string
   created_at: string
+}
+
+export interface VitalSign {
+  id: number
+  elderly_id: number
+  recorded_by_name: string
+  measured_at: string
+  blood_pressure_sys: number | null
+  blood_pressure_dia: number | null
+  heart_rate: number | null
+  temperature: number | null
+  weight: number | null
+  oxygen_saturation: number | null
+  blood_glucose: number | null
+  notes: string | null
+  created_at: string
+}
+
+export interface WellbeingLog {
+  id: number
+  elderly_id: number
+  recorded_by_name: string
+  logged_date: string
+  mood: number
+  energy: number | null
+  pain_level: number | null
+  appetite: number | null
+  notes: string | null
+  created_at: string
+}
+
+export interface Incident {
+  id: number
+  elderly_id: number
+  reported_by_name: string
+  occurred_at: string
+  type: string
+  severity: string
+  description: string
+  actions_taken: string | null
+  follow_up_required: boolean
+  resolved: boolean
+  body_zone: string | null
+  created_at: string
+}
+
+export interface DailyNote {
+  id: number
+  elderly_id: number
+  recorded_by_name: string
+  note_date: string
+  shift: string
+  content: string
+  mood_observed: string | null
+  created_at: string
+}
+
+export interface CarePlanItem {
+  id: number
+  elderly_id: number
+  created_by_name: string
+  category: string
+  title: string
+  description: string | null
+  frequency: string | null
+  is_active: boolean
+  created_at: string
+}
+
+export interface MedicationLog {
+  id: number
+  medication_id: number
+  medication_name: string
+  dosage: string
+  confirmed_by_name: string
+  scheduled_time: string
+  confirmed_at: string
+  status: string
+  notes: string | null
 }
 
 export interface Document {

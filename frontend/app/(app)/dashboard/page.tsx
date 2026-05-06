@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import { api, getElderlyId } from '@/lib/api'
-import type { DailyScheduleItem, CalendarEvent, Task } from '@/lib/types'
+import type { DailyScheduleItem, CalendarEvent, Task, Elderly, Medication, WellbeingLog, VitalSign } from '@/lib/types'
 
 const STATUS_LABEL: Record<string, string> = { taken: 'Tomado', pending: 'Pendente', skipped: 'Saltado', missed: 'Perdido' }
 const STATUS_PILL: Record<string, string> = { taken: 'pill-taken', pending: 'pill-pending', skipped: 'pill-skipped', missed: 'pill-missed' }
@@ -31,25 +31,100 @@ function fmtEventDate(iso: string) {
   }
 }
 
+function openNearby(query: string) {
+  const go = (lat?: number, lng?: number) => {
+    const q = encodeURIComponent(query)
+    const url = lat && lng
+      ? `https://www.google.com/maps/search/${q}/@${lat},${lng},14z`
+      : `https://www.google.com/maps/search/${q}`
+    window.open(url, '_blank', 'noopener')
+  }
+  if (typeof navigator !== 'undefined' && navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      (pos) => go(pos.coords.latitude, pos.coords.longitude),
+      () => go(),
+      { timeout: 5000 }
+    )
+  } else {
+    go()
+  }
+}
+
+function emailDoctor(elderly: Elderly, medications: Medication[]) {
+  const active = medications.filter(m => m.is_active)
+  const age = elderly.date_of_birth
+    ? Math.floor((Date.now() - new Date(elderly.date_of_birth).getTime()) / (365.25 * 24 * 3600 * 1000))
+    : null
+
+  const lines = [
+    `RESUMO CLÍNICO — ${elderly.full_name}`,
+    `Gerado em ${new Date().toLocaleDateString('pt-PT')} via pieta.care`,
+    ``,
+    `═══ IDENTIFICAÇÃO ═══`,
+    `Nome: ${elderly.full_name}`,
+    age ? `Idade: ${age} anos` : '',
+    elderly.date_of_birth ? `Data de nascimento: ${new Date(elderly.date_of_birth).toLocaleDateString('pt-PT')}` : '',
+    elderly.blood_type ? `Grupo sanguíneo: ${elderly.blood_type}` : '',
+    elderly.health_number ? `Nº de utente (SNS): ${elderly.health_number}` : '',
+    elderly.address ? `Morada: ${elderly.address}` : '',
+    ``,
+    `═══ CONDIÇÕES MÉDICAS ═══`,
+    elderly.medical_conditions || 'Não especificado',
+    ``,
+    `═══ ALERGIAS ═══`,
+    elderly.allergies || 'Sem alergias conhecidas',
+    ``,
+    `═══ MEDICAÇÃO ACTUAL ═══`,
+    active.length === 0 ? 'Sem medicação registada' : active.map(m =>
+      `• ${m.name} ${m.dosage}${m.instructions ? ` (${m.instructions})` : ''}\n  Horários: ${m.schedule_times.join(', ')}`
+    ).join('\n'),
+    ``,
+    `═══ CONTACTO DE EMERGÊNCIA ═══`,
+    elderly.emergency_contact_name
+      ? `${elderly.emergency_contact_name}${elderly.emergency_contact_phone ? ` — ${elderly.emergency_contact_phone}` : ''}`
+      : 'Não especificado',
+    ``,
+    `---`,
+    `Relatório gerado automaticamente via pieta.care`,
+    `Para relatório completo com histórico de adesão: https://pieta.care/relatorio`,
+  ].filter(l => l !== null).join('\n')
+
+  const subject = encodeURIComponent(`Resumo Clínico — ${elderly.full_name}`)
+  const body = encodeURIComponent(lines)
+  window.location.href = `mailto:?subject=${subject}&body=${body}`
+}
+
 export default function Dashboard() {
   const [schedule, setSchedule] = useState<DailyScheduleItem[]>([])
   const [events, setEvents] = useState<CalendarEvent[]>([])
   const [tasks, setTasks] = useState<Task[]>([])
+  const [elderly, setElderly] = useState<Elderly | null>(null)
+  const [medications, setMedications] = useState<Medication[]>([])
+  const [wellbeing, setWellbeing] = useState<WellbeingLog | null | undefined>(undefined)
+  const [latestVital, setLatestVital] = useState<VitalSign | null>(null)
   const [loading, setLoading] = useState(true)
   const [confirming, setConfirming] = useState<string | null>(null)
   const elderlyId = getElderlyId()
 
   const load = useCallback(async () => {
     if (!elderlyId) return
-    const [sched, evs, tks] = await Promise.all([
+    const [sched, evs, tks, elderlyList, meds, wb, vitals] = await Promise.all([
       api.dailySchedule(elderlyId),
       api.listEvents(elderlyId),
       api.listTasks(elderlyId),
+      api.listElderly(),
+      api.listMedications(elderlyId),
+      api.todayWellbeing(elderlyId),
+      api.listVitals(elderlyId, 7),
     ])
     setSchedule(sched)
     const now = new Date()
     setEvents(evs.filter(e => new Date(e.starts_at) >= now).sort((a, b) => a.starts_at.localeCompare(b.starts_at)).slice(0, 4))
     setTasks(tks.filter(t => !t.is_completed).slice(0, 5))
+    setElderly(elderlyList.find(e => e.id === elderlyId) ?? elderlyList[0] ?? null)
+    setMedications(meds)
+    setWellbeing(wb)
+    setLatestVital(vitals[0] ?? null)
     setLoading(false)
   }, [elderlyId])
 
@@ -282,18 +357,158 @@ export default function Dashboard() {
                   )}
                 </div>
 
-                {/* Info card */}
-                <div className="card" style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', marginBottom: 8 }}>🔒 Dados seguros</div>
-                  <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>
-                    Toda a informação de saúde está encriptada e só é acessível aos membros da família que convidares.
+                {/* Wellbeing check-in */}
+                {wellbeing === null && (
+                  <Link href="/saude" style={{ textDecoration: 'none' }}>
+                    <div className="card" style={{ border: '1.5px dashed var(--brand)', background: 'var(--brand-light)', cursor: 'pointer' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: 28 }}>😊</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)' }}>Como está hoje?</div>
+                          <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Regista o bem-estar diário</div>
+                        </div>
+                        <span style={{ fontSize: 13, color: 'var(--brand)', fontWeight: 600 }}>Registar →</span>
+                      </div>
+                    </div>
+                  </Link>
+                )}
+                {wellbeing && (
+                  <div className="card">
+                    <div className="section-header" style={{ marginBottom: 8 }}>
+                      <div className="section-title">😊 Bem-estar hoje</div>
+                      <Link href="/saude" className="section-link">Ver →</Link>
+                    </div>
+                    <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
+                      <span style={{ fontSize: 36 }}>{['','😞','😟','😐','🙂','😄'][wellbeing.mood]}</span>
+                      <div>
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>{['','Mau','Fraco','Razoável','Bom','Muito bom'][wellbeing.mood]}</div>
+                        {wellbeing.pain_level !== null && wellbeing.pain_level > 0 && (
+                          <div style={{ fontSize: 12, color: wellbeing.pain_level >= 7 ? '#C53030' : wellbeing.pain_level >= 4 ? '#D69E2E' : 'var(--text-3)' }}>
+                            Dor: {wellbeing.pain_level}/10
+                          </div>
+                        )}
+                        {wellbeing.notes && <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2, fontStyle: 'italic' }}>{wellbeing.notes}</div>}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Latest vitals */}
+                {latestVital && (
+                  <div className="card">
+                    <div className="section-header" style={{ marginBottom: 10 }}>
+                      <div className="section-title">❤️ Últimos sinais vitais</div>
+                      <Link href="/saude" className="section-link">Ver →</Link>
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      {latestVital.blood_pressure_sys && latestVital.blood_pressure_dia && (
+                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Tensão</div>
+                          <div style={{ fontSize: 16, fontWeight: 700 }}>{latestVital.blood_pressure_sys}/{latestVital.blood_pressure_dia}</div>
+                        </div>
+                      )}
+                      {latestVital.heart_rate && (
+                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Pulso</div>
+                          <div style={{ fontSize: 16, fontWeight: 700 }}>{latestVital.heart_rate} bpm</div>
+                        </div>
+                      )}
+                      {latestVital.oxygen_saturation && (
+                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>SpO₂</div>
+                          <div style={{ fontSize: 16, fontWeight: 700 }}>{latestVital.oxygen_saturation}%</div>
+                        </div>
+                      )}
+                      {latestVital.temperature && (
+                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
+                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Temp.</div>
+                          <div style={{ fontSize: 16, fontWeight: 700 }}>{latestVital.temperature}°C</div>
+                        </div>
+                      )}
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 8 }}>
+                      {new Date(latestVital.measured_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })} · por {latestVital.recorded_by_name}
+                    </div>
+                  </div>
+                )}
+
+                {/* Health services */}
+                <div className="card">
+                  <div className="section-title" style={{ marginBottom: 14 }}>🏥 Serviços de saúde</div>
+
+                  {/* Emergency numbers */}
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: 14 }}>
+                    <a href="tel:112" style={{ textDecoration: 'none' }}>
+                      <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: 20, marginBottom: 3 }}>🚨</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: '#C53030' }}>112</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)' }}>Emergência</div>
+                      </div>
+                    </a>
+                    <a href="tel:808242424" style={{ textDecoration: 'none' }}>
+                      <div style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)', borderRadius: 10, padding: '12px', textAlign: 'center' }}>
+                        <div style={{ fontSize: 20, marginBottom: 3 }}>📞</div>
+                        <div style={{ fontSize: 13, fontWeight: 800, color: 'var(--brand)' }}>SNS 24</div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)' }}>808 24 24 24</div>
+                      </div>
+                    </a>
+                  </div>
+
+                  {/* Nearby buttons */}
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <button
+                      onClick={() => openNearby('hospital')}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '11px 14px', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: 'var(--text-2)', width: '100%', textAlign: 'left' }}
+                    >
+                      <span style={{ fontSize: 18 }}>🏥</span>
+                      <span style={{ flex: 1 }}>Hospitais próximos</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>→</span>
+                    </button>
+                    <button
+                      onClick={() => openNearby('centro de saúde')}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '11px 14px', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: 'var(--text-2)', width: '100%', textAlign: 'left' }}
+                    >
+                      <span style={{ fontSize: 18 }}>🏢</span>
+                      <span style={{ flex: 1 }}>Centros de saúde</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>→</span>
+                    </button>
+                    <button
+                      onClick={() => openNearby('farmácia')}
+                      style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '11px 14px', cursor: 'pointer', fontSize: 14, fontWeight: 600, color: 'var(--text-2)', width: '100%', textAlign: 'left' }}
+                    >
+                      <span style={{ fontSize: 18 }}>💊</span>
+                      <span style={{ flex: 1 }}>Farmácias</span>
+                      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>→</span>
+                    </button>
                   </div>
                 </div>
+
+                {/* Medical report */}
+                <div className="card" style={{ background: 'linear-gradient(135deg, var(--brand) 0%, #1E4A38 100%)', border: 'none' }}>
+                  <div style={{ color: 'white', marginBottom: 10 }}>
+                    <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 4 }}>📋 Relatório médico</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5 }}>
+                      Resumo completo para apresentar ao médico — medicação, alergias, histórico de adesão e consultas.
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <Link href="/relatorio">
+                      <button style={{ width: '100%', background: 'white', color: 'var(--brand)', border: 'none', borderRadius: 10, padding: '11px', fontSize: 14, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                        📥 Gerar / imprimir relatório
+                      </button>
+                    </Link>
+                    <button
+                      onClick={() => elderly && emailDoctor(elderly, medications)}
+                      disabled={!elderly}
+                      style={{ width: '100%', background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.3)', borderRadius: 10, padding: '11px', fontSize: 14, fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}
+                    >
+                      📧 Enviar por email ao médico
+                    </button>
+                  </div>
+                </div>
+
               </div>
             </div>
-
-            {/* Mobile: hide right column on small screens */}
-            <style>{`@media(max-width:900px){.dashboard-grid-right{display:none}}`}</style>
           </>
         )}
       </div>
