@@ -338,8 +338,8 @@ export default function LandingPage() {
               </div>
               <div>
                 <p style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: '0.09em', marginBottom: 14 }}>Legal</p>
-                {[['Privacidade', '#'], ['Termos de uso', '#'], ['Cookies', '#']].map(([l, h]) => (
-                  <a key={String(l)} href={String(h)} style={{ display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 9, fontWeight: 500 }}>{String(l)}</a>
+                {[['Privacidade', '/privacidade'], ['Termos de uso', '/termos']].map(([l, h]) => (
+                  <Link key={String(l)} href={String(h)} style={{ display: 'block', fontSize: 14, color: 'rgba(255,255,255,0.5)', textDecoration: 'none', marginBottom: 9, fontWeight: 500 }}>{String(l)}</Link>
                 ))}
               </div>
             </nav>
