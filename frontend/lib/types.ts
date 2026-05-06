@@ -72,6 +72,9 @@ export interface CalendarEvent {
   title: string
   description: string | null
   location: string | null
+  doctor_name: string | null
+  preparation_notes: string | null
+  items_to_bring: string | null
   starts_at: string
   ends_at: string | null
   event_type: string

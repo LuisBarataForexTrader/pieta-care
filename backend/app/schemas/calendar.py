@@ -13,6 +13,8 @@ class EventCreateRequest(BaseModel):
     ends_at: datetime | None = None
     location: str | None = None
     doctor_name: str | None = None
+    preparation_notes: str | None = None
+    items_to_bring: str | None = None
     reminder_minutes: int = 60
 
     @field_validator("event_type")
@@ -31,6 +33,8 @@ class EventUpdateRequest(BaseModel):
     ends_at: datetime | None = None
     location: str | None = None
     doctor_name: str | None = None
+    preparation_notes: str | None = None
+    items_to_bring: str | None = None
     reminder_minutes: int | None = None
     is_completed: bool | None = None
 
@@ -47,6 +51,8 @@ class EventResponse(BaseModel):
     ends_at: datetime | None
     location: str | None
     doctor_name: str | None
+    preparation_notes: str | None
+    items_to_bring: str | None
     reminder_minutes: int
     is_completed: bool
     created_at: datetime

@@ -18,7 +18,7 @@ export default function CalendarioPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [tab, setTab] = useState<'eventos' | 'tarefas'>('eventos')
   const [showForm, setShowForm] = useState(false)
-  const [eForm, setEForm] = useState({ title: '', starts_at: '', location: '', description: '' })
+  const [eForm, setEForm] = useState({ title: '', starts_at: '', location: '', doctor_name: '', preparation_notes: '', items_to_bring: '', description: '' })
   const [tForm, setTForm] = useState({ title: '', due_date: '', description: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -40,7 +40,7 @@ export default function CalendarioPage() {
     setError('')
     try {
       await api.createEvent(elderlyId, { ...eForm, ends_at: undefined })
-      setEForm({ title: '', starts_at: '', location: '', description: '' })
+      setEForm({ title: '', starts_at: '', location: '', doctor_name: '', preparation_notes: '', items_to_bring: '', description: '' })
       setShowForm(false)
       await load()
     } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Erro') }
@@ -138,8 +138,22 @@ export default function CalendarioPage() {
                 <input className="field-input" type="datetime-local" value={eForm.starts_at} onChange={e => setEForm(f => ({ ...f, starts_at: e.target.value }))} required />
               </div>
               <div>
-                <label className="field-label">Local (opcional)</label>
+                <label className="field-label">Local</label>
                 <input className="field-input" value={eForm.location} onChange={e => setEForm(f => ({ ...f, location: e.target.value }))} placeholder="Ex: Hospital Santa Maria" />
+              </div>
+            </div>
+            <div>
+              <label className="field-label">Médico / especialista</label>
+              <input className="field-input" value={eForm.doctor_name} onChange={e => setEForm(f => ({ ...f, doctor_name: e.target.value }))} placeholder="Ex: Dr. João Silva — Cardiologista" />
+            </div>
+            <div className="grid-2">
+              <div>
+                <label className="field-label">Preparação necessária</label>
+                <textarea className="field-input" value={eForm.preparation_notes} onChange={e => setEForm(f => ({ ...f, preparation_notes: e.target.value }))} placeholder="Ex: Jejum de 8h, não tomar medicação de manhã…" rows={3} />
+              </div>
+              <div>
+                <label className="field-label">Coisas a levar</label>
+                <textarea className="field-input" value={eForm.items_to_bring} onChange={e => setEForm(f => ({ ...f, items_to_bring: e.target.value }))} placeholder="Ex: Cartão de cidadão, lista de medicamentos, últimos exames…" rows={3} />
               </div>
             </div>
             {error && <div className="alert-error">{error}</div>}
@@ -190,8 +204,8 @@ export default function CalendarioPage() {
                     {upcomingEvents.map((ev, i) => {
                       const d = fmtEventDate(ev.starts_at)
                       return (
-                        <div key={ev.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: i < upcomingEvents.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                          <div className="event-date-box">
+                        <div key={ev.id} style={{ display: 'flex', alignItems: 'flex-start', gap: 16, padding: '16px 20px', borderBottom: i < upcomingEvents.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                          <div className="event-date-box" style={{ flexShrink: 0 }}>
                             <div className="event-day">{d.day}</div>
                             <div className="event-month">{d.month}</div>
                           </div>
@@ -201,6 +215,19 @@ export default function CalendarioPage() {
                               🕐 {d.time}
                               {ev.location && <> · 📍 {ev.location}</>}
                             </div>
+                            {ev.doctor_name && (
+                              <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}>👨‍⚕️ {ev.doctor_name}</div>
+                            )}
+                            {ev.preparation_notes && (
+                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, padding: '6px 8px', background: 'var(--surface-2)', borderRadius: 6, borderLeft: '3px solid #D69E2E' }}>
+                                <span style={{ fontWeight: 700, color: '#D69E2E' }}>Preparação: </span>{ev.preparation_notes}
+                              </div>
+                            )}
+                            {ev.items_to_bring && (
+                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, padding: '6px 8px', background: 'var(--surface-2)', borderRadius: 6, borderLeft: '3px solid var(--brand)' }}>
+                                <span style={{ fontWeight: 700, color: 'var(--brand)' }}>Levar: </span>{ev.items_to_bring}
+                              </div>
+                            )}
                           </div>
                           <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
                         </div>

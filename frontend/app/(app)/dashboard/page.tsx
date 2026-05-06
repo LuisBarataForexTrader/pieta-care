@@ -253,7 +253,7 @@ export default function Dashboard() {
               </div>
 
               {/* RIGHT SIDEBAR */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 24, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
 
                 {/* ── Patient identity card ── */}
                 {elderly && (
@@ -328,37 +328,28 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {/* ── Vitals (compact, only if different from stat card) ── */}
-                {latestVital && (latestVital.oxygen_saturation || latestVital.temperature || latestVital.weight) && (
-                  <div className="card">
-                    <div className="section-header" style={{ marginBottom: 10 }}>
-                      <div className="section-title">❤️ Sinais vitais</div>
+                {/* ── Vitals compact ── */}
+                {latestVital && (
+                  <div className="card" style={{ padding: '12px 16px' }}>
+                    <div className="section-header" style={{ marginBottom: 8 }}>
+                      <div className="section-title" style={{ fontSize: 13 }}>❤️ Sinais vitais</div>
                       <Link href="/saude" className="section-link">Ver →</Link>
                     </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {latestVital.blood_pressure_sys && latestVital.blood_pressure_dia && (
-                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Tensão</div>
-                          <div style={{ fontSize: 15, fontWeight: 700 }}>{latestVital.blood_pressure_sys}/{latestVital.blood_pressure_dia}</div>
-                        </div>
-                      )}
-                      {latestVital.heart_rate && (
-                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Pulso</div>
-                          <div style={{ fontSize: 15, fontWeight: 700 }}>{latestVital.heart_rate} bpm</div>
-                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
+                          {latestVital.blood_pressure_sys}/{latestVital.blood_pressure_dia} mmHg
+                        </span>
                       )}
                       {latestVital.oxygen_saturation && (
-                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>SpO₂</div>
-                          <div style={{ fontSize: 15, fontWeight: 700 }}>{latestVital.oxygen_saturation}%</div>
-                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
+                          SpO₂ {latestVital.oxygen_saturation}%
+                        </span>
                       )}
                       {latestVital.temperature && (
-                        <div style={{ background: 'var(--surface-2)', borderRadius: 8, padding: '8px 10px' }}>
-                          <div style={{ fontSize: 10, color: 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase' }}>Temp.</div>
-                          <div style={{ fontSize: 15, fontWeight: 700 }}>{latestVital.temperature}°C</div>
-                        </div>
+                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
+                          {latestVital.temperature}°C
+                        </span>
                       )}
                     </div>
                   </div>
@@ -385,6 +376,9 @@ export default function Dashboard() {
                               🕐 {d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
                               {ev.location && <> · 📍 {ev.location}</>}
                             </div>
+                            {ev.doctor_name && (
+                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3 }}>👨‍⚕️ {ev.doctor_name}</div>
+                            )}
                           </div>
                         </div>
                       )

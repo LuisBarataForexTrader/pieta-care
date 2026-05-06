@@ -36,7 +36,7 @@ def upload_file(file_bytes: bytes, filename: str, mime_type: str, elderly_id: in
 
 
 def upload_photo(file_bytes: bytes, filename: str, mime_type: str, elderly_id: int) -> str:
-    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "bin"
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "jpg"
     key = f"elderly/{elderly_id}/photos/{uuid.uuid4()}.{ext}"
 
     get_client().put_object(
@@ -44,11 +44,18 @@ def upload_photo(file_bytes: bytes, filename: str, mime_type: str, elderly_id: i
         Key=key,
         Body=file_bytes,
         ContentType=mime_type,
-        ACL="public-read",
+        ACL="private",
     )
+    return key
 
-    endpoint_without_https = settings.HETZNER_STORAGE_ENDPOINT.replace("https://", "")
-    return f"https://{settings.HETZNER_STORAGE_BUCKET}.{endpoint_without_https}/{key}"
+
+def get_photo_url(key: str, expires: int = 604800) -> str:
+    """Generate a 7-day presigned URL for a photo key."""
+    return get_client().generate_presigned_url(
+        "get_object",
+        Params={"Bucket": settings.HETZNER_STORAGE_BUCKET, "Key": key},
+        ExpiresIn=expires,
+    )
 
 
 def get_presigned_url(key: str, expires_in: int = 3600) -> str:

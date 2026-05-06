@@ -17,6 +17,8 @@ class CalendarEvent(Base):
     ends_at: Mapped[datetime | None] = mapped_column(DateTime)
     location: Mapped[str | None] = mapped_column(String(255))
     doctor_name: Mapped[str | None] = mapped_column(String(255))
+    preparation_notes: Mapped[str | None] = mapped_column(Text)
+    items_to_bring: Mapped[str | None] = mapped_column(Text)
     reminder_minutes: Mapped[int] = mapped_column(default=60)
     is_completed: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

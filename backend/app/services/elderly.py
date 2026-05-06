@@ -45,6 +45,12 @@ def create_elderly(db: Session, data: ElderlyCreateRequest, user: User) -> Elder
     return elderly
 
 
+def _resolve_photo(elderly: ElderlyProfile) -> ElderlyProfile:
+    if elderly.photo_url and elderly.photo_url.startswith("elderly/"):
+        elderly.photo_url = storage.get_photo_url(elderly.photo_url)
+    return elderly
+
+
 def get_elderly(db: Session, elderly_id: int, user: User) -> ElderlyProfile:
     membership = _get_membership(db, elderly_id, user)
     if not membership:
@@ -57,7 +63,7 @@ def get_elderly(db: Session, elderly_id: int, user: User) -> ElderlyProfile:
     if not elderly:
         raise ElderlyError("Perfil não encontrado", 404)
 
-    return elderly
+    return _resolve_photo(elderly)
 
 
 def list_elderly(db: Session, user: User) -> list[ElderlyProfile]:
@@ -67,7 +73,8 @@ def list_elderly(db: Session, user: User) -> list[ElderlyProfile]:
     ).all()
 
     elderly_ids = [m.elderly_id for m in memberships]
-    return db.query(ElderlyProfile).filter(ElderlyProfile.id.in_(elderly_ids)).all()
+    profiles = db.query(ElderlyProfile).filter(ElderlyProfile.id.in_(elderly_ids)).all()
+    return [_resolve_photo(p) for p in profiles]
 
 
 def update_elderly(
@@ -144,12 +151,12 @@ def upload_elderly_photo(
     if not elderly:
         raise ElderlyError("Perfil não encontrado", 404)
 
-    photo_url = storage.upload_photo(file_bytes, filename, mime_type, elderly_id)
+    key = storage.upload_photo(file_bytes, filename, mime_type, elderly_id)
 
-    elderly.photo_url = photo_url
+    elderly.photo_url = key
     db.commit()
 
-    return photo_url
+    return storage.get_photo_url(key)
 
 
 def remove_family_member(
