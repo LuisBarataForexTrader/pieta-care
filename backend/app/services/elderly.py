@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session, joinedload
 
 from app.core.auth import create_invite_token
+from app.core.email import send_email, invite_email_html
 from app.models.elderly import ElderlyProfile
 from app.models.family import FamilyMember
 from app.models.user import User
@@ -119,9 +120,16 @@ def invite_family_member(
     db.add(new_member)
     db.commit()
 
-    # In production: send email with invite link
     invite_link = f"https://pieta.care/invite?token={invite_token}"
-    return {"message": "Convite enviado", "invite_link": invite_link}
+
+    elderly_obj = db.query(ElderlyProfile).filter(ElderlyProfile.id == elderly_id).first()
+    elderly_name = elderly_obj.full_name if elderly_obj else "um familiar"
+
+    html = invite_email_html(elderly_name, user.full_name, invite_link, data.relation)
+    sent = send_email(data.email, f"Convite pieta.care — {elderly_name}", html)
+
+    msg = "Convite enviado" if sent else "Convite criado (email não configurado — partilha o link manualmente)"
+    return {"message": msg, "invite_link": invite_link}
 
 
 def remove_family_member(
