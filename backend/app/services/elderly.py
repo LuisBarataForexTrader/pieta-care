@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session, joinedload
 
 from app.core.auth import create_invite_token
 from app.core.email import send_email, invite_email_html
+from app.core import storage
 from app.models.elderly import ElderlyProfile
 from app.models.family import FamilyMember
 from app.models.user import User
@@ -130,6 +131,25 @@ def invite_family_member(
 
     msg = "Convite enviado" if sent else "Convite criado (email não configurado — partilha o link manualmente)"
     return {"message": msg, "invite_link": invite_link}
+
+
+def upload_elderly_photo(
+    db: Session, elderly_id: int, file_bytes: bytes, filename: str, mime_type: str, user: User
+) -> str:
+    membership = _get_membership(db, elderly_id, user)
+    if not membership:
+        raise ElderlyError("Sem acesso a este perfil", 403)
+
+    elderly = db.query(ElderlyProfile).filter(ElderlyProfile.id == elderly_id).first()
+    if not elderly:
+        raise ElderlyError("Perfil não encontrado", 404)
+
+    photo_url = storage.upload_photo(file_bytes, filename, mime_type, elderly_id)
+
+    elderly.photo_url = photo_url
+    db.commit()
+
+    return photo_url
 
 
 def remove_family_member(

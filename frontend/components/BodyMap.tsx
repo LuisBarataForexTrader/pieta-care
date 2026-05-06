@@ -23,127 +23,182 @@ interface BodyMapProps {
 }
 
 export default function BodyMap({ value, onChange, readonly = false, size = 'md' }: BodyMapProps) {
-  const IDLE   = '#DDE4EC'
-  const ACTIVE = '#2A6049'
-  const S_IDLE = '#8FA8BA'
-  const S_ON   = '#1A4035'
-  const T_IDLE = '#4A6572'
-  const T_ON   = '#FFFFFF'
+  const IDLE     = '#DCE7EF'
+  const ACTIVE   = '#2A6049'
+  const S_IDLE   = '#8FAFC0'
+  const S_ON     = '#1A4035'
+  const OUTLINE  = '#C4D6E0'   // subtle full-body silhouette outline
 
-  const w = size === 'sm' ? 118 : 172
-  const h = size === 'sm' ? 298 : 434
+  const w = size === 'sm' ? 116 : 170
+  const h = size === 'sm' ? 296 : 434
 
   function zp(id: string) {
     const on = value === id
     return {
-      fill:        on ? ACTIVE : IDLE,
-      stroke:      on ? S_ON   : S_IDLE,
-      strokeWidth: on ? 1.6    : 0.9,
+      fill: on ? ACTIVE : IDLE,
+      stroke: on ? S_ON : S_IDLE,
+      strokeWidth: on ? 1.8 : 0.8,
       strokeLinejoin: 'round' as const,
-      style: { transition: 'fill .14s, stroke .14s', cursor: readonly ? 'default' : 'pointer' },
+      style: { transition: 'fill .12s, stroke .12s', cursor: readonly ? 'default' : 'pointer' },
       onClick: readonly ? undefined : () => onChange?.(value === id ? null : id),
     }
   }
 
-  function t(id: string) { return value === id ? T_ON : T_IDLE }
-  const showLabels = !readonly || size === 'md'
+  function tc(id: string) { return value === id ? '#fff' : '#4A6677' }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8 }}>
-      <svg viewBox="0 0 200 510" width={w} height={h} style={{ display: 'block', overflow: 'visible' }}>
+      <svg viewBox="0 0 200 500" width={w} height={h} style={{ display: 'block', overflow: 'visible' }}>
 
-        {/* ── ARMS (rendered before torso so torso shoulder overlaps) ── */}
+        {/* ── SILHOUETTE BACKGROUND — gives the "body" shape even unselected ── */}
+        <g style={{ pointerEvents: 'none' }}>
+          {/* Full-body outline in very light stroke so it reads as one figure */}
+          {/* Left arm silhouette */}
+          <path d="M 52,86 C 52,100 50,122 46,146 C 42,168 40,186 38,202 L 22,202 C 20,188 16,170 14,148 C 12,126 14,104 18,94 C 22,84 26,80 32,82 Z"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          {/* Right arm silhouette */}
+          <path d="M 148,86 C 148,100 150,122 154,146 C 158,168 160,186 162,202 L 178,202 C 180,188 184,170 186,148 C 188,126 186,104 182,94 C 178,84 174,80 168,82 Z"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          {/* Torso+legs silhouette */}
+          <path d="M 52,86 Q 58,65 100,63 Q 142,65 148,86 C 148,118 146,148 144,170 L 144,230 C 144,236 136,240 100,240 C 64,240 56,236 56,230 L 56,170 C 54,148 52,118 52,86 Z"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          <path d="M 50,230 L 50,268 Q 50,286 100,288 Q 150,286 150,268 L 150,230"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          <path d="M 51,288 L 51,372 Q 51,388 76,390 Q 100,388 100,372 L 100,288"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          <path d="M 149,288 L 149,372 Q 149,388 124,390 Q 100,388 100,372 L 100,288"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          <path d="M 53,390 L 53,460 Q 53,474 76,476 Q 98,474 97,462 L 95,390"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+          <path d="M 147,390 L 147,460 Q 147,474 124,476 Q 102,474 103,462 L 105,390"
+            fill="none" stroke={OUTLINE} strokeWidth={1} />
+        </g>
 
-        {/* Left arm — tapered parallelogram wider at shoulder */}
-        <path d="M 17,92 L 50,80 L 52,194 L 21,204
-                 C 18,204 15,202 15,199 Z"
+        {/* ── ARMS — rendered before torso so torso shoulder overlaps cleanly ── */}
+
+        {/* Left arm — properly curved: wider at bicep, narrows to wrist */}
+        <path d="M 52,86
+                 C 52,100 50,122 46,146
+                 C 42,168 40,186 38,202
+                 L 22,202
+                 C 20,188 16,170 14,148
+                 C 12,126 14,104 18,94
+                 C 22,84 26,80 32,82
+                 Z"
               {...zp('braco_esq')} />
 
-        {/* Right arm */}
-        <path d="M 183,92 L 150,80 L 148,194 L 179,204
-                 C 182,204 185,202 185,199 Z"
+        {/* Right arm — mirror */}
+        <path d="M 148,86
+                 C 148,100 150,122 154,146
+                 C 158,168 160,186 162,202
+                 L 178,202
+                 C 180,188 184,170 186,148
+                 C 188,126 186,104 182,94
+                 C 178,84 174,80 168,82
+                 Z"
               {...zp('braco_dir')} />
 
         {/* ── TORSO ── */}
 
-        {/* Thorax — arch at top follows shoulder/neck curve */}
+        {/* Thorax — arch at shoulders, slight waist taper on sides */}
         <path d="M 52,86
-                 C 54,72 66,65 100,64
-                 C 134,65 146,72 148,86
-                 L 148,166 L 52,166 Z"
+                 Q 58,65 100,63
+                 Q 142,65 148,86
+                 C 148,118 146,148 144,170
+                 L 56,170
+                 C 54,148 52,118 52,86 Z"
               {...zp('torax')} />
 
         {/* Abdomen */}
-        <path d="M 54,166 L 54,228
-                 C 54,234 62,238 100,238
-                 C 138,238 146,234 146,228
-                 L 146,166 Z"
+        <path d="M 56,170 L 56,230
+                 C 56,236 64,240 100,240
+                 C 136,240 144,236 144,230
+                 L 144,170 Z"
               {...zp('abdomem')} />
 
-        {/* Bacia / Hips — slightly wider than abdomen */}
-        <path d="M 50,224 L 50,266
-                 Q 50,282 100,284
-                 Q 150,282 150,266
-                 L 150,224
-                 C 150,232 138,238 100,238
-                 C 62,238 50,232 50,224 Z"
+        {/* Pelvis / Bacia — wider hip flare */}
+        <path d="M 50,226 L 50,268
+                 Q 50,286 100,288
+                 Q 150,286 150,268
+                 L 150,226
+                 C 150,234 136,240 100,240
+                 C 64,240 50,234 50,226 Z"
               {...zp('bacia')} />
 
         {/* ── THIGHS ── */}
-        <path d="M 52,284 L 52,370
-                 Q 52,384 76,386
-                 Q 100,384 100,370
-                 L 100,284 Z"
+        <path d="M 51,288 L 51,370
+                 Q 51,388 76,390
+                 Q 100,388 100,370
+                 L 100,288 Z"
               {...zp('coxa_esq')} />
 
-        <path d="M 148,284 L 148,370
-                 Q 148,384 124,386
-                 Q 100,384 100,370
-                 L 100,284 Z"
+        <path d="M 149,288 L 149,370
+                 Q 149,388 124,390
+                 Q 100,388 100,370
+                 L 100,288 Z"
               {...zp('coxa_dir')} />
 
         {/* ── LOWER LEGS ── */}
-        <path d="M 54,386 L 54,458
-                 Q 54,470 76,472
-                 Q 98,470 98,460
-                 L 96,386 Z"
+        <path d="M 53,390 L 53,460
+                 Q 53,474 76,476
+                 Q 98,474 97,462
+                 L 95,390 Z"
               {...zp('perna_esq')} />
 
-        <path d="M 146,386 L 146,458
-                 Q 146,470 124,472
-                 Q 102,470 102,460
-                 L 104,386 Z"
+        <path d="M 147,390 L 147,460
+                 Q 147,474 124,476
+                 Q 102,474 103,462
+                 L 105,390 Z"
               {...zp('perna_dir')} />
 
         {/* ── HANDS ── */}
-        <ellipse cx={18}  cy={216} rx={14} ry={19} {...zp('mao_esq')} />
-        <ellipse cx={182} cy={216} rx={14} ry={19} {...zp('mao_dir')} />
+        <ellipse cx={20}  cy={214} rx={13} ry={19} {...zp('mao_esq')} />
+        <ellipse cx={180} cy={214} rx={13} ry={19} {...zp('mao_dir')} />
 
-        {/* ── NECK FILL (not clickable, blends with torax) ── */}
-        <rect x={89} y={62} width={22} height={26} rx={6}
+        {/* ── ELBOW JOINT MARKERS (anatomical detail) ── */}
+        <g style={{ pointerEvents: 'none' }}>
+          <circle cx={15} cy={150} r={3.5}
+            fill={value === 'braco_esq' ? '#1A4035' : '#A8C4D0'}
+            stroke={value === 'braco_esq' ? '#0E2820' : '#8FAFC0'}
+            strokeWidth={0.6} />
+          <circle cx={185} cy={150} r={3.5}
+            fill={value === 'braco_dir' ? '#1A4035' : '#A8C4D0'}
+            stroke={value === 'braco_dir' ? '#0E2820' : '#8FAFC0'}
+            strokeWidth={0.6} />
+          {/* Knee markers */}
+          <circle cx={73}  cy={390} r={3.5}
+            fill={value === 'coxa_esq' || value === 'perna_esq' ? '#1A4035' : '#A8C4D0'}
+            stroke="#8FAFC0" strokeWidth={0.6} />
+          <circle cx={127} cy={390} r={3.5}
+            fill={value === 'coxa_dir' || value === 'perna_dir' ? '#1A4035' : '#A8C4D0'}
+            stroke="#8FAFC0" strokeWidth={0.6} />
+        </g>
+
+        {/* ── NECK FILL — blends with thorax ── */}
+        <rect x={89} y={61} width={22} height={27} rx={7}
           fill={value === 'torax' ? ACTIVE : IDLE}
           stroke={value === 'torax' ? S_ON : S_IDLE}
-          strokeWidth={value === 'torax' ? 1.6 : 0.9}
+          strokeWidth={value === 'torax' ? 1.8 : 0.8}
           style={{ pointerEvents: 'none' }} />
 
-        {/* ── HEAD (rendered last — always on top) ── */}
-        <ellipse cx={100} cy={34} rx={26} ry={30} {...zp('cabeca')} />
+        {/* ── HEAD — always rendered last (on top) ── */}
+        <ellipse cx={100} cy={34} rx={25} ry={29} {...zp('cabeca')} />
 
         {/* ── LABELS ── */}
-        {showLabels && (
+        {!readonly && (
           <g style={{ pointerEvents: 'none', userSelect: 'none' }}>
-            <text x={100} y={38}  textAnchor="middle" fontSize={8.5} fontWeight={700} fill={t('cabeca')}>Cabeça</text>
-            <text x={100} y={122} textAnchor="middle" fontSize={8}   fontWeight={700} fill={t('torax')}>Tórax</text>
-            <text x={100} y={202} textAnchor="middle" fontSize={7.5} fontWeight={700} fill={t('abdomem')}>Abdómen</text>
-            <text x={100} y={255} textAnchor="middle" fontSize={7}   fontWeight={700} fill={t('bacia')}>Bacia</text>
-            <text x={33}  y={140} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={t('braco_esq')}>Braço E</text>
-            <text x={167} y={140} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={t('braco_dir')}>Braço D</text>
-            <text x={18}  y={220} textAnchor="middle" fontSize={5.5} fontWeight={700} fill={t('mao_esq')}>Mão E</text>
-            <text x={182} y={220} textAnchor="middle" fontSize={5.5} fontWeight={700} fill={t('mao_dir')}>Mão D</text>
-            <text x={73}  y={336} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={t('coxa_esq')}>Coxa E</text>
-            <text x={127} y={336} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={t('coxa_dir')}>Coxa D</text>
-            <text x={73}  y={426} textAnchor="middle" fontSize={6}   fontWeight={700} fill={t('perna_esq')}>Perna E</text>
-            <text x={127} y={426} textAnchor="middle" fontSize={6}   fontWeight={700} fill={t('perna_dir')}>Perna D</text>
+            <text x={100} y={38}  textAnchor="middle" fontSize={8.5} fontWeight={700} fill={tc('cabeca')}>Cabeça</text>
+            <text x={100} y={122} textAnchor="middle" fontSize={8}   fontWeight={700} fill={tc('torax')}>Tórax</text>
+            <text x={100} y={202} textAnchor="middle" fontSize={7.5} fontWeight={700} fill={tc('abdomem')}>Abdómen</text>
+            <text x={100} y={257} textAnchor="middle" fontSize={7}   fontWeight={700} fill={tc('bacia')}>Bacia</text>
+            <text x={33}  y={142} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={tc('braco_esq')}>Braço E</text>
+            <text x={167} y={142} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={tc('braco_dir')}>Braço D</text>
+            <text x={20}  y={218} textAnchor="middle" fontSize={5.5} fontWeight={700} fill={tc('mao_esq')}>Mão E</text>
+            <text x={180} y={218} textAnchor="middle" fontSize={5.5} fontWeight={700} fill={tc('mao_dir')}>Mão D</text>
+            <text x={73}  y={340} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={tc('coxa_esq')}>Coxa E</text>
+            <text x={127} y={340} textAnchor="middle" fontSize={6.5} fontWeight={700} fill={tc('coxa_dir')}>Coxa D</text>
+            <text x={73}  y={432} textAnchor="middle" fontSize={6}   fontWeight={700} fill={tc('perna_esq')}>Perna E</text>
+            <text x={127} y={432} textAnchor="middle" fontSize={6}   fontWeight={700} fill={tc('perna_dir')}>Perna D</text>
           </g>
         )}
       </svg>

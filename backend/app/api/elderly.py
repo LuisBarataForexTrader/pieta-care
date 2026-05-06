@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_current_user, get_db
@@ -16,6 +16,7 @@ from app.services.elderly import (
     update_elderly,
     invite_family_member,
     remove_family_member,
+    upload_elderly_photo,
     ElderlyError,
 )
 
@@ -85,6 +86,23 @@ def invite_member(
         return invite_family_member(db, elderly_id, data, user)
     except ElderlyError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.post("/{elderly_id}/photo")
+async def upload_elderly_photo_endpoint(
+    elderly_id: int,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    file_bytes = await file.read()
+    try:
+        photo_url = upload_elderly_photo(
+            db, elderly_id, file_bytes, file.filename, file.content_type, user
+        )
+    except ElderlyError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+    return {"photo_url": photo_url}
 
 
 @router.delete("/{elderly_id}/members/{member_id}", status_code=204)

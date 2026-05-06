@@ -35,6 +35,22 @@ def upload_file(file_bytes: bytes, filename: str, mime_type: str, elderly_id: in
     return key
 
 
+def upload_photo(file_bytes: bytes, filename: str, mime_type: str, elderly_id: int) -> str:
+    ext = filename.rsplit(".", 1)[-1].lower() if "." in filename else "bin"
+    key = f"elderly/{elderly_id}/photos/{uuid.uuid4()}.{ext}"
+
+    get_client().put_object(
+        Bucket=settings.HETZNER_STORAGE_BUCKET,
+        Key=key,
+        Body=file_bytes,
+        ContentType=mime_type,
+        ACL="public-read",
+    )
+
+    endpoint_without_https = settings.HETZNER_STORAGE_ENDPOINT.replace("https://", "")
+    return f"https://{settings.HETZNER_STORAGE_BUCKET}.{endpoint_without_https}/{key}"
+
+
 def get_presigned_url(key: str, expires_in: int = 3600) -> str:
     return get_client().generate_presigned_url(
         "get_object",

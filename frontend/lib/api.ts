@@ -299,4 +299,18 @@ export const api = {
 
   deleteVaccination: (elderlyId: number, vacId: number) =>
     request(`/api/v1/elderly/${elderlyId}/vaccinations/${vacId}`, { method: 'DELETE' }),
+
+  uploadElderlyPhoto: (elderlyId: number, file: File) => {
+    const token = getToken()
+    const form = new FormData()
+    form.append('file', file)
+    return fetch(`${BASE}/api/v1/elderly/${elderlyId}/photo`, {
+      method: 'POST',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      body: form,
+    }).then(async r => {
+      if (!r.ok) throw new Error('Upload falhou')
+      return r.json()
+    }) as Promise<{ photo_url: string }>
+  },
 }
