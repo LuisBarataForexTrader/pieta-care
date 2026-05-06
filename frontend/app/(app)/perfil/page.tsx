@@ -77,7 +77,8 @@ export default function PerfilPage() {
     try {
       const patch: Record<string, string | null> = {}
       SECTION_FIELDS.flatMap(s => s.fields).forEach(({ key }) => { patch[key] = form[key] || null })
-      await api.updateElderly(elderlyId, patch as Partial<Elderly>)
+      const updated = await api.updateElderly(elderlyId, patch as Partial<Elderly>)
+      setElderly(prev => prev ? { ...prev, ...updated } : updated)
       setSaved(true)
       setTimeout(() => setSaved(false), 2500)
     } catch (err: unknown) {

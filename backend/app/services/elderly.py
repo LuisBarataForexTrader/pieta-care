@@ -93,7 +93,7 @@ def update_elderly(
 
     db.commit()
     db.refresh(elderly)
-    return elderly
+    return _resolve_photo(elderly)
 
 
 def invite_family_member(
