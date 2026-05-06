@@ -39,7 +39,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
     if data.elderly_name:
         elderly = ElderlyProfile(
             full_name=data.elderly_name,
-            created_by_id=user.id,
+            created_by=user.id,
         )
         db.add(elderly)
         db.flush()
