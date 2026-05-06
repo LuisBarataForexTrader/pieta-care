@@ -1,12 +1,14 @@
 from datetime import datetime, date, timedelta
 from sqlalchemy.orm import Session
 
-from app.models.health import VitalSign, WellbeingLog, Incident, DailyNote, CarePlanItem
+from app.models.health import VitalSign, WellbeingLog, Incident, DailyNote, CarePlanItem, ClinicalDiagnosis, Vaccination
 from app.models.family import FamilyMember
 from app.models.user import User
 from app.schemas.health import (
     VitalSignCreate, WellbeingCreate, IncidentCreate, IncidentUpdate,
     DailyNoteCreate, CarePlanItemCreate, CarePlanItemUpdate,
+    ClinicalDiagnosisCreate, ClinicalDiagnosisUpdate,
+    VaccinationCreate, VaccinationUpdate,
 )
 
 
@@ -213,4 +215,74 @@ def delete_care_plan_item(db: Session, elderly_id: int, item_id: int, user: User
     if not item:
         raise HealthError("Item não encontrado", 404)
     db.delete(item)
+    db.commit()
+
+
+# ── CLINICAL DIAGNOSES ────────────────────────────────────
+
+def create_diagnosis(db: Session, elderly_id: int, data: ClinicalDiagnosisCreate, user: User) -> ClinicalDiagnosis:
+    _check_access(db, elderly_id, user)
+    dx = ClinicalDiagnosis(elderly_id=elderly_id, created_by_id=user.id, **data.model_dump())
+    db.add(dx)
+    db.commit()
+    db.refresh(dx)
+    return dx
+
+
+def list_diagnoses(db: Session, elderly_id: int, user: User, include_inactive: bool = False) -> list[ClinicalDiagnosis]:
+    _check_access(db, elderly_id, user)
+    q = db.query(ClinicalDiagnosis).filter(ClinicalDiagnosis.elderly_id == elderly_id)
+    if not include_inactive:
+        q = q.filter(ClinicalDiagnosis.is_active == True)
+    return q.order_by(ClinicalDiagnosis.is_chronic.desc(), ClinicalDiagnosis.created_at.desc()).all()
+
+
+def update_diagnosis(db: Session, elderly_id: int, dx_id: int, data: ClinicalDiagnosisUpdate, user: User) -> ClinicalDiagnosis:
+    _check_access(db, elderly_id, user)
+    dx = db.query(ClinicalDiagnosis).filter(ClinicalDiagnosis.id == dx_id, ClinicalDiagnosis.elderly_id == elderly_id).first()
+    if not dx:
+        raise HealthError("Diagnóstico não encontrado", 404)
+    for k, v in data.model_dump(exclude_none=True).items():
+        setattr(dx, k, v)
+    db.commit()
+    db.refresh(dx)
+    return dx
+
+
+def delete_diagnosis(db: Session, elderly_id: int, dx_id: int, user: User):
+    _check_access(db, elderly_id, user)
+    dx = db.query(ClinicalDiagnosis).filter(ClinicalDiagnosis.id == dx_id, ClinicalDiagnosis.elderly_id == elderly_id).first()
+    if not dx:
+        raise HealthError("Diagnóstico não encontrado", 404)
+    db.delete(dx)
+    db.commit()
+
+
+# ── VACCINATIONS ──────────────────────────────────────────
+
+def create_vaccination(db: Session, elderly_id: int, data: VaccinationCreate, user: User) -> Vaccination:
+    _check_access(db, elderly_id, user)
+    vac = Vaccination(elderly_id=elderly_id, created_by_id=user.id, **data.model_dump())
+    db.add(vac)
+    db.commit()
+    db.refresh(vac)
+    return vac
+
+
+def list_vaccinations(db: Session, elderly_id: int, user: User) -> list[Vaccination]:
+    _check_access(db, elderly_id, user)
+    return (
+        db.query(Vaccination)
+        .filter(Vaccination.elderly_id == elderly_id)
+        .order_by(Vaccination.administered_date.desc().nullslast(), Vaccination.created_at.desc())
+        .all()
+    )
+
+
+def delete_vaccination(db: Session, elderly_id: int, vac_id: int, user: User):
+    _check_access(db, elderly_id, user)
+    vac = db.query(Vaccination).filter(Vaccination.id == vac_id, Vaccination.elderly_id == elderly_id).first()
+    if not vac:
+        raise HealthError("Vacina não encontrada", 404)
+    db.delete(vac)
     db.commit()

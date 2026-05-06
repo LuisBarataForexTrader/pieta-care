@@ -158,6 +158,33 @@ export interface CarePlanItem {
   created_at: string
 }
 
+export interface ClinicalDiagnosis {
+  id: number
+  elderly_id: number
+  created_by_name: string
+  description: string
+  icd_code: string | null
+  diagnosed_date: string | null
+  is_chronic: boolean
+  is_active: boolean
+  source: string | null
+  notes: string | null
+  created_at: string
+}
+
+export interface Vaccination {
+  id: number
+  elderly_id: number
+  created_by_name: string
+  vaccine_name: string
+  administered_date: string | null
+  next_due_date: string | null
+  lot_number: string | null
+  source: string | null
+  notes: string | null
+  created_at: string
+}
+
 export interface MedicationLog {
   id: number
   medication_id: number

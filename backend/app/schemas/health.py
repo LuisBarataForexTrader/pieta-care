@@ -223,6 +223,74 @@ class CarePlanItemUpdate(BaseModel):
     is_active: bool | None = None
 
 
+# ── CLINICAL DATA ─────────────────────────────────────────
+
+class ClinicalDiagnosisCreate(BaseModel):
+    description: str
+    icd_code: str | None = None
+    diagnosed_date: date | None = None
+    is_chronic: bool = False
+    source: str | None = "manual"
+    notes: str | None = None
+
+
+class ClinicalDiagnosisUpdate(BaseModel):
+    description: str | None = None
+    icd_code: str | None = None
+    diagnosed_date: date | None = None
+    is_chronic: bool | None = None
+    is_active: bool | None = None
+    notes: str | None = None
+
+
+class ClinicalDiagnosisResponse(BaseModel):
+    id: int
+    elderly_id: int
+    created_by_name: str
+    description: str
+    icd_code: str | None
+    diagnosed_date: date | None
+    is_chronic: bool
+    is_active: bool
+    source: str | None
+    notes: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class VaccinationCreate(BaseModel):
+    vaccine_name: str
+    administered_date: date | None = None
+    next_due_date: date | None = None
+    lot_number: str | None = None
+    source: str | None = "manual"
+    notes: str | None = None
+
+
+class VaccinationUpdate(BaseModel):
+    vaccine_name: str | None = None
+    administered_date: date | None = None
+    next_due_date: date | None = None
+    lot_number: str | None = None
+    notes: str | None = None
+
+
+class VaccinationResponse(BaseModel):
+    id: int
+    elderly_id: int
+    created_by_name: str
+    vaccine_name: str
+    administered_date: date | None
+    next_due_date: date | None
+    lot_number: str | None
+    source: str | None
+    notes: str | None
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class CarePlanItemResponse(BaseModel):
     id: int
     elderly_id: int

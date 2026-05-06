@@ -267,4 +267,36 @@ export const api = {
 
   deleteCarePlanItem: (elderlyId: number, itemId: number) =>
     request(`/api/v1/elderly/${elderlyId}/care-plan/${itemId}`, { method: 'DELETE' }),
+
+  // clinical diagnoses
+  listDiagnoses: (elderlyId: number, includeInactive = false) =>
+    request<import('./types').ClinicalDiagnosis[]>(`/api/v1/elderly/${elderlyId}/diagnoses?include_inactive=${includeInactive}`),
+
+  createDiagnosis: (elderlyId: number, data: Partial<import('./types').ClinicalDiagnosis>) =>
+    request<import('./types').ClinicalDiagnosis>(`/api/v1/elderly/${elderlyId}/diagnoses`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateDiagnosis: (elderlyId: number, dxId: number, data: Partial<import('./types').ClinicalDiagnosis>) =>
+    request<import('./types').ClinicalDiagnosis>(`/api/v1/elderly/${elderlyId}/diagnoses/${dxId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  deleteDiagnosis: (elderlyId: number, dxId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/diagnoses/${dxId}`, { method: 'DELETE' }),
+
+  // vaccinations
+  listVaccinations: (elderlyId: number) =>
+    request<import('./types').Vaccination[]>(`/api/v1/elderly/${elderlyId}/vaccinations`),
+
+  createVaccination: (elderlyId: number, data: Partial<import('./types').Vaccination>) =>
+    request<import('./types').Vaccination>(`/api/v1/elderly/${elderlyId}/vaccinations`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  deleteVaccination: (elderlyId: number, vacId: number) =>
+    request(`/api/v1/elderly/${elderlyId}/vaccinations/${vacId}`, { method: 'DELETE' }),
 }

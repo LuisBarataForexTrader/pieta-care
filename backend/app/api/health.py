@@ -9,6 +9,8 @@ from app.schemas.health import (
     IncidentCreate, IncidentUpdate, IncidentResponse,
     DailyNoteCreate, DailyNoteResponse,
     CarePlanItemCreate, CarePlanItemUpdate, CarePlanItemResponse,
+    ClinicalDiagnosisCreate, ClinicalDiagnosisUpdate, ClinicalDiagnosisResponse,
+    VaccinationCreate, VaccinationUpdate, VaccinationResponse,
 )
 from app.services.health import (
     create_vital, list_vitals, delete_vital,
@@ -16,6 +18,8 @@ from app.services.health import (
     create_incident, list_incidents, update_incident, delete_incident,
     create_note, list_notes, delete_note,
     create_care_plan_item, list_care_plan, update_care_plan_item, delete_care_plan_item,
+    create_diagnosis, list_diagnoses, update_diagnosis, delete_diagnosis,
+    create_vaccination, list_vaccinations, delete_vaccination,
     HealthError,
 )
 
@@ -242,5 +246,85 @@ def patch_care_plan_item(elderly_id: int, item_id: int, data: CarePlanItemUpdate
 def remove_care_plan_item(elderly_id: int, item_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
     try:
         delete_care_plan_item(db, elderly_id, item_id, user)
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+# ── CLINICAL DIAGNOSES ────────────────────────────────────
+
+def _dx_response(dx) -> ClinicalDiagnosisResponse:
+    return ClinicalDiagnosisResponse(
+        id=dx.id, elderly_id=dx.elderly_id,
+        created_by_name=dx.created_by.full_name if dx.created_by else "—",
+        description=dx.description, icd_code=dx.icd_code,
+        diagnosed_date=dx.diagnosed_date, is_chronic=dx.is_chronic,
+        is_active=dx.is_active, source=dx.source, notes=dx.notes, created_at=dx.created_at,
+    )
+
+
+@router.post("/diagnoses", response_model=ClinicalDiagnosisResponse, status_code=201)
+def add_diagnosis(elderly_id: int, data: ClinicalDiagnosisCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        return _dx_response(create_diagnosis(db, elderly_id, data, user))
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.get("/diagnoses", response_model=list[ClinicalDiagnosisResponse])
+def get_diagnoses(elderly_id: int, include_inactive: bool = Query(default=False), db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        return [_dx_response(dx) for dx in list_diagnoses(db, elderly_id, user, include_inactive)]
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.patch("/diagnoses/{dx_id}", response_model=ClinicalDiagnosisResponse)
+def patch_diagnosis(elderly_id: int, dx_id: int, data: ClinicalDiagnosisUpdate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        return _dx_response(update_diagnosis(db, elderly_id, dx_id, data, user))
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.delete("/diagnoses/{dx_id}", status_code=204)
+def remove_diagnosis(elderly_id: int, dx_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        delete_diagnosis(db, elderly_id, dx_id, user)
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+# ── VACCINATIONS ──────────────────────────────────────────
+
+def _vac_response(v) -> VaccinationResponse:
+    return VaccinationResponse(
+        id=v.id, elderly_id=v.elderly_id,
+        created_by_name=v.created_by.full_name if v.created_by else "—",
+        vaccine_name=v.vaccine_name, administered_date=v.administered_date,
+        next_due_date=v.next_due_date, lot_number=v.lot_number,
+        source=v.source, notes=v.notes, created_at=v.created_at,
+    )
+
+
+@router.post("/vaccinations", response_model=VaccinationResponse, status_code=201)
+def add_vaccination(elderly_id: int, data: VaccinationCreate, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        return _vac_response(create_vaccination(db, elderly_id, data, user))
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.get("/vaccinations", response_model=list[VaccinationResponse])
+def get_vaccinations(elderly_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        return [_vac_response(v) for v in list_vaccinations(db, elderly_id, user)]
+    except HealthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.delete("/vaccinations/{vac_id}", status_code=204)
+def remove_vaccination(elderly_id: int, vac_id: int, db: Session = Depends(get_db), user: User = Depends(get_current_user)):
+    try:
+        delete_vaccination(db, elderly_id, vac_id, user)
     except HealthError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

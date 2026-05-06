@@ -80,6 +80,43 @@ class DailyNote(Base):
     recorded_by: Mapped["User"] = relationship(foreign_keys=[recorded_by_id])
 
 
+class ClinicalDiagnosis(Base):
+    __tablename__ = "clinical_diagnoses"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    description: Mapped[str] = mapped_column(String(300))
+    icd_code: Mapped[str | None] = mapped_column(String(20))
+    diagnosed_date: Mapped[date | None] = mapped_column(Date)
+    is_chronic: Mapped[bool] = mapped_column(Boolean, default=False)
+    is_active: Mapped[bool] = mapped_column(Boolean, default=True)
+    source: Mapped[str | None] = mapped_column(String(50))   # sns, manual, medico
+    notes: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    elderly: Mapped["ElderlyProfile"] = relationship()
+    created_by: Mapped["User"] = relationship(foreign_keys=[created_by_id])
+
+
+class Vaccination(Base):
+    __tablename__ = "vaccinations"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    elderly_id: Mapped[int] = mapped_column(ForeignKey("elderly_profiles.id"))
+    created_by_id: Mapped[int] = mapped_column(ForeignKey("users.id"))
+    vaccine_name: Mapped[str] = mapped_column(String(200))
+    administered_date: Mapped[date | None] = mapped_column(Date)
+    next_due_date: Mapped[date | None] = mapped_column(Date)
+    lot_number: Mapped[str | None] = mapped_column(String(50))
+    notes: Mapped[str | None] = mapped_column(Text)
+    source: Mapped[str | None] = mapped_column(String(50))   # sns, manual
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+    elderly: Mapped["ElderlyProfile"] = relationship()
+    created_by: Mapped["User"] = relationship(foreign_keys=[created_by_id])
+
+
 class CarePlanItem(Base):
     __tablename__ = "care_plan_items"
 
