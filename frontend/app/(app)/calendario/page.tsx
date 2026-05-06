@@ -18,7 +18,9 @@ export default function CalendarioPage() {
   const [tasks, setTasks] = useState<Task[]>([])
   const [tab, setTab] = useState<'eventos' | 'tarefas'>('eventos')
   const [showForm, setShowForm] = useState(false)
-  const [eForm, setEForm] = useState({ title: '', starts_at: '', location: '', doctor_name: '', preparation_notes: '', items_to_bring: '', description: '' })
+  const [editingEventId, setEditingEventId] = useState<number | null>(null)
+  const emptyEForm = { title: '', starts_at: '', location: '', doctor_name: '', preparation_notes: '', items_to_bring: '', description: '' }
+  const [eForm, setEForm] = useState(emptyEForm)
   const [tForm, setTForm] = useState({ title: '', due_date: '', description: '' })
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
@@ -33,15 +35,41 @@ export default function CalendarioPage() {
 
   useEffect(() => { load() }, [elderlyId])
 
+  function startEditEvent(ev: CalendarEvent) {
+    setEForm({
+      title: ev.title,
+      starts_at: ev.starts_at.slice(0, 16),
+      location: ev.location ?? '',
+      doctor_name: ev.doctor_name ?? '',
+      preparation_notes: ev.preparation_notes ?? '',
+      items_to_bring: ev.items_to_bring ?? '',
+      description: ev.description ?? '',
+    })
+    setEditingEventId(ev.id)
+    setShowForm(true)
+    setTab('eventos')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelEventForm() {
+    setShowForm(false)
+    setEditingEventId(null)
+    setEForm(emptyEForm)
+    setError('')
+  }
+
   async function saveEvent(e: React.FormEvent) {
     e.preventDefault()
     if (!elderlyId) return
     setSaving(true)
     setError('')
     try {
-      await api.createEvent(elderlyId, { ...eForm, ends_at: undefined })
-      setEForm({ title: '', starts_at: '', location: '', doctor_name: '', preparation_notes: '', items_to_bring: '', description: '' })
-      setShowForm(false)
+      if (editingEventId) {
+        await api.updateEvent(elderlyId, editingEventId, { ...eForm })
+      } else {
+        await api.createEvent(elderlyId, { ...eForm, ends_at: undefined })
+      }
+      cancelEventForm()
       await load()
     } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Erro') }
     finally { setSaving(false) }
@@ -92,7 +120,7 @@ export default function CalendarioPage() {
           <div className="page-subtitle">{upcomingEvents.length} consulta{upcomingEvents.length !== 1 ? 's' : ''} · {pendingTasks.length} tarefa{pendingTasks.length !== 1 ? 's' : ''} pendente{pendingTasks.length !== 1 ? 's' : ''}</div>
         </div>
         <button
-          onClick={() => { setShowForm(v => !v); setError('') }}
+          onClick={() => showForm ? cancelEventForm() : setShowForm(true)}
           className={showForm ? 'btn-ghost' : 'btn-primary'}
           style={{ width: 'auto', padding: '10px 20px' }}
         >
@@ -127,7 +155,7 @@ export default function CalendarioPage() {
         {/* Add event form */}
         {showForm && tab === 'eventos' && (
           <form onSubmit={saveEvent} className="card card-lg" style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="section-title">Nova consulta / evento</div>
+            <div className="section-title">{editingEventId ? 'Editar evento' : 'Nova consulta / evento'}</div>
             <div>
               <label className="field-label">Título</label>
               <input className="field-input" value={eForm.title} onChange={e => setEForm(f => ({ ...f, title: e.target.value }))} placeholder="Ex: Consulta de cardiologia" required />
@@ -157,7 +185,7 @@ export default function CalendarioPage() {
               </div>
             </div>
             {error && <div className="alert-error">{error}</div>}
-            <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : 'Guardar evento'}</button>
+            <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : editingEventId ? '💾 Guardar alterações' : 'Guardar evento'}</button>
           </form>
         )}
 
@@ -229,7 +257,10 @@ export default function CalendarioPage() {
                               </div>
                             )}
                           </div>
-                          <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                          <div style={{ display: 'flex', gap: 6, flexShrink: 0 }}>
+                            <button onClick={() => startEditEvent(ev)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px' }}>✏️</button>
+                            <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
+                          </div>
                         </div>
                       )
                     })}

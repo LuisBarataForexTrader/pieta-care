@@ -142,6 +142,12 @@ export const api = {
       body: JSON.stringify(data),
     }),
 
+  updateEvent: (elderlyId: number, eventId: number, data: Partial<import('./types').CalendarEvent>) =>
+    request<import('./types').CalendarEvent>(`/api/v1/elderly/${elderlyId}/events/${eventId}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
   deleteEvent: (elderlyId: number, eventId: number) =>
     request(`/api/v1/elderly/${elderlyId}/events/${eventId}`, { method: 'DELETE' }),
 

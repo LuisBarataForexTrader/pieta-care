@@ -31,13 +31,14 @@ export default function IncidentesPage() {
   const [incidents, setIncidents] = useState<Incident[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingId, setEditingId] = useState<number | null>(null)
   const [showResolved, setShowResolved] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [expandedId, setExpandedId] = useState<number | null>(null)
   const elderlyId = getElderlyId()
 
-  const [form, setForm] = useState({
+  const emptyForm = {
     occurred_at: new Date().toISOString().slice(0, 16),
     type: 'queda',
     severity: 'media',
@@ -45,7 +46,8 @@ export default function IncidentesPage() {
     actions_taken: '',
     follow_up_required: false,
     body_zone: null as string | null,
-  })
+  }
+  const [form, setForm] = useState(emptyForm)
 
   async function load() {
     if (!elderlyId) return
@@ -55,14 +57,39 @@ export default function IncidentesPage() {
   }
   useEffect(() => { load() }, [elderlyId, showResolved])
 
+  function startEdit(inc: Incident) {
+    setForm({
+      occurred_at: inc.occurred_at.slice(0, 16),
+      type: inc.type,
+      severity: inc.severity,
+      description: inc.description,
+      actions_taken: inc.actions_taken ?? '',
+      follow_up_required: inc.follow_up_required,
+      body_zone: inc.body_zone,
+    })
+    setEditingId(inc.id)
+    setShowForm(true)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
+  function cancelForm() {
+    setShowForm(false)
+    setEditingId(null)
+    setForm(emptyForm)
+    setError('')
+  }
+
   async function save(e: React.FormEvent) {
     e.preventDefault()
     if (!elderlyId) return
     setSaving(true); setError('')
     try {
-      await api.createIncident(elderlyId, form)
-      setForm({ occurred_at: new Date().toISOString().slice(0, 16), type: 'queda', severity: 'media', description: '', actions_taken: '', follow_up_required: false, body_zone: null })
-      setShowForm(false)
+      if (editingId) {
+        await api.updateIncident(elderlyId, editingId, form)
+      } else {
+        await api.createIncident(elderlyId, form)
+      }
+      cancelForm()
       await load()
     } catch (err: unknown) { setError(err instanceof Error ? err.message : 'Erro') }
     finally { setSaving(false) }
@@ -94,7 +121,7 @@ export default function IncidentesPage() {
           <button onClick={() => setShowResolved(v => !v)} className="btn-ghost" style={{ width: 'auto', padding: '10px 16px', fontSize: 13 }}>
             {showResolved ? 'Ocultar resolvidos' : 'Ver resolvidos'}
           </button>
-          <button onClick={() => { setShowForm(v => !v); setError('') }} className={showForm ? 'btn-ghost' : 'btn-primary'} style={{ width: 'auto', padding: '10px 20px' }}>
+          <button onClick={() => showForm ? cancelForm() : setShowForm(true)} className={showForm ? 'btn-ghost' : 'btn-primary'} style={{ width: 'auto', padding: '10px 20px' }}>
             {showForm ? '✕ Cancelar' : '+ Registar incidente'}
           </button>
         </div>
@@ -103,7 +130,7 @@ export default function IncidentesPage() {
       <div className="page-body">
         {showForm && (
           <form onSubmit={save} className="card card-lg" style={{ marginBottom: 24, display: 'flex', flexDirection: 'column', gap: 16 }}>
-            <div className="section-title">Novo incidente</div>
+            <div className="section-title">{editingId ? 'Editar incidente' : 'Novo incidente'}</div>
 
             <div className="grid-2">
               <div>
@@ -152,14 +179,14 @@ export default function IncidentesPage() {
             </label>
 
             {error && <div className="alert-error">{error}</div>}
-            <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : 'Registar incidente'}</button>
+            <button className="btn-primary" type="submit" disabled={saving}>{saving ? 'A guardar…' : editingId ? '💾 Guardar alterações' : 'Registar incidente'}</button>
           </form>
         )}
 
         {loading ? <p className="loading" style={{ textAlign: 'center', padding: 48 }}>A carregar…</p> :
-          incidents.length === 0 ? (
+          incidents.length === 0 && !showForm ? (
             <div className="card"><div className="empty-state"><div className="empty-state-icon">✅</div><div className="empty-state-title">Sem incidentes registados</div><div className="empty-state-text">Regista quedas, erros de medicação e outros eventos para manter um historial completo</div><button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar incidente</button></div></div>
-          ) : (
+          ) : incidents.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {open.length > 0 && (
                 <div>
@@ -194,6 +221,7 @@ export default function IncidentesPage() {
                                 {expandedId === inc.id ? 'Ocultar' : 'Ver acções'}
                               </button>
                             )}
+                            <button onClick={() => startEdit(inc)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px' }}>✏️ Editar</button>
                             <button onClick={() => resolve(inc.id)} style={{ background: 'var(--success-light)', color: 'var(--success)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Resolver</button>
                             <button onClick={() => del(inc.id)} className="btn-danger-ghost">🗑</button>
                           </div>
@@ -222,7 +250,7 @@ export default function IncidentesPage() {
                 </div>
               )}
             </div>
-          )
+          ) : null
         }
       </div>
     </div>
