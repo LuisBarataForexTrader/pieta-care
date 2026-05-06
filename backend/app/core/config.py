@@ -33,7 +33,8 @@ class Settings(BaseSettings):
     TOCONLINE_SERIES_ID: str = ""
     TOCONLINE_EXEMPTION_NON_EU: str = ""
 
-    # Email (SMTP)
+    # Email — Resend (preferred) or SMTP fallback
+    RESEND_API_KEY: str = ""
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587
     SMTP_USER: str = ""

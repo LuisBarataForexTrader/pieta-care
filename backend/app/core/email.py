@@ -8,9 +8,32 @@ logger = logging.getLogger(__name__)
 
 
 def send_email(to: str, subject: str, html: str) -> bool:
-    if not settings.SMTP_HOST or not settings.SMTP_USER:
-        logger.warning("SMTP not configured — invite link: %s", to)
+    if settings.RESEND_API_KEY:
+        return _send_resend(to, subject, html)
+    if settings.SMTP_HOST and settings.SMTP_USER:
+        return _send_smtp(to, subject, html)
+    logger.warning("No email provider configured — recipient: %s", to)
+    return False
+
+
+def _send_resend(to: str, subject: str, html: str) -> bool:
+    try:
+        import resend
+        resend.api_key = settings.RESEND_API_KEY
+        resend.Emails.send({
+            "from": settings.EMAIL_FROM,
+            "to": [to],
+            "subject": subject,
+            "html": html,
+        })
+        logger.info("Resend: email sent to %s", to)
+        return True
+    except Exception as exc:
+        logger.error("Resend send failed to %s: %s", to, exc)
         return False
+
+
+def _send_smtp(to: str, subject: str, html: str) -> bool:
     try:
         msg = MIMEMultipart("alternative")
         msg["From"] = settings.EMAIL_FROM
@@ -22,10 +45,10 @@ def send_email(to: str, subject: str, html: str) -> bool:
             smtp.starttls()
             smtp.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
             smtp.sendmail(settings.EMAIL_FROM, [to], msg.as_string())
-        logger.info("Email sent to %s", to)
+        logger.info("SMTP: email sent to %s", to)
         return True
     except Exception as exc:
-        logger.error("Email send failed to %s: %s", to, exc)
+        logger.error("SMTP send failed to %s: %s", to, exc)
         return False
 
 
