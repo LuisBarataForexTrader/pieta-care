@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Users, Mail, Lock, Trash2 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, FamilyMember } from '@/lib/types'
 
@@ -57,7 +58,7 @@ export default function FamiliaPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">👨‍👩‍👧 Família</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><Users size={20} strokeWidth={2} /> Família</div>
           <div className="page-subtitle">{active.length} membro{active.length !== 1 ? 's' : ''} activo{active.length !== 1 ? 's' : ''}{pending.length > 0 ? ` · ${pending.length} convite${pending.length !== 1 ? 's' : ''} pendente${pending.length !== 1 ? 's' : ''}` : ''}</div>
         </div>
       </div>
@@ -70,7 +71,7 @@ export default function FamiliaPage() {
             {members.length === 0 ? (
               <div className="card">
                 <div className="empty-state">
-                  <div className="empty-state-icon">👨‍👩‍👧</div>
+                  <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Users size={42} strokeWidth={1.4} /></div>
                   <div className="empty-state-title">Ainda não há membros</div>
                   <div className="empty-state-text">Convida familiares para acompanharem os cuidados em conjunto</div>
                 </div>
@@ -98,7 +99,7 @@ export default function FamiliaPage() {
                               <span className="pill pill-taken">Activo</span>
                             </div>
                           </div>
-                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Remover">🗑</button>
+                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Remover"><Trash2 size={15} strokeWidth={2} /></button>
                         </div>
                       ))}
                     </div>
@@ -121,7 +122,7 @@ export default function FamiliaPage() {
                             {m.relation && <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>{m.relation}</div>}
                             <span className="pill pill-pending" style={{ marginTop: 5 }}>Aguarda aceitação</span>
                           </div>
-                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Cancelar convite">🗑</button>
+                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Cancelar convite"><Trash2 size={15} strokeWidth={2} /></button>
                         </div>
                       ))}
                     </div>
@@ -134,7 +135,7 @@ export default function FamiliaPage() {
           {/* Invite form */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <div className="card card-lg">
-              <div className="section-title" style={{ marginBottom: 16 }}>✉️ Convidar familiar</div>
+              <div className="section-title" style={{ marginBottom: 16 }}><Mail size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Convidar familiar</div>
               <form onSubmit={invite} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 <div>
                   <label className="field-label">Email</label>
@@ -153,7 +154,7 @@ export default function FamiliaPage() {
             </div>
 
             <div className="card" style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', marginBottom: 8 }}>🔒 Partilha segura</div>
+              <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', marginBottom: 8, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Lock size={13} strokeWidth={2.25} /> Partilha segura</div>
               <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>
                 O familiar convidado receberá um email para criar a sua conta e aceder à informação do doente. Pode remover o acesso a qualquer momento.
               </div>

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Leaf, AlertTriangle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Política de Privacidade - pieta.care',
@@ -54,7 +55,7 @@ export default function PrivacidadePage() {
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #E8EFE9', padding: '0 clamp(16px,3vw,32px)', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 40 }}>
         <Link href="/" style={{ fontWeight: 900, fontSize: 18, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          🌿 pieta.care
+<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={18} strokeWidth={2.25} /> pieta.care</span>
         </Link>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Link href="/termos" style={{ fontSize: 13, color: '#7A9A8A', textDecoration: 'none', fontWeight: 500 }}>Termos</Link>
@@ -127,7 +128,7 @@ export default function PrivacidadePage() {
                   <li>Vacinas, relatórios médicos e documentos clínicos carregados pelo utilizador</li>
                   <li>Notas de turno e observações de bem-estar</li>
                 </ul>
-                <p style={note}>⚠️ <strong>Atenção:</strong> Ao introduzir dados de saúde de terceiros, o utilizador declara ter autorização do titular ou do seu representante legal para o fazer.</p>
+                <p style={{ ...note, display: 'flex', alignItems: 'flex-start', gap: 10 }}><AlertTriangle size={18} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2, color: '#C05621' }} /><span><strong>Atenção:</strong> Ao introduzir dados de saúde de terceiros, o utilizador declara ter autorização do titular ou do seu representante legal para o fazer.</span></p>
                 <h3 style={subH}>2.3 Dados gerados pelo uso da plataforma</h3>
                 <ul style={ul}>
                   <li>Registos de acesso (logs), datas e horas de actividade</li>
@@ -264,7 +265,7 @@ export default function PrivacidadePage() {
       </main>
 
       <footer style={{ background: '#0D1A13', padding: '28px 32px', textAlign: 'center' }}>
-        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none' }}>🌿 pieta.care</Link>
+        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={16} strokeWidth={2.25} /> pieta.care</Link>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>© 2026 FLOW 88 - Gestão de Ativos, Lda. · Feito em Portugal 🇵🇹</p>
       </footer>
     </div>

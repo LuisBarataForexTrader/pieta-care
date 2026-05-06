@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Calendar as CalendarIcon, CheckSquare, Clock, MapPin, Stethoscope } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { CalendarEvent, Task } from '@/lib/types'
 
@@ -116,7 +117,7 @@ export default function CalendarioPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">📅 Agenda</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><CalendarIcon size={20} strokeWidth={2} /> Agenda</div>
           <div className="page-subtitle">{upcomingEvents.length} consulta{upcomingEvents.length !== 1 ? 's' : ''} · {pendingTasks.length} tarefa{pendingTasks.length !== 1 ? 's' : ''} pendente{pendingTasks.length !== 1 ? 's' : ''}</div>
         </div>
         <button
@@ -124,7 +125,7 @@ export default function CalendarioPage() {
           className={showForm ? 'btn-ghost' : 'btn-primary'}
           style={{ width: 'auto', padding: '10px 20px' }}
         >
-          {showForm ? '✕ Cancelar' : '+ Adicionar'}
+          {showForm ? 'Cancelar' : '+ Adicionar'}
         </button>
       </div>
 
@@ -147,7 +148,7 @@ export default function CalendarioPage() {
                 transition: 'all 0.15s',
               }}
             >
-              {t === 'eventos' ? `📅 Consultas (${events.length})` : `✅ Tarefas (${pendingTasks.length})`}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{t === 'eventos' ? <><CalendarIcon size={14} strokeWidth={2.25} /> Consultas ({events.length})</> : <><CheckSquare size={14} strokeWidth={2.25} /> Tarefas ({pendingTasks.length})</>}</span>
             </button>
           ))}
         </div>
@@ -213,7 +214,7 @@ export default function CalendarioPage() {
           upcomingEvents.length === 0 && pastEvents.length === 0 ? (
             <div className="card">
               <div className="empty-state">
-                <div className="empty-state-icon">📅</div>
+                <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><CalendarIcon size={42} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem consultas agendadas</div>
                 <div className="empty-state-text">Regista consultas e exames para não perderes nenhum compromisso</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
@@ -240,11 +241,11 @@ export default function CalendarioPage() {
                           <div style={{ flex: 1 }}>
                             <div className="event-title">{ev.title}</div>
                             <div className="event-meta">
-                              🕐 {d.time}
-                              {ev.location && <> · 📍 {ev.location}</>}
+                              <Clock size={12} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />{d.time}
+                              {ev.location && <> · <MapPin size={12} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />{ev.location}</>}
                             </div>
                             {ev.doctor_name && (
-                              <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}>👨‍⚕️ {ev.doctor_name}</div>
+                              <div style={{ fontSize: 12, color: 'var(--text-2)', marginTop: 4 }}><Stethoscope size={12} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />{ev.doctor_name}</div>
                             )}
                             {ev.preparation_notes && (
                               <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, padding: '6px 8px', background: 'var(--surface-2)', borderRadius: 6, borderLeft: '3px solid #D69E2E' }}>
@@ -284,7 +285,7 @@ export default function CalendarioPage() {
                           </div>
                           <div style={{ flex: 1 }}>
                             <div className="event-title" style={{ textDecoration: 'line-through', color: 'var(--text-3)' }}>{ev.title}</div>
-                            <div className="event-meta">🕐 {d.time}{ev.location && <> · 📍 {ev.location}</>}</div>
+                            <div className="event-meta"><Clock size={12} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />{d.time}{ev.location && <> · <MapPin size={12} strokeWidth={2} style={{ display: "inline", verticalAlign: "middle", marginRight: 4 }} />{ev.location}</>}</div>
                           </div>
                           <button onClick={() => delEvent(ev.id)} className="btn-danger-ghost" title="Apagar">🗑</button>
                         </div>
@@ -302,7 +303,7 @@ export default function CalendarioPage() {
           tasks.length === 0 ? (
             <div className="card">
               <div className="empty-state">
-                <div className="empty-state-icon">✅</div>
+                <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><CheckSquare size={42} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem tarefas</div>
                 <div className="empty-state-text">Cria tarefas para te lembrares de coisas importantes</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
@@ -329,7 +330,7 @@ export default function CalendarioPage() {
                           <div style={{ fontSize: 15, fontWeight: 600 }}>{t.title}</div>
                           {t.due_date && (
                             <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
-                              📅 até {new Date(t.due_date).toLocaleDateString('pt-PT')}
+                              <CalendarIcon size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />até {new Date(t.due_date).toLocaleDateString('pt-PT')}
                             </div>
                           )}
                         </div>

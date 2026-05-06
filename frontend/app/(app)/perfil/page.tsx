@@ -1,12 +1,20 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
+import { User as UserIcon, Stethoscope, IdCard, Siren, Droplet } from 'lucide-react'
 import { api, getElderlyId, clearToken } from '@/lib/api'
 import { useRouter } from 'next/navigation'
 import type { Elderly } from '@/lib/types'
 
+const SECTION_ICONS: Record<string, React.ReactElement> = {
+  'Dados pessoais': <UserIcon size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} />,
+  'Informação de saúde': <Stethoscope size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} />,
+  'Identificação': <IdCard size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} />,
+  'Contacto de emergência': <Siren size={16} strokeWidth={2} style={{ color: '#C53030' }} />,
+}
+
 const SECTION_FIELDS = [
   {
-    title: '👤 Dados pessoais',
+    title: 'Dados pessoais',
     fields: [
       { key: 'full_name',         label: 'Nome completo',          type: 'text',     required: true, placeholder: 'Nome do familiar' },
       { key: 'date_of_birth',     label: 'Data de nascimento',     type: 'date' },
@@ -14,7 +22,7 @@ const SECTION_FIELDS = [
     ],
   },
   {
-    title: '🩺 Informação de saúde',
+    title: 'Informação de saúde',
     fields: [
       { key: 'health_number',     label: 'Nº de utente (SNS)',     type: 'text',     placeholder: 'Ex: 123456789' },
       { key: 'blood_type',        label: 'Grupo sanguíneo',        type: 'text',     placeholder: 'Ex: A+, O-, B+' },
@@ -23,13 +31,13 @@ const SECTION_FIELDS = [
     ],
   },
   {
-    title: '🪪 Identificação',
+    title: 'Identificação',
     fields: [
       { key: 'id_number',         label: 'Nº de BI / Cartão de Cidadão', type: 'text', placeholder: 'Ex: 12345678 9 ZZ4' },
     ],
   },
   {
-    title: '🚨 Contacto de emergência',
+    title: 'Contacto de emergência',
     fields: [
       { key: 'emergency_contact_name',  label: 'Nome',     type: 'text', placeholder: 'Ex: Ana Silva' },
       { key: 'emergency_contact_phone', label: 'Telefone', type: 'tel',  placeholder: 'Ex: +351 912 345 678' },
@@ -185,7 +193,7 @@ export default function PerfilPage() {
               )}
               <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                 {elderly.blood_type && (
-                  <span className="pill" style={{ background: '#FFF5F5', color: '#C53030' }}>🩸 {elderly.blood_type}</span>
+                  <span className="pill" style={{ background: '#FFF5F5', color: '#C53030', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Droplet size={12} strokeWidth={2.25} /> {elderly.blood_type}</span>
                 )}
                 {elderly.health_number && (
                   <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>SNS {elderly.health_number}</span>
@@ -200,7 +208,7 @@ export default function PerfilPage() {
           {/* ── Form sections ── */}
           {SECTION_FIELDS.map(section => (
             <div key={section.title} className="card card-lg" style={{ marginBottom: 16 }}>
-              <div className="section-title" style={{ marginBottom: 18 }}>{section.title}</div>
+              <div className="section-title" style={{ marginBottom: 18 }}>{SECTION_ICONS[section.title]} {section.title}</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {section.fields.map(({ key, label, type, placeholder, required }) => (
                   <div key={key}>

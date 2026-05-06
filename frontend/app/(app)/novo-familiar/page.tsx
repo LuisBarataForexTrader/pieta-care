@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { UserPlus, User as UserIcon, Stethoscope, Siren, X, Leaf } from 'lucide-react'
 import { api, setElderlyId } from '@/lib/api'
 
 export default function NovoFamiliarPage() {
@@ -40,24 +41,24 @@ export default function NovoFamiliarPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">👤 Novo familiar</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><UserPlus size={20} strokeWidth={2} /> Novo familiar</div>
           <div className="page-subtitle">Adicione um novo perfil de cuidado</div>
         </div>
-        <button onClick={() => router.back()} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px' }}>
-          ✕ Cancelar
+        <button onClick={() => router.back()} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <X size={15} strokeWidth={2.5} /> Cancelar
         </button>
       </div>
 
       <div className="page-body">
         <div className="card card-lg" style={{ marginBottom: 16, padding: '16px 20px', background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)' }}>
-          <div style={{ fontSize: 14, color: 'var(--brand)', fontWeight: 600 }}>
-            🌿 Ao adicionar um segundo familiar, o seu plano será ajustado para Família+ (€59/mês).
+          <div style={{ fontSize: 14, color: 'var(--brand)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <Leaf size={16} strokeWidth={2} /> Ao adicionar um segundo familiar, o seu plano será ajustado para Família+ (€59/mês).
           </div>
         </div>
 
         <form onSubmit={save} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
           <div className="card card-lg">
-            <div className="section-title" style={{ marginBottom: 18 }}>👤 Dados pessoais</div>
+            <div className="section-title" style={{ marginBottom: 18 }}><UserIcon size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Dados pessoais</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label className="field-label">Nome completo *</label>
@@ -81,7 +82,7 @@ export default function NovoFamiliarPage() {
           </div>
 
           <div className="card card-lg">
-            <div className="section-title" style={{ marginBottom: 18 }}>🩺 Saúde</div>
+            <div className="section-title" style={{ marginBottom: 18 }}><Stethoscope size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Saúde</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div>
                 <label className="field-label">Nº de utente (SNS)</label>
@@ -99,7 +100,7 @@ export default function NovoFamiliarPage() {
           </div>
 
           <div className="card card-lg">
-            <div className="section-title" style={{ marginBottom: 18 }}>🚨 Contacto de emergência</div>
+            <div className="section-title" style={{ marginBottom: 18 }}><Siren size={16} strokeWidth={2} style={{ color: '#C53030' }} /> Contacto de emergência</div>
             <div className="grid-2">
               <div>
                 <label className="field-label">Nome</label>
@@ -115,7 +116,7 @@ export default function NovoFamiliarPage() {
           {error && <div className="alert-error">{error}</div>}
 
           <button className="btn-primary" type="submit" disabled={saving} style={{ fontSize: 15 }}>
-            {saving ? 'A criar perfil…' : '✓ Criar perfil e continuar'}
+            {saving ? 'A criar perfil…' : 'Criar perfil e continuar'}
           </button>
         </form>
       </div>

@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { HeartPulse, Smile, Zap } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { VitalSign, WellbeingLog } from '@/lib/types'
 
@@ -155,7 +156,7 @@ export default function SaudePage() {
         <div style={{ display: 'flex', gap: 0, background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 12, padding: 4, marginBottom: 24, width: 'fit-content' }}>
           {(['vitais', 'bemestar'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)} style={{ background: tab === t ? 'var(--brand)' : 'transparent', border: 'none', borderRadius: 9, padding: '8px 22px', fontWeight: 700, color: tab === t ? 'white' : 'var(--text-3)', cursor: 'pointer', fontSize: 14, transition: 'all 0.15s' }}>
-              {t === 'vitais' ? '❤️ Sinais Vitais' : '😊 Bem-estar'}
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>{t === 'vitais' ? <><HeartPulse size={14} strokeWidth={2.25} /> Sinais Vitais</> : <><Smile size={14} strokeWidth={2.25} /> Bem-estar</>}</span>
             </button>
           ))}
         </div>
@@ -401,7 +402,7 @@ export default function SaudePage() {
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Check-in de hoje</div>
                     <div style={{ fontSize: 20, fontWeight: 800, color: MOOD_COLOR[todayLog.mood] }}>{MOOD_LABEL[todayLog.mood]}</div>
                     <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 12 }}>
-                      {todayLog.energy && <span>⚡ Energia: {todayLog.energy}/5</span>}
+                      {todayLog.energy && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={12} strokeWidth={2.25} /> Energia: {todayLog.energy}/5</span>}
                       {todayLog.appetite && <span>🍽 Apetite: {todayLog.appetite}/5</span>}
                       {todayLog.pain_level !== null && <span>🩹 Dor: {todayLog.pain_level}/10</span>}
                     </div>
@@ -425,7 +426,7 @@ export default function SaudePage() {
                         <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{new Date(w.logged_date).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
                       </div>
                       <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 10 }}>
-                        {w.energy && <span>⚡ {w.energy}/5</span>}
+                        {w.energy && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={11} strokeWidth={2.25} /> {w.energy}/5</span>}
                         {w.appetite && <span>🍽 {w.appetite}/5</span>}
                         {w.pain_level !== null && w.pain_level > 0 && <span style={{ color: w.pain_level > 6 ? 'var(--danger)' : w.pain_level > 3 ? 'var(--warning)' : 'var(--text-3)' }}>🩹 Dor {w.pain_level}/10</span>}
                         <span>por {w.recorded_by_name}</span>

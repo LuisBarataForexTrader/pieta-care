@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Home, Droplet, Smile, Users, Stethoscope, ClipboardList, MapPin, Check } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'pieta.care - A tranquilidade de saber que está bem cuidado',
@@ -94,8 +95,8 @@ export default function LandingPage() {
 
         {/* NAV */}
         <nav role="navigation" aria-label="Navegação principal" className="lp-nav">
-          <Link href="/" aria-label="pieta.care" style={{ fontWeight: 900, fontSize: 19, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0 }}>
-            🌿 pieta.care
+          <Link href="/" aria-label="pieta.care" style={{ fontWeight: 900, fontSize: 19, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Leaf size={20} strokeWidth={2.25} /> pieta.care
           </Link>
 
           <div className="lp-nav-links">
@@ -144,11 +145,18 @@ export default function LandingPage() {
             </div>
             <div className="lp-mockup-inner" style={{ background: '#F2F5F3' }}>
               <div style={{ width: 190, background: '#2A6049', padding: '20px 14px', flexShrink: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, letterSpacing: '-0.02em' }}>🌿 pieta.care</div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Leaf size={13} strokeWidth={2.25} /> pieta.care</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>Cuidar com confiança</div>
-                {[['🏠','Hoje',true],['💊','Medicação',false],['📅','Agenda',false],['❤️','Saúde',false],['⚠️','Incidentes',false],['📁','Documentos',false]].map(([icon,label,active]) => (
+                {([
+                  [<Home size={12} strokeWidth={2} key="h" />,'Hoje',true],
+                  [<Pill size={12} strokeWidth={2} key="p" />,'Medicação',false],
+                  [<Calendar size={12} strokeWidth={2} key="c" />,'Agenda',false],
+                  [<HeartPulse size={12} strokeWidth={2} key="hp" />,'Saúde',false],
+                  [<AlertTriangle size={12} strokeWidth={2} key="a" />,'Incidentes',false],
+                  [<FileText size={12} strokeWidth={2} key="f" />,'Documentos',false],
+                ] as const).map(([icon,label,active]) => (
                   <div key={String(label)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, marginBottom: 2, background: active ? 'rgba(255,255,255,0.15)' : 'transparent', fontSize: 12, color: active ? '#fff' : 'rgba(255,255,255,0.55)', fontWeight: active ? 700 : 400 }}>
-                    <span>{String(icon)}</span><span>{String(label)}</span>
+                    {icon}<span>{String(label)}</span>
                   </div>
                 ))}
               </div>
@@ -164,9 +172,13 @@ export default function LandingPage() {
                   ))}
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                  {[['❤️','Tensão','128/82','mmHg'],['🩸','Glicemia','98','mg/dL'],['😊','Humor','4/5','hoje']].map(([icon,label,val,unit]) => (
+                  {([
+                    [<HeartPulse size={14} strokeWidth={2} key="t" style={{ color: '#E53E3E' }} />,'Tensão','128/82','mmHg'],
+                    [<Droplet size={14} strokeWidth={2} key="g" style={{ color: '#C53030' }} />,'Glicemia','98','mg/dL'],
+                    [<Smile size={14} strokeWidth={2} key="h" style={{ color: '#2A6049' }} />,'Humor','4/5','hoje'],
+                  ] as const).map(([icon,label,val,unit]) => (
                     <div key={String(label)} style={{ background: '#fff', borderRadius: 10, padding: '11px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                      <div style={{ fontSize: 14, marginBottom: 4 }}>{String(icon)}</div>
+                      <div style={{ marginBottom: 6 }}>{icon}</div>
                       <div style={{ fontSize: 10, color: '#7A9A8A', fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>{String(label)}</div>
                       <div style={{ fontSize: 16, fontWeight: 900, color: '#2A6049' }}>{String(val)}</div>
                       <div style={{ fontSize: 10, color: '#9AB5A5' }}>{String(unit)}</div>
@@ -192,13 +204,13 @@ export default function LandingPage() {
 
           <div className="lp-pillars" style={{ maxWidth: 1000, margin: '64px auto 0' }}>
             {[
-              { icon: '💊', heading: 'Nunca mais se pergunta\nse tomou a medicação.', body: 'Registos detalhados de cada toma, horários configuráveis e histórico completo, acessíveis a todos os cuidadores em simultâneo.' },
-              { icon: '📅', heading: 'Consultas, exames e\nterapias num só lugar.', body: 'A agenda clínica centralizada evita sobreposições e garante que nenhum profissional trabalha com informação desactualizada.' },
-              { icon: '⚠️', heading: 'Cada incidente fica\ndocumentado e acompanhado.', body: 'Quedas, alterações de comportamento e eventos clínicos registados com mapa corporal interactivo, gravidade e acções tomadas.' },
-              { icon: '👨‍👩‍👧', heading: 'A família inteira\nno mesmo ritmo.', body: 'Convide filhos, cônjuges e cuidadores profissionais. Todos vêem as mesmas actualizações, em tempo real, sem telefonemas de coordenação.' },
+              { icon: <Pill size={28} strokeWidth={1.75} />, key: 'med', heading: 'Nunca mais se pergunta\nse tomou a medicação.', body: 'Registos detalhados de cada toma, horários configuráveis e histórico completo, acessíveis a todos os cuidadores em simultâneo.' },
+              { icon: <Calendar size={28} strokeWidth={1.75} />, key: 'cal', heading: 'Consultas, exames e\nterapias num só lugar.', body: 'A agenda clínica centralizada evita sobreposições e garante que nenhum profissional trabalha com informação desactualizada.' },
+              { icon: <AlertTriangle size={28} strokeWidth={1.75} />, key: 'inc', heading: 'Cada incidente fica\ndocumentado e acompanhado.', body: 'Quedas, alterações de comportamento e eventos clínicos registados com mapa corporal interactivo, gravidade e acções tomadas.' },
+              { icon: <Users size={28} strokeWidth={1.75} />, key: 'fam', heading: 'A família inteira\nno mesmo ritmo.', body: 'Convide filhos, cônjuges e cuidadores profissionais. Todos vêem as mesmas actualizações, em tempo real, sem telefonemas de coordenação.' },
             ].map((f, i) => (
-              <article key={f.icon} style={{ background: i % 2 === 0 ? '#F8FAF9' : '#fff', padding: 'clamp(28px,4vw,48px) clamp(20px,3vw,40px)', border: '1px solid #EAF0EC' }}>
-                <div style={{ fontSize: 34, marginBottom: 18 }}>{f.icon}</div>
+              <article key={f.key} style={{ background: i % 2 === 0 ? '#F8FAF9' : '#fff', padding: 'clamp(28px,4vw,48px) clamp(20px,3vw,40px)', border: '1px solid #EAF0EC' }}>
+                <div style={{ width: 56, height: 56, borderRadius: 14, background: '#EAF4EE', color: '#2A6049', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20 }}>{f.icon}</div>
                 <h3 style={{ fontSize: 'clamp(17px,1.8vw,20px)', fontWeight: 900, letterSpacing: '-0.02em', lineHeight: 1.3, color: '#1A2E25', marginBottom: 12, whiteSpace: 'pre-line' }}>{f.heading}</h3>
                 <p style={{ fontSize: 15, color: '#4A6458', lineHeight: 1.75 }}>{f.body}</p>
               </article>
@@ -263,18 +275,18 @@ export default function LandingPage() {
               </h2>
             </div>
             <div className="lp-features">
-              {[
-                ['❤️','Sinais vitais','Pressão, glicemia, saturação, temperatura e peso com histórico visual.'],
-                ['📁','Documentos','Relatórios, receitas e exames digitalizados e organizados.'],
-                ['📝','Notas de turno','Comunicação entre cuidadores por turno: manhã, tarde, noite.'],
-                ['🏥','Plano de cuidados','Rotinas de higiene, nutrição, mobilidade e estimulação cognitiva.'],
-                ['🧬','Dados clínicos','Diagnósticos, vacinas e historial clínico sempre disponíveis.'],
-                ['📊','Relatório médico','Resumos periódicos para partilhar com médicos e especialistas.'],
-                ['🔔','Alertas','Notificações configuráveis para medicação e acompanhamento.'],
-                ['📍','Mapa corporal','Registo visual de incidentes e zonas afectadas.'],
-              ].map(([icon, title, desc]) => (
+              {([
+                [<HeartPulse size={22} strokeWidth={1.75} key="hp" />,'Sinais vitais','Pressão, glicemia, saturação, temperatura e peso com histórico visual.'],
+                [<FileText size={22} strokeWidth={1.75} key="ft" />,'Documentos','Relatórios, receitas e exames digitalizados e organizados.'],
+                [<ClipboardList size={22} strokeWidth={1.75} key="nt" />,'Notas de turno','Comunicação entre cuidadores por turno: manhã, tarde, noite.'],
+                [<Stethoscope size={22} strokeWidth={1.75} key="pl" />,'Plano de cuidados','Rotinas de higiene, nutrição, mobilidade e estimulação cognitiva.'],
+                [<ClipboardList size={22} strokeWidth={1.75} key="dc" />,'Dados clínicos','Diagnósticos, vacinas e historial clínico sempre disponíveis.'],
+                [<FileText size={22} strokeWidth={1.75} key="rm" />,'Relatório médico','Resumos periódicos para partilhar com médicos e especialistas.'],
+                [<AlertTriangle size={22} strokeWidth={1.75} key="al" />,'Alertas','Notificações configuráveis para medicação e acompanhamento.'],
+                [<MapPin size={22} strokeWidth={1.75} key="mp" />,'Mapa corporal','Registo visual de incidentes e zonas afectadas.'],
+              ] as const).map(([icon, title, desc]) => (
                 <article key={String(title)} style={{ padding: '22px 18px', border: '1px solid #E8EFE9', borderRadius: 14, background: '#FAFCFB' }}>
-                  <div style={{ fontSize: 26, marginBottom: 10 }}>{String(icon)}</div>
+                  <div style={{ width: 44, height: 44, borderRadius: 11, background: '#fff', color: '#2A6049', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12, boxShadow: 'inset 0 0 0 1px #E2EBE5' }}>{icon}</div>
                   <h3 style={{ fontSize: 14, fontWeight: 800, color: '#1A2E25', marginBottom: 6 }}>{String(title)}</h3>
                   <p style={{ fontSize: 13, color: '#4A6458', lineHeight: 1.65 }}>{String(desc)}</p>
                 </article>
@@ -314,7 +326,7 @@ export default function LandingPage() {
                   <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
                     {p.features.map(f => (
                       <li key={f} style={{ display: 'flex', gap: 10, fontSize: 14, color: p.highlight ? 'rgba(255,255,255,0.8)' : '#4A6458', lineHeight: 1.5 }}>
-                        <span style={{ color: p.highlight ? '#6ABB71' : '#2A6049', fontWeight: 800, flexShrink: 0 }}>✓</span>{f}
+                        <Check size={16} strokeWidth={2.5} style={{ color: p.highlight ? '#6ABB71' : '#2A6049', flexShrink: 0, marginTop: 3 }} />{f}
                       </li>
                     ))}
                   </ul>
@@ -348,7 +360,7 @@ export default function LandingPage() {
         <footer role="contentinfo" style={{ background: '#0D1A13', padding: 'clamp(36px,5vw,56px) clamp(20px,4vw,40px) clamp(24px,3vw,36px)' }}>
           <div className="lp-footer-inner">
             <div>
-              <div style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 6, letterSpacing: '-0.02em' }}>🌿 pieta.care</div>
+              <div style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 6, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 7 }}><Leaf size={18} strokeWidth={2.25} /> pieta.care</div>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', maxWidth: 240, lineHeight: 1.7 }}>
                 Plataforma portuguesa de gestão de cuidados familiares.
               </p>

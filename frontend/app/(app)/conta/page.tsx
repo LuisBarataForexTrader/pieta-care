@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { Settings, User as UserIcon, CreditCard, Download, Trash2, AlertTriangle } from 'lucide-react'
 import { api, clearToken } from '@/lib/api'
 import type { User } from '@/lib/types'
 
@@ -58,7 +59,7 @@ export default function ContaPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">⚙️ A minha conta</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><Settings size={20} strokeWidth={2} /> A minha conta</div>
           <div className="page-subtitle">Gerir dados e preferências da conta</div>
         </div>
       </div>
@@ -73,7 +74,7 @@ export default function ContaPage() {
         {/* Profile info */}
         {user && (
           <div className="card card-lg" style={{ marginBottom: 20 }}>
-            <div className="section-title" style={{ marginBottom: 16 }}>👤 Informação da conta</div>
+            <div className="section-title" style={{ marginBottom: 16 }}><UserIcon size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Informação da conta</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14, padding: '8px 0', borderBottom: '1px solid var(--border)' }}>
                 <span style={{ color: 'var(--text-3)' }}>Nome</span>
@@ -97,7 +98,7 @@ export default function ContaPage() {
 
         {/* Subscription */}
         <div className="card card-lg" style={{ marginBottom: 20 }}>
-          <div className="section-title" style={{ marginBottom: 12 }}>💳 Subscrição</div>
+          <div className="section-title" style={{ marginBottom: 12 }}><CreditCard size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Subscrição</div>
           <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16 }}>
             Pode cancelar a sua subscrição a qualquer momento. Após o cancelamento, o acesso mantém-se activo até ao fim do período pago.
           </p>
@@ -109,7 +110,7 @@ export default function ContaPage() {
 
         {/* Export data */}
         <div className="card card-lg" style={{ marginBottom: 20 }}>
-          <div className="section-title" style={{ marginBottom: 12 }}>📦 Exportar dados</div>
+          <div className="section-title" style={{ marginBottom: 12 }}><Download size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Exportar dados</div>
           <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16 }}>
             De acordo com o RGPD, tem o direito de obter uma cópia de todos os seus dados pessoais e dos perfis de cuidado que gere.
           </p>
@@ -117,15 +118,15 @@ export default function ContaPage() {
             className="btn-secondary"
             onClick={handleExport}
             disabled={exportLoading}
-            style={{ width: 'auto', padding: '10px 24px' }}
+            style={{ width: 'auto', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: 8 }}
           >
-            {exportLoading ? 'A exportar…' : '⬇ Exportar todos os dados (JSON)'}
+            {exportLoading ? 'A exportar…' : <><Download size={15} strokeWidth={2} /> Exportar todos os dados (JSON)</>}
           </button>
         </div>
 
         {/* Delete account */}
         <div className="card card-lg" style={{ border: '1px solid #FEB2B2' }}>
-          <div className="section-title" style={{ marginBottom: 12, color: '#C53030' }}>🗑 Eliminar conta</div>
+          <div className="section-title" style={{ marginBottom: 12, color: '#C53030' }}><Trash2 size={16} strokeWidth={2} /> Eliminar conta</div>
           <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 8 }}>
             Ao eliminar a sua conta, todos os dados ficam disponíveis para exportação durante <strong>30 dias</strong>, após os quais são eliminados definitivamente dos nossos sistemas.
           </p>
@@ -134,8 +135,9 @@ export default function ContaPage() {
           </p>
 
           {deleteConfirm && !deletePending && (
-            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '14px 16px', marginBottom: 16, fontSize: 14, color: '#744210', lineHeight: 1.6 }}>
-              ⚠️ Tem a certeza? Clique novamente em "Confirmar eliminação" para prosseguir. Esta acção iniciará o processo de eliminação da conta.
+            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '14px 16px', marginBottom: 16, fontSize: 14, color: '#744210', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+              <AlertTriangle size={18} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
+              <span>Tem a certeza? Clique novamente em &ldquo;Confirmar eliminação&rdquo; para prosseguir. Esta acção iniciará o processo de eliminação da conta.</span>
             </div>
           )}
 

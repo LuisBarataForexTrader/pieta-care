@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { AlertTriangle, Calendar as CalendarIcon, MapPin, Edit3, Stethoscope } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Incident } from '@/lib/types'
 import BodyMap, { BODY_ZONES } from '@/components/BodyMap'
@@ -115,7 +116,7 @@ export default function IncidentesPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">⚠️ Incidentes</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><AlertTriangle size={20} strokeWidth={2} style={{ color: '#C53030' }} /> Incidentes</div>
           <div className="page-subtitle">{open.length} aberto{open.length !== 1 ? 's' : ''}{resolved.length > 0 ? ` · ${resolved.length} resolvido${resolved.length !== 1 ? 's' : ''}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -202,11 +203,11 @@ export default function IncidentesPage() {
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                                 <span style={{ fontWeight: 700, fontSize: 15 }}>{TYPE_LABEL[inc.type]}</span>
                                 <span style={{ background: SEV_BG[inc.severity], color: SEV_COLOR[inc.severity], fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>{SEV_LABEL[inc.severity]}</span>
-                                {inc.follow_up_required && <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>⚕️ Acompanhamento</span>}
+                                {inc.follow_up_required && <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Stethoscope size={11} strokeWidth={2.25} /> Acompanhamento</span>}
                               </div>
                               <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 8 }}>
-                                📅 {fmtDT(inc.occurred_at)} · por {inc.reported_by_name}
-                                {inc.body_zone && (() => { try { const z: string[] = JSON.parse(inc.body_zone!); return z.length ? <> · <span style={{ color: 'var(--brand)', fontWeight: 600 }}>📍 {z.map(k => BODY_ZONES[k] ?? k).join(', ')}</span></> : null } catch { return null } })()}
+                                <CalendarIcon size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />{fmtDT(inc.occurred_at)} · por {inc.reported_by_name}
+                                {inc.body_zone && (() => { try { const z: string[] = JSON.parse(inc.body_zone!); return z.length ? <> · <span style={{ color: 'var(--brand)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 3 }}><MapPin size={11} strokeWidth={2} /> {z.map(k => BODY_ZONES[k] ?? k).join(', ')}</span></> : null } catch { return null } })()}
                               </div>
                               <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6 }}>{inc.description}</div>
                               {inc.actions_taken && expandedId === inc.id && (
@@ -222,7 +223,7 @@ export default function IncidentesPage() {
                                 {expandedId === inc.id ? 'Ocultar' : 'Ver acções'}
                               </button>
                             )}
-                            <button onClick={() => startEdit(inc)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px' }}>✏️ Editar</button>
+                            <button onClick={() => startEdit(inc)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={12} strokeWidth={2.25} /> Editar</button>
                             <button onClick={() => resolve(inc.id)} style={{ background: 'var(--success-light)', color: 'var(--success)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Resolver</button>
                             <button onClick={() => del(inc.id)} className="btn-danger-ghost">🗑</button>
                           </div>

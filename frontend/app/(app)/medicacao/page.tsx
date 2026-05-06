@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Pill, Plus, X, Zap, Check, Trash2 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Medication } from '@/lib/types'
 
@@ -76,15 +77,15 @@ export default function MedicacaoPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">💊 Medicação</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><Pill size={20} strokeWidth={2} /> Medicação</div>
           <div className="page-subtitle">{active.length + prn.length} medicamento{active.length + prn.length !== 1 ? 's' : ''} activo{active.length + prn.length !== 1 ? 's' : ''}{prn.length > 0 ? ` · ${prn.length} SOS` : ''}</div>
         </div>
         <button
           onClick={() => { setShowForm(v => !v); setError('') }}
           className={showForm ? 'btn-ghost' : 'btn-primary'}
-          style={{ width: 'auto', padding: '10px 20px' }}
+          style={{ width: 'auto', padding: '10px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
         >
-          {showForm ? '✕ Cancelar' : '+ Adicionar'}
+          {showForm ? <><X size={15} strokeWidth={2.5} /> Cancelar</> : <><Plus size={15} strokeWidth={2.5} /> Adicionar</>}
         </button>
       </div>
 
@@ -109,7 +110,7 @@ export default function MedicacaoPage() {
             <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 14px', background: form.is_prn ? '#FFFAF0' : 'var(--surface-2)', border: `1.5px solid ${form.is_prn ? '#D69E2E' : 'var(--border)'}`, borderRadius: 10, transition: 'all 0.15s' }}>
               <input type="checkbox" checked={form.is_prn} onChange={e => setForm(f => ({ ...f, is_prn: e.target.checked }))} style={{ width: 18, height: 18, accentColor: '#D69E2E' }} />
               <div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: form.is_prn ? '#B7791F' : 'var(--text)' }}>⚡ Medicamento SOS / PRN</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: form.is_prn ? '#B7791F' : 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Zap size={15} strokeWidth={2.25} /> Medicamento SOS / PRN</div>
                 <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Tomar quando necessário — sem horário fixo</div>
               </div>
             </label>
@@ -154,11 +155,11 @@ export default function MedicacaoPage() {
         ) : active.length === 0 && prn.length === 0 && !showForm ? (
           <div className="card">
             <div className="empty-state">
-              <div className="empty-state-icon">💊</div>
+              <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Pill size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Sem medicamentos registados</div>
               <div className="empty-state-text">Adicione os medicamentos do familiar para acompanhar as tomas diárias</div>
-              <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
-                + Adicionar medicamento
+              <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                <Plus size={15} strokeWidth={2.5} /> Adicionar medicamento
               </button>
             </div>
           </div>
@@ -166,8 +167,8 @@ export default function MedicacaoPage() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
             {prn.length > 0 && (
               <>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#B7791F', textTransform: 'uppercase', letterSpacing: '0.07em' }}>
-                  ⚡ SOS / Quando necessário ({prn.length})
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#B7791F', textTransform: 'uppercase', letterSpacing: '0.07em', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                  <Zap size={12} strokeWidth={2.25} /> SOS / Quando necessário ({prn.length})
                 </div>
                 {prn.map(med => (
                   <div key={med.id} className="card" style={{ borderLeft: '3px solid #D69E2E' }}>
@@ -188,9 +189,9 @@ export default function MedicacaoPage() {
                           disabled={prnLogging === med.id}
                           style={{ background: '#FFFAF0', color: '#B7791F', border: '1.5px solid #D69E2E', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                         >
-                          {prnLogging === med.id ? '…' : '⚡ Tomar agora'}
+                          {prnLogging === med.id ? '…' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={13} strokeWidth={2.25} /> Tomar agora</span>}
                         </button>
-                        <button onClick={() => deactivate(med.id)} className="btn-danger-ghost" title="Remover">🗑</button>
+                        <button onClick={() => deactivate(med.id)} className="btn-danger-ghost" title="Remover"><Trash2 size={15} strokeWidth={2} /></button>
                       </div>
                     </div>
                   </div>
@@ -227,7 +228,7 @@ export default function MedicacaoPage() {
                     title="Remover medicamento"
                     style={{ marginLeft: 8 }}
                   >
-                    🗑
+                    <Trash2 size={15} strokeWidth={2} />
                   </button>
                 </div>
               </div>

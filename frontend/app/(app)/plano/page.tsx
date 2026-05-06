@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { ClipboardList } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { CarePlanItem } from '@/lib/types'
 
@@ -94,7 +95,7 @@ export default function PlanoPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">🗂️ Plano de Cuidados</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><ClipboardList size={20} strokeWidth={2} /> Plano de Cuidados</div>
           <div className="page-subtitle">{active.length} item{active.length !== 1 ? 's' : ''} activo{active.length !== 1 ? 's' : ''}{inactive.length > 0 ? ` · ${inactive.length} inactivo${inactive.length !== 1 ? 's' : ''}` : ''}</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>

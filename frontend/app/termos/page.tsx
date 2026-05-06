@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Leaf, AlertTriangle } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Termos de Uso - pieta.care',
@@ -55,8 +56,8 @@ export default function TermosPage() {
 
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #E8EFE9', padding: '0 clamp(16px,3vw,32px)', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 40 }}>
-        <Link href="/" style={{ fontWeight: 900, fontSize: 18, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-          🌿 pieta.care
+        <Link href="/" style={{ fontWeight: 900, fontSize: 18, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <Leaf size={18} strokeWidth={2.25} /> pieta.care
         </Link>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Link href="/privacidade" style={{ fontSize: 13, color: '#7A9A8A', textDecoration: 'none', fontWeight: 500 }}>Privacidade</Link>
@@ -114,7 +115,7 @@ export default function TermosPage() {
 
               <Section id="s2" title="2. Descrição do serviço">
                 <p>O pieta.care é uma plataforma de software como serviço (SaaS) que permite a famílias e cuidadores profissionais gerir informação clínica, medicação, agenda, sinais vitais, incidentes e documentos relacionados com o cuidado de pessoas idosas ou dependentes.</p>
-                <p style={note}>⚠️ O pieta.care é uma ferramenta de apoio à organização e comunicação entre cuidadores. <strong>Não constitui um serviço de saúde, não substitui aconselhamento médico, diagnóstico clínico ou tratamento profissional de saúde</strong>, não sendo regulado como dispositivo médico nos termos do Regulamento (UE) 2017/745.</p>
+                <p style={{ ...note, display: 'flex', alignItems: 'flex-start', gap: 10 }}><AlertTriangle size={18} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2, color: '#C05621' }} /><span>O pieta.care é uma ferramenta de apoio à organização e comunicação entre cuidadores. <strong>Não constitui um serviço de saúde, não substitui aconselhamento médico, diagnóstico clínico ou tratamento profissional de saúde</strong>, não sendo regulado como dispositivo médico nos termos do Regulamento (UE) 2017/745.</span></p>
               </Section>
 
               <Section id="s3" title="3. Registo e conta">
@@ -175,7 +176,7 @@ export default function TermosPage() {
               </Section>
 
               <Section id="s6" title="6. Dados de saúde - responsabilidades do utilizador">
-                <p style={note}>⚠️ O pieta.care processa dados de saúde inseridos pelos utilizadores, actuando como <strong>subcontratante</strong>. O utilizador é o <strong>responsável pelo tratamento</strong> dos dados que introduz relativamente a terceiros, nos termos do RGPD.</p>
+                <p style={{ ...note, display: 'flex', alignItems: 'flex-start', gap: 10 }}><AlertTriangle size={18} strokeWidth={2} style={{ flexShrink: 0, marginTop: 2, color: '#C05621' }} /><span>O pieta.care processa dados de saúde inseridos pelos utilizadores, actuando como <strong>subcontratante</strong>. O utilizador é o <strong>responsável pelo tratamento</strong> dos dados que introduz relativamente a terceiros, nos termos do RGPD.</span></p>
                 <p>O utilizador declara e garante que:</p>
                 <ul style={ul}>
                   <li>Obteve o consentimento explícito do titular dos dados de saúde (ou do seu representante legal) antes de os introduzir na plataforma</li>
@@ -254,7 +255,7 @@ export default function TermosPage() {
       </main>
 
       <footer style={{ background: '#0D1A13', padding: '28px 32px', textAlign: 'center' }}>
-        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none' }}>🌿 pieta.care</Link>
+        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={16} strokeWidth={2.25} /> pieta.care</Link>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>© 2026 FLOW 88 - Gestão de Ativos, Lda. · Feito em Portugal 🇵🇹</p>
       </footer>
     </div>

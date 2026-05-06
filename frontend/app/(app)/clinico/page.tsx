@@ -1,5 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { Stethoscope, Hospital, Syringe, Calendar as CalendarIcon, AlertTriangle } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { ClinicalDiagnosis, Vaccination } from '@/lib/types'
 
@@ -103,7 +104,7 @@ export default function ClinicoPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">🩺 Dados Clínicos</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><Stethoscope size={20} strokeWidth={2} /> Dados Clínicos</div>
           <div className="page-subtitle">
             {diagnoses.length} diagnóstico{diagnoses.length !== 1 ? 's' : ''} · {vaccinations.length} vacina{vaccinations.length !== 1 ? 's' : ''}
           </div>
@@ -151,7 +152,7 @@ export default function ClinicoPage() {
 
         {/* Tabs */}
         <div style={{ display: 'flex', gap: 4, marginBottom: 20, background: 'var(--surface-2)', borderRadius: 10, padding: 4 }}>
-          {([['diagnoses', '🏥 Diagnósticos', diagnoses.length], ['vaccinations', '💉 Vacinação', vaccinations.length]] as const).map(([t, label, count]) => (
+          {([['diagnoses', <span key="d" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Hospital size={14} strokeWidth={2.25} /> Diagnósticos</span>, diagnoses.length], ['vaccinations', <span key="v" style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Syringe size={14} strokeWidth={2.25} /> Vacinação</span>, vaccinations.length]] as const).map(([t, label, count]) => (
             <button
               key={t}
               onClick={() => { setTab(t); setShowForm(false) }}
@@ -264,7 +265,7 @@ export default function ClinicoPage() {
           diagnoses.length === 0 && !showForm ? (
             <div className="card">
               <div className="empty-state">
-                <div className="empty-state-icon">🏥</div>
+                <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Hospital size={42} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem diagnósticos registados</div>
                 <div className="empty-state-text">Registe as condições médicas - pode consultar o historial no Portal SNS e copiar para aqui</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar diagnóstico</button>
@@ -332,7 +333,7 @@ export default function ClinicoPage() {
           vaccinations.length === 0 && !showForm ? (
             <div className="card">
               <div className="empty-state">
-                <div className="empty-state-icon">💉</div>
+                <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Syringe size={42} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem vacinas registadas</div>
                 <div className="empty-state-text">Regista o historial de vacinação — gripe sazonal, COVID-19, tétano, pneumococos…</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar vacina</button>

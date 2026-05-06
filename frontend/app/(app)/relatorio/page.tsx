@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { FileBarChart, Printer, Leaf, AlertTriangle, Pill, Calendar as CalendarIcon, Clock, MapPin, User as UserIcon, Siren } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, Medication, CalendarEvent, MedicationLog } from '@/lib/types'
 
@@ -109,14 +110,14 @@ export default function RelatorioPage() {
 
   if (loading) return (
     <div>
-      <div className="page-top"><div className="page-title">📋 Relatório Médico</div></div>
+      <div className="page-top"><div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><FileBarChart size={20} strokeWidth={2} /> Relatório Médico</div></div>
       <div className="page-body"><p className="loading" style={{ textAlign: 'center', padding: 48 }}>A gerar relatório…</p></div>
     </div>
   )
 
   if (!elderly) return (
     <div>
-      <div className="page-top"><div className="page-title">📋 Relatório Médico</div></div>
+      <div className="page-top"><div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><FileBarChart size={20} strokeWidth={2} /> Relatório Médico</div></div>
       <div className="page-body"><p style={{ textAlign: 'center', padding: 48, color: 'var(--text-3)' }}>Sem dados disponíveis.</p></div>
     </div>
   )
@@ -126,7 +127,7 @@ export default function RelatorioPage() {
       {/* Screen toolbar — hidden on print */}
       <div className="page-top no-print">
         <div>
-          <div className="page-title">📋 Relatório Médico</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><FileBarChart size={20} strokeWidth={2} /> Relatório Médico</div>
           <div className="page-subtitle">Gerado em {generatedAt}</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -149,7 +150,7 @@ export default function RelatorioPage() {
             📧 Enviar por email
           </button>
           <button onClick={() => window.print()} className="btn-primary" style={{ width: 'auto', padding: '10px 18px', fontSize: 13 }}>
-            🖨️ Imprimir / PDF
+<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Printer size={15} strokeWidth={2} /> Imprimir / PDF</span>
           </button>
         </div>
       </div>
@@ -167,7 +168,7 @@ export default function RelatorioPage() {
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: 'white' }}>🌿 pieta.care</div>
+            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', display: 'inline-flex', alignItems: 'center', gap: 8 }}><Leaf size={26} strokeWidth={2.25} /> pieta.care</div>
             <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{generatedAt}</div>
           </div>
         </div>
@@ -225,7 +226,7 @@ export default function RelatorioPage() {
 
           {/* Allergies */}
           <div className="card card-lg" style={{ border: elderly.allergies ? '1px solid #FEB2B2' : '1px solid var(--border)', background: elderly.allergies ? '#FFF5F5' : 'var(--surface)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: elderly.allergies ? '#C53030' : 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>⚠️ Alergias conhecidas</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: elderly.allergies ? '#C53030' : 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={13} strokeWidth={2.25} /> Alergias conhecidas</div>
             {elderly.allergies ? (
               <div style={{ fontSize: 14, color: '#C53030', lineHeight: 1.7, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{elderly.allergies}</div>
             ) : (
@@ -237,7 +238,7 @@ export default function RelatorioPage() {
         {/* Medications */}
         <div className="card card-lg" style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>💊 Medicação actual</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Pill size={13} strokeWidth={2.25} /> Medicação actual</div>
             <span style={{ background: 'var(--brand-light)', color: 'var(--brand)', fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 99 }}>{activeMeds.length} activo{activeMeds.length !== 1 ? 's' : ''}</span>
           </div>
 
@@ -363,7 +364,7 @@ export default function RelatorioPage() {
         {/* Calendar events */}
         {(upcomingEvents.length > 0 || pastEvents.length > 0) && (
           <div className="card card-lg" style={{ marginBottom: 20 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16 }}>📅 Consultas e eventos</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 16, display: 'inline-flex', alignItems: 'center', gap: 6 }}><CalendarIcon size={13} strokeWidth={2.25} /> Consultas e eventos</div>
 
             {upcomingEvents.length > 0 && (
               <>
@@ -377,8 +378,8 @@ export default function RelatorioPage() {
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 700, fontSize: 14 }}>{ev.title}</div>
                       <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
-                        🕐 {new Date(ev.starts_at).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                        {ev.location && <> · 📍 {ev.location}</>}
+                        <Clock size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />{new Date(ev.starts_at).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                        {ev.location && <> · <MapPin size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />{ev.location}</>}
                       </div>
                     </div>
                   </div>
@@ -397,7 +398,7 @@ export default function RelatorioPage() {
                     </div>
                     <div style={{ flex: 1 }}>
                       <div style={{ fontWeight: 600, fontSize: 14, textDecoration: 'line-through', color: 'var(--text-3)' }}>{ev.title}</div>
-                      {ev.location && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>📍 {ev.location}</div>}
+                      {ev.location && <div style={{ fontSize: 12, color: 'var(--text-3)', display: 'inline-flex', alignItems: 'center', gap: 4 }}><MapPin size={12} strokeWidth={2} /> {ev.location}</div>}
                     </div>
                   </div>
                 ))}
@@ -409,7 +410,7 @@ export default function RelatorioPage() {
         {/* Personal details + emergency */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
           <div className="card card-lg">
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>👤 Dados pessoais</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}><UserIcon size={13} strokeWidth={2.25} /> Dados pessoais</div>
             {[
               { label: 'Nome completo', value: elderly.full_name },
               { label: 'Data de nascimento', value: elderly.date_of_birth ? `${fmtDate(elderly.date_of_birth)} (${age(elderly.date_of_birth)} anos)` : null },
@@ -425,7 +426,7 @@ export default function RelatorioPage() {
           </div>
 
           <div className="card card-lg" style={{ background: '#FFF5F5', border: '1px solid #FEB2B2' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#C53030', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14 }}>🚨 Contacto de emergência</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#C53030', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Siren size={13} strokeWidth={2.25} /> Contacto de emergência</div>
             {elderly.emergency_contact_name ? (
               <>
                 <div style={{ marginBottom: 10 }}>
