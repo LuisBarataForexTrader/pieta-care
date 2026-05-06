@@ -46,6 +46,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
         member = FamilyMember(
             elderly_id=elderly.id,
             user_id=user.id,
+            invited_email=user.email,
             role="owner",
             is_accepted=True,
         )
