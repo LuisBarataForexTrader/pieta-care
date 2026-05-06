@@ -44,7 +44,7 @@ export default function PrivacidadePage() {
           <Section title="1. Responsável pelo tratamento">
             <p>O responsável pelo tratamento dos seus dados pessoais é:</p>
             <div style={{ background: '#F8FAF9', border: '1px solid #E8EFE9', borderRadius: 10, padding: '20px 24px', margin: '16px 0', fontSize: 15 }}>
-              <p><strong>pieta.care, Lda.</strong> <em style={{ color: '#7A9A8A', fontSize: 13 }}>(denominação social a confirmar mediante registo comercial)</em></p>
+              <p><strong>FLOW 88 — Gestão de Ativos, Lda.</strong></p>
               <p style={{ marginTop: 8 }}>Email de contacto: <a href="mailto:privacidade@pieta.care" style={{ color: '#2A6049' }}>privacidade@pieta.care</a></p>
               <p>Website: <a href="https://pieta.care" style={{ color: '#2A6049' }}>https://pieta.care</a></p>
             </div>

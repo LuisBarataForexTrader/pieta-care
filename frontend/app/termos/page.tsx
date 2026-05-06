@@ -43,7 +43,7 @@ export default function TermosPage() {
 
           <Section title="1. Identificação do prestador de serviço">
             <div style={{ background: '#F8FAF9', border: '1px solid #E8EFE9', borderRadius: 10, padding: '20px 24px', fontSize: 15 }}>
-              <p><strong>pieta.care, Lda.</strong> <em style={{ color: '#7A9A8A', fontSize: 13 }}>(denominação social a confirmar mediante registo comercial)</em></p>
+              <p><strong>FLOW 88 — Gestão de Ativos, Lda.</strong></p>
               <p style={{ marginTop: 8 }}>Email: <a href="mailto:suporte@pieta.care" style={{ color: '#2A6049' }}>suporte@pieta.care</a></p>
               <p>Website: <a href="https://pieta.care" style={{ color: '#2A6049' }}>https://pieta.care</a></p>
             </div>
