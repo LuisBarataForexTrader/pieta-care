@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import { Leaf, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react'
 import { api, setToken, setElderlyId } from '@/lib/api'
 
 export default function Register() {
@@ -29,7 +30,6 @@ export default function Register() {
       setStep('verify')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Erro ao criar conta')
-      setStep('account')
     } finally {
       setLoading(false)
     }
@@ -44,8 +44,14 @@ export default function Register() {
             <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.5px' }}>pieta.care</h1>
           </div>
           <div className="auth-card" style={{ textAlign: 'center' }}>
-            <div style={{ fontSize: 52, marginBottom: 16 }}>📬</div>
-            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12 }}>Verifique o seu email</h2>
+            <div style={{
+              width: 60, height: 60, margin: '0 auto 16px',
+              borderRadius: 16, background: 'var(--brand-light)',
+              display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Mail size={28} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
+            </div>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 12, letterSpacing: '-0.02em' }}>Verifique o seu email</h2>
             <p style={{ fontSize: 15, color: 'var(--text-2)', lineHeight: 1.7, marginBottom: 8 }}>
               Enviámos um link de confirmação para:
             </p>
@@ -71,8 +77,15 @@ export default function Register() {
     <div className="auth-shell">
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.5px' }}>pieta.care</h1>
+          <div style={{
+            width: 60, height: 60, margin: '0 auto 16px',
+            borderRadius: 16, background: 'linear-gradient(135deg, #2A6049 0%, #1E4A38 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px -8px rgba(42,96,73,0.4)',
+          }}>
+            <Leaf size={30} strokeWidth={2} color="#fff" />
+          </div>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pieta.care</h1>
           <p style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 15 }}>30 dias grátis · Sem cartão de crédito</p>
         </div>
 
@@ -102,7 +115,7 @@ export default function Register() {
                   <input className="field-input" type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 8 caracteres" required />
                 </div>
                 {error && <div className="alert-error">{error}</div>}
-                <button className="btn-primary" type="submit" style={{ marginTop: 4 }}>Continuar →</button>
+                <button className="btn-primary" type="submit" style={{ marginTop: 4 }}>Continuar <ArrowRight size={16} strokeWidth={2.5} /></button>
               </form>
             </>
           ) : (

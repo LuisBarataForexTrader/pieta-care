@@ -2,6 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import { Leaf, Lock } from 'lucide-react'
 import { api, setToken, setElderlyId } from '@/lib/api'
 
 export default function Login() {
@@ -33,9 +34,16 @@ export default function Login() {
       <div style={{ width: '100%', maxWidth: 420 }}>
         {/* Brand */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
-          <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
-          <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.5px' }}>pieta.care</h1>
-          <p style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 15 }}>Cuidar de quem amamos, juntos.</p>
+          <div style={{
+            width: 60, height: 60, margin: '0 auto 16px',
+            borderRadius: 16, background: 'linear-gradient(135deg, #2A6049 0%, #1E4A38 100%)',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            boxShadow: '0 8px 24px -8px rgba(42,96,73,0.4)',
+          }}>
+            <Leaf size={30} strokeWidth={2} color="#fff" />
+          </div>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pieta.care</h1>
+          <p style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 14 }}>Cuidar de quem amamos, juntos.</p>
         </div>
 
         <div className="auth-card">
@@ -66,8 +74,8 @@ export default function Login() {
           </p>
         </div>
 
-        <p style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: 'var(--text-3)' }}>
-          🔒 Dados protegidos e encriptados · RGPD compliant
+        <p style={{ textAlign: 'center', marginTop: 24, fontSize: 12, color: 'var(--text-3)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%' }}>
+          <Lock size={12} strokeWidth={2.25} /> Dados protegidos e encriptados · RGPD compliant
         </p>
       </div>
     </div>

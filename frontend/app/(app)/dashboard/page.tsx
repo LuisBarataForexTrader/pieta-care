@@ -1,6 +1,11 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
+import {
+  Pill, Calendar as CalendarIcon, HeartPulse, Activity, Smile,
+  Stethoscope, Phone, Siren, ArrowRight, Check, Clock, ChevronRight,
+  AlertTriangle, User as UserIcon, Droplet, Plus,
+} from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { DailyScheduleItem, CalendarEvent, Elderly, Medication, WellbeingLog, VitalSign } from '@/lib/types'
 
@@ -81,12 +86,12 @@ export default function Dashboard() {
       {/* ── HEADER ── */}
       <div className="page-top">
         <div>
-          <div className="page-title">{todayGreeting()} 👋</div>
+          <div className="page-title">{todayGreeting()}</div>
           <div className="page-subtitle" style={{ textTransform: 'capitalize' }}>{todayFull()}</div>
         </div>
         {allDone && (
-          <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 700 }}>
-            ✓ Todas as tomas confirmadas
+          <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Check size={15} strokeWidth={2.5} /> Todas as tomas confirmadas
           </div>
         )}
       </div>
@@ -100,7 +105,7 @@ export default function Dashboard() {
             <div className="grid-3" style={{ marginBottom: 28 }}>
               {/* Medication compliance */}
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: 'var(--brand-light)' }}>💊</div>
+                <div className="stat-icon" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}><Pill size={22} strokeWidth={1.75} /></div>
                 <div>
                   <div className="stat-label">Adesão hoje</div>
                   <div className="stat-value">{compliance}%</div>
@@ -111,7 +116,7 @@ export default function Dashboard() {
 
               {/* Next appointment */}
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#EEF2FF' }}>📅</div>
+                <div className="stat-icon" style={{ background: '#EEF2FF', color: '#4F46E5' }}><CalendarIcon size={22} strokeWidth={1.75} /></div>
                 <div>
                   <div className="stat-label">Próxima consulta</div>
                   {events.length > 0 ? (
@@ -134,7 +139,7 @@ export default function Dashboard() {
 
               {/* Latest vital or wellbeing */}
               <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#FFF0F0' }}>❤️</div>
+                <div className="stat-icon" style={{ background: '#FFF0F0', color: '#E53E3E' }}><HeartPulse size={22} strokeWidth={1.75} /></div>
                 <div>
                   {latestVital?.blood_pressure_sys ? (
                     <>
@@ -168,18 +173,18 @@ export default function Dashboard() {
               {/* LEFT — Medication schedule */}
               <div>
                 <div className="section-header">
-                  <div className="section-title">💊 Medicação de hoje</div>
-                  <Link href="/medicacao" className="section-link">Ver tudo →</Link>
+                  <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Pill size={17} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Medicação de hoje</div>
+                  <Link href="/medicacao" className="section-link">Ver tudo <ArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
                 </div>
 
                 {schedule.length === 0 ? (
                   <div className="card">
                     <div className="empty-state">
-                      <div className="empty-state-icon">💊</div>
+                      <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Pill size={42} strokeWidth={1.4} /></div>
                       <div className="empty-state-title">Sem medicação registada</div>
                       <div className="empty-state-text">Adicione os medicamentos no separador Medicação</div>
                       <Link href="/medicacao" style={{ marginTop: 16 }}>
-                        <button className="btn-primary" style={{ width: 'auto', padding: '10px 24px' }}>+ Adicionar medicação</button>
+                        <button className="btn-primary" style={{ width: 'auto', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={16} strokeWidth={2.5} /> Adicionar medicação</button>
                       </Link>
                     </div>
                   </div>
@@ -204,8 +209,8 @@ export default function Dashboard() {
                             </div>
                           </div>
                           <div style={{ display: 'flex', gap: 8 }}>
-                            <button className="btn-confirm" onClick={() => confirm(item, 'taken')} disabled={busy}>
-                              {busy ? '…' : <><span>✓</span> Confirmar toma</>}
+                            <button className="btn-confirm" onClick={() => confirm(item, 'taken')} disabled={busy} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
+                              {busy ? '…' : <><Check size={16} strokeWidth={2.5} /> Confirmar toma</>}
                             </button>
                             <button className="btn-skip" onClick={() => confirm(item, 'skipped')} disabled={busy}>Saltar</button>
                           </div>
@@ -239,7 +244,7 @@ export default function Dashboard() {
                 {/* Active medications list (non-PRN) */}
                 {medications.filter(m => m.is_active && !m.is_prn).length > 0 && schedule.length === 0 && (
                   <div className="card" style={{ marginTop: 20 }}>
-                    <div className="section-title" style={{ marginBottom: 14 }}>📋 Medicação activa</div>
+                    <div className="section-title" style={{ marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Pill size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Medicação activa</div>
                     {medications.filter(m => m.is_active && !m.is_prn).map(m => (
                       <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
                         <div>
@@ -280,14 +285,14 @@ export default function Dashboard() {
                             <span style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 600 }}>{elderlyAge} anos</span>
                           )}
                           {elderly.blood_type && (
-                            <span className="pill" style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11 }}>🩸 {elderly.blood_type}</span>
+                            <span className="pill" style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Droplet size={11} strokeWidth={2.25} /> {elderly.blood_type}</span>
                           )}
                           {elderly.health_number && (
                             <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)', fontSize: 11 }}>SNS {elderly.health_number}</span>
                           )}
                         </div>
                       </div>
-                      <span style={{ fontSize: 12, color: 'var(--text-3)' }}>→</span>
+                      <ChevronRight size={16} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
                     </div>
                   </Link>
                 )}
@@ -297,12 +302,12 @@ export default function Dashboard() {
                   <Link href="/saude" style={{ textDecoration: 'none' }}>
                     <div className="card" style={{ border: '1.5px dashed var(--brand)', background: 'var(--brand-light)', cursor: 'pointer' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 26 }}>😊</span>
+                        <Smile size={26} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
                         <div style={{ flex: 1 }}>
                           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)' }}>Como está hoje?</div>
                           <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Regista o bem-estar diário</div>
                         </div>
-                        <span style={{ fontSize: 13, color: 'var(--brand)', fontWeight: 600 }}>Registar →</span>
+                        <span style={{ fontSize: 13, color: 'var(--brand)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>Registar <ArrowRight size={14} /></span>
                       </div>
                     </div>
                   </Link>
@@ -310,8 +315,8 @@ export default function Dashboard() {
                 {wellbeing && (
                   <div className="card">
                     <div className="section-header" style={{ marginBottom: 10 }}>
-                      <div className="section-title">😊 Bem-estar hoje</div>
-                      <Link href="/saude" className="section-link">Ver →</Link>
+                      <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Smile size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Bem-estar hoje</div>
+                      <Link href="/saude" className="section-link">Ver <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
                     </div>
                     <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
                       <span style={{ fontSize: 34 }}>{['','😞','😟','😐','🙂','😄'][wellbeing.mood]}</span>
@@ -332,8 +337,8 @@ export default function Dashboard() {
                 {latestVital && (
                   <div className="card" style={{ padding: '12px 16px' }}>
                     <div className="section-header" style={{ marginBottom: 8 }}>
-                      <div className="section-title" style={{ fontSize: 13 }}>❤️ Sinais vitais</div>
-                      <Link href="/saude" className="section-link">Ver →</Link>
+                      <div className="section-title" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><HeartPulse size={14} strokeWidth={2} style={{ color: '#E53E3E' }} /> Sinais vitais</div>
+                      <Link href="/saude" className="section-link">Ver <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
                     </div>
                     <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
                       {latestVital.blood_pressure_sys && latestVital.blood_pressure_dia && (
@@ -359,8 +364,8 @@ export default function Dashboard() {
                 {events.length > 0 && (
                   <div className="card">
                     <div className="section-header" style={{ marginBottom: 10 }}>
-                      <div className="section-title">📅 Próxima consulta</div>
-                      <Link href="/calendario" className="section-link">Agenda →</Link>
+                      <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CalendarIcon size={16} strokeWidth={2} style={{ color: '#4F46E5' }} /> Próxima consulta</div>
+                      <Link href="/calendario" className="section-link">Agenda <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
                     </div>
                     {events.slice(0, 1).map(ev => {
                       const d = new Date(ev.starts_at)
@@ -372,20 +377,20 @@ export default function Dashboard() {
                           </div>
                           <div>
                             <div className="event-title">{ev.title}</div>
-                            <div className="event-meta">
-                              🕐 {d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                              {ev.location && <> · 📍 {ev.location}</>}
+                            <div className="event-meta" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                              <Clock size={12} strokeWidth={2} /> {d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                              {ev.location && <> · {ev.location}</>}
                             </div>
                             {ev.doctor_name && (
-                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3 }}>👨‍⚕️ {ev.doctor_name}</div>
+                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Stethoscope size={12} strokeWidth={2} /> {ev.doctor_name}</div>
                             )}
                           </div>
                         </div>
                       )
                     })}
                     <Link href="/calendario">
-                      <button className="btn-secondary" style={{ marginTop: 12, padding: '9px', fontSize: 13 }}>
-                        + Marcar consulta
+                      <button className="btn-secondary" style={{ marginTop: 12, padding: '9px', fontSize: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%' }}>
+                        <Plus size={14} strokeWidth={2.5} /> Marcar consulta
                       </button>
                     </Link>
                   </div>
@@ -393,18 +398,18 @@ export default function Dashboard() {
 
                 {/* ── Emergency contacts (compact) ── */}
                 <div className="card">
-                  <div className="section-title" style={{ marginBottom: 12 }}>🆘 Emergência</div>
+                  <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={16} strokeWidth={2} style={{ color: '#C53030' }} /> Emergência</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: elderly?.emergency_contact_phone ? 10 : 0 }}>
                     <a href="tel:112" style={{ textDecoration: 'none' }}>
                       <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '12px 8px', textAlign: 'center' }}>
-                        <div style={{ fontSize: 18, marginBottom: 2 }}>🚨</div>
+                        <Siren size={20} strokeWidth={1.75} style={{ color: '#C53030', margin: '0 auto 4px' }} />
                         <div style={{ fontSize: 14, fontWeight: 800, color: '#C53030' }}>112</div>
                         <div style={{ fontSize: 10, color: 'var(--text-3)' }}>Emergência</div>
                       </div>
                     </a>
                     <a href="tel:808242424" style={{ textDecoration: 'none' }}>
                       <div style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)', borderRadius: 10, padding: '12px 8px', textAlign: 'center' }}>
-                        <div style={{ fontSize: 18, marginBottom: 2 }}>📞</div>
+                        <Phone size={20} strokeWidth={1.75} style={{ color: 'var(--brand)', margin: '0 auto 4px' }} />
                         <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand)' }}>SNS 24</div>
                         <div style={{ fontSize: 10, color: 'var(--text-3)' }}>808 24 24 24</div>
                       </div>
@@ -414,7 +419,7 @@ export default function Dashboard() {
                     <a href={elderly.emergency_contact_phone ? `tel:${elderly.emergency_contact_phone}` : undefined}
                        style={{ textDecoration: 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px' }}>
-                        <span style={{ fontSize: 18 }}>👤</span>
+                        <UserIcon size={18} strokeWidth={1.75} style={{ color: 'var(--text-2)' }} />
                         <div>
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)' }}>{elderly.emergency_contact_name}</div>
                           {elderly.emergency_contact_phone && (
