@@ -21,7 +21,7 @@ router = APIRouter(prefix="/elderly/{elderly_id}/documents", tags=["documents"])
 async def upload(
     elderly_id: int,
     file: UploadFile = File(...),
-    category: str = Form(...),
+    category: str = Form(default='outro'),
     name: str | None = Form(default=None),
     notes: str | None = Form(default=None),
     document_date: datetime | None = Form(default=None),
