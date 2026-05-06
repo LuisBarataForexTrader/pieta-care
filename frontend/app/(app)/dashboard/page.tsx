@@ -177,7 +177,7 @@ export default function Dashboard() {
                     <div className="empty-state">
                       <div className="empty-state-icon">💊</div>
                       <div className="empty-state-title">Sem medicação registada</div>
-                      <div className="empty-state-text">Adiciona os medicamentos no separador Medicação</div>
+                      <div className="empty-state-text">Adicione os medicamentos no separador Medicação</div>
                       <Link href="/medicacao" style={{ marginTop: 16 }}>
                         <button className="btn-primary" style={{ width: 'auto', padding: '10px 24px' }}>+ Adicionar medicação</button>
                       </Link>

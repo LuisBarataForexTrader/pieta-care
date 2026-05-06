@@ -31,11 +31,11 @@ export default function AcceptInvite() {
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{ fontSize: 40, marginBottom: 8 }}>💌</div>
         <h1 style={{ fontSize: 22, fontWeight: 700, margin: 0 }}>Aceitar convite</h1>
-        <p style={{ color: 'var(--muted)', marginTop: 6, fontSize: 14 }}>Cria a tua conta para aceder ao perfil familiar</p>
+        <p style={{ color: 'var(--muted)', marginTop: 6, fontSize: 14 }}>Crie a sua conta para aceder ao perfil familiar</p>
       </div>
       <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         <div>
-          <label className="label">O teu nome</label>
+          <label className="label">O seu nome</label>
           <input className="input" value={form.full_name} onChange={e => setForm(f => ({ ...f, full_name: e.target.value }))} placeholder="Nome completo" required />
         </div>
         <div>

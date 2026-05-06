@@ -45,7 +45,7 @@ export default function Login() {
             <div>
               <label className="field-label">Email</label>
               <input className="field-input" type="email" value={email} onChange={e => setEmail(e.target.value)}
-                placeholder="o_teu@email.com" required autoComplete="email" />
+                placeholder="o_seu@email.com" required autoComplete="email" />
             </div>
             <div>
               <label className="field-label">Password</label>
@@ -61,7 +61,7 @@ export default function Login() {
           </form>
 
           <p style={{ textAlign: 'center', marginTop: 20, color: 'var(--text-3)', fontSize: 14 }}>
-            Não tens conta?{' '}
+            Não tem conta?{' '}
             <Link href="/register" style={{ color: 'var(--brand)', fontWeight: 700 }}>Criar conta gratuita</Link>
           </p>
         </div>

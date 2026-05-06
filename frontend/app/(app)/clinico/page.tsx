@@ -128,7 +128,7 @@ export default function ClinicoPage() {
             <div style={{ fontSize: 13, fontWeight: 700, color: '#2B6CB0' }}>Integração SNS FHIR — Em desenvolvimento</div>
             <div style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5 }}>
               A SPMS está a desenvolver a API pública SNS/FHIR. Quando disponível, os dados serão importados automaticamente.
-              Por agora, podes consultar o teu histórico no <strong>Portal SNS</strong> e registar manualmente.
+              Por agora, pode consultar o seu histórico no <strong>Portal SNS</strong> e registar manualmente.
             </div>
           </div>
         </div>
@@ -266,7 +266,7 @@ export default function ClinicoPage() {
               <div className="empty-state">
                 <div className="empty-state-icon">🏥</div>
                 <div className="empty-state-title">Sem diagnósticos registados</div>
-                <div className="empty-state-text">Regista as condições médicas — podes consultar o historial no Portal SNS e copiar para aqui</div>
+                <div className="empty-state-text">Registe as condições médicas - pode consultar o historial no Portal SNS e copiar para aqui</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar diagnóstico</button>
               </div>
             </div>

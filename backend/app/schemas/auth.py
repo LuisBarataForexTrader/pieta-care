@@ -1,4 +1,6 @@
 from pydantic import BaseModel, EmailStr
+from datetime import datetime
+from typing import Any
 
 
 class RegisterRequest(BaseModel):
@@ -6,6 +8,7 @@ class RegisterRequest(BaseModel):
     password: str
     full_name: str
     phone: str | None = None
+    elderly_name: str | None = None
 
 
 class LoginRequest(BaseModel):
@@ -35,7 +38,18 @@ class AuthResponse(BaseModel):
     user: UserResponse
 
 
+class RegisterResponse(BaseModel):
+    message: str
+    email: str
+
+
 class InviteAcceptRequest(BaseModel):
     token: str
     password: str
     full_name: str
+
+
+class ExportResponse(BaseModel):
+    exported_at: str
+    user: dict[str, Any]
+    elderly_profiles: list[dict[str, Any]]

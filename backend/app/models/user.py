@@ -18,5 +18,7 @@ class User(Base):
     subscription_status: Mapped[str] = mapped_column(String(20), default="trial")
     trial_ends_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    email_verification_token: Mapped[str | None] = mapped_column(String(100))
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     family_memberships: Mapped[list["FamilyMember"]] = relationship(back_populates="user")

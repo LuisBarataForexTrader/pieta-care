@@ -155,7 +155,7 @@ export default function FamiliaPage() {
             <div className="card" style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', marginBottom: 8 }}>🔒 Partilha segura</div>
               <div style={{ fontSize: 13, color: 'var(--text-2)', lineHeight: 1.6 }}>
-                O familiar convidado receberá um email para criar a sua conta e aceder à informação do doente. Podes remover o acesso a qualquer momento.
+                O familiar convidado receberá um email para criar a sua conta e aceder à informação do doente. Pode remover o acesso a qualquer momento.
               </div>
             </div>
           </div>

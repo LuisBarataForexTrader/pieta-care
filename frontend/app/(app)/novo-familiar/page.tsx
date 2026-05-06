@@ -41,7 +41,7 @@ export default function NovoFamiliarPage() {
       <div className="page-top">
         <div>
           <div className="page-title">👤 Novo familiar</div>
-          <div className="page-subtitle">Adiciona um novo perfil de cuidado</div>
+          <div className="page-subtitle">Adicione um novo perfil de cuidado</div>
         </div>
         <button onClick={() => router.back()} className="btn-ghost" style={{ width: 'auto', padding: '10px 20px' }}>
           ✕ Cancelar
@@ -51,7 +51,7 @@ export default function NovoFamiliarPage() {
       <div className="page-body">
         <div className="card card-lg" style={{ marginBottom: 16, padding: '16px 20px', background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)' }}>
           <div style={{ fontSize: 14, color: 'var(--brand)', fontWeight: 600 }}>
-            🌿 Ao adicionar um segundo familiar, o teu plano será ajustado para Família+ (€59/mês).
+            🌿 Ao adicionar um segundo familiar, o seu plano será ajustado para Família+ (€59/mês).
           </div>
         </div>
 

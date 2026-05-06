@@ -59,11 +59,20 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
 
-  register: (email: string, password: string, full_name: string) =>
-    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/register', {
+  register: (email: string, password: string, full_name: string, elderly_name?: string) =>
+    request<{ message: string; email: string }>('/api/v1/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, full_name }),
+      body: JSON.stringify({ email, password, full_name, elderly_name }),
     }),
+
+  verifyEmail: (token: string) =>
+    request<{ access_token: string; user: import('./types').User }>(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`),
+
+  deleteAccount: () =>
+    request<{ message: string }>('/api/v1/auth/account', { method: 'DELETE' }),
+
+  exportData: () =>
+    request<Record<string, unknown>>('/api/v1/auth/export'),
 
   me: () => request<import('./types').User>('/api/v1/auth/me'),
 

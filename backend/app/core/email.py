@@ -52,6 +52,100 @@ def _send_smtp(to: str, subject: str, html: str) -> bool:
         return False
 
 
+def verification_email_html(name: str, verify_url: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f3f7f5;font-family:'Helvetica Neue',Arial,sans-serif;color:#1a2b22;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+  <tr><td align="center">
+    <table width="100%" style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.09);">
+      <tr>
+        <td style="background:#2A6049;padding:32px 40px;text-align:center;">
+          <div style="font-size:30px;margin-bottom:6px;">🌿</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pieta.care</div>
+          <div style="color:#a8c9bc;font-size:13px;margin-top:4px;">Cuidar com confiança</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:40px;">
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">Olá, <strong>{name}</strong>,</p>
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">
+            Obrigado por se registar no <strong>pieta.care</strong>. Para activar a sua conta, confirme o seu endereço de email clicando no botão abaixo.
+          </p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="{verify_url}"
+               style="display:inline-block;background:#2A6049;color:#fff;font-size:16px;font-weight:700;
+                      text-decoration:none;padding:16px 44px;border-radius:10px;">
+              Confirmar email →
+            </a>
+          </div>
+          <p style="font-size:13px;color:#94a89a;margin:0 0 8px;line-height:1.6;">
+            Se não criou uma conta no pieta.care, pode ignorar este email com segurança.
+          </p>
+          <p style="font-size:13px;color:#94a89a;margin:0 0 24px;line-height:1.6;">
+            Este link expira em 24 horas.
+          </p>
+          <p style="font-size:12px;color:#b0bbb6;word-break:break-all;">
+            Ou copie este endereço para o seu browser: {verify_url}
+          </p>
+          <hr style="border:none;border-top:1px solid #e6eeea;margin:24px 0 16px;">
+          <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
+            © pieta.care &nbsp;·&nbsp;
+            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>"""
+
+
+def deletion_confirmation_html(name: str, deletion_date: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f3f7f5;font-family:'Helvetica Neue',Arial,sans-serif;color:#1a2b22;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+  <tr><td align="center">
+    <table width="100%" style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.09);">
+      <tr>
+        <td style="background:#2A6049;padding:32px 40px;text-align:center;">
+          <div style="font-size:30px;margin-bottom:6px;">🌿</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;">pieta.care</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:40px;">
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">Olá, <strong>{name}</strong>,</p>
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">
+            Recebemos o seu pedido de eliminação de conta. Os seus dados estarão disponíveis para exportação até <strong>{deletion_date}</strong>, data em que serão eliminados definitivamente dos nossos sistemas.
+          </p>
+          <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:10px;padding:16px 20px;margin:24px 0;">
+            <p style="font-size:14px;color:#744210;margin:0;line-height:1.6;">
+              Se mudou de ideias ou eliminou a conta por engano, contacte-nos antes de <strong>{deletion_date}</strong> através de
+              <a href="mailto:suporte@pieta.care" style="color:#2A6049;">suporte@pieta.care</a>.
+            </p>
+          </div>
+          <p style="font-size:14px;color:#4a7060;margin:0 0 24px;line-height:1.7;">
+            Obrigado por ter utilizado o pieta.care.
+          </p>
+          <hr style="border:none;border-top:1px solid #e6eeea;margin:0 0 16px;">
+          <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
+            © pieta.care &nbsp;·&nbsp;
+            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>"""
+
+
 def invite_email_html(elderly_name: str, inviter_name: str, invite_link: str, relation: str | None) -> str:
     rel = f" como {relation}" if relation else ""
     return f"""<!DOCTYPE html>

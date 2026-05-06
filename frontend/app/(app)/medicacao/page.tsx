@@ -156,7 +156,7 @@ export default function MedicacaoPage() {
             <div className="empty-state">
               <div className="empty-state-icon">💊</div>
               <div className="empty-state-title">Sem medicamentos registados</div>
-              <div className="empty-state-text">Adiciona os medicamentos do familiar para acompanhar as tomas diárias</div>
+              <div className="empty-state-text">Adicione os medicamentos do familiar para acompanhar as tomas diárias</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
                 + Adicionar medicamento
               </button>
