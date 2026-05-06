@@ -57,7 +57,7 @@ class Incident(Base):
     actions_taken: Mapped[str | None] = mapped_column(Text)
     follow_up_required: Mapped[bool] = mapped_column(Boolean, default=False)
     resolved: Mapped[bool] = mapped_column(Boolean, default=False)
-    body_zone: Mapped[str | None] = mapped_column(String(50))
+    body_zone: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     elderly: Mapped["ElderlyProfile"] = relationship()

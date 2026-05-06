@@ -45,7 +45,7 @@ export default function IncidentesPage() {
     description: '',
     actions_taken: '',
     follow_up_required: false,
-    body_zone: null as string | null,
+    body_zone: [] as string[],
   }
   const [form, setForm] = useState(emptyForm)
 
@@ -65,7 +65,7 @@ export default function IncidentesPage() {
       description: inc.description,
       actions_taken: inc.actions_taken ?? '',
       follow_up_required: inc.follow_up_required,
-      body_zone: inc.body_zone,
+      body_zone: inc.body_zone ? (() => { try { return JSON.parse(inc.body_zone!) } catch { return [] } })() : [],
     })
     setEditingId(inc.id)
     setShowForm(true)
@@ -84,10 +84,11 @@ export default function IncidentesPage() {
     if (!elderlyId) return
     setSaving(true); setError('')
     try {
+      const payload = { ...form, body_zone: form.body_zone.length ? JSON.stringify(form.body_zone) : null }
       if (editingId) {
-        await api.updateIncident(elderlyId, editingId, form)
+        await api.updateIncident(elderlyId, editingId, payload)
       } else {
-        await api.createIncident(elderlyId, form)
+        await api.createIncident(elderlyId, payload)
       }
       cancelForm()
       await load()
@@ -159,7 +160,7 @@ export default function IncidentesPage() {
             <div>
               <label className="field-label">Zona do corpo afectada (opcional)</label>
               <div style={{ marginTop: 8, display: 'flex', justifyContent: 'center', padding: '12px', background: 'var(--surface-2)', borderRadius: 12, border: '1px solid var(--border)' }}>
-                <BodyMap value={form.body_zone} onChange={zone => setForm(f => ({ ...f, body_zone: zone }))} />
+                <BodyMap value={form.body_zone} onChange={zones => setForm(f => ({ ...f, body_zone: zones }))} />
               </div>
             </div>
 
@@ -205,7 +206,7 @@ export default function IncidentesPage() {
                               </div>
                               <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 8 }}>
                                 📅 {fmtDT(inc.occurred_at)} · por {inc.reported_by_name}
-                                {inc.body_zone && <> · <span style={{ color: 'var(--brand)', fontWeight: 600 }}>📍 {BODY_ZONES[inc.body_zone] ?? inc.body_zone}</span></>}
+                                {inc.body_zone && (() => { try { const z: string[] = JSON.parse(inc.body_zone!); return z.length ? <> · <span style={{ color: 'var(--brand)', fontWeight: 600 }}>📍 {z.map(k => BODY_ZONES[k] ?? k).join(', ')}</span></> : null } catch { return null } })()}
                               </div>
                               <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.6 }}>{inc.description}</div>
                               {inc.actions_taken && expandedId === inc.id && (
