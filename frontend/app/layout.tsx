@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import CrispChat from '@/components/CrispChat'
 import './globals.css'
 
 const inter = Inter({
@@ -11,7 +12,6 @@ const inter = Inter({
 export const metadata: Metadata = {
   title: 'pieta.care',
   description: 'Cuidar de quem amamos, juntos.',
-  manifest: '/manifest.json',
 }
 
 export const viewport: Viewport = {
@@ -24,7 +24,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt" className={inter.variable}>
-      <body>{children}</body>
+      <body>
+        {children}
+        <CrispChat />
+      </body>
     </html>
   )
 }
