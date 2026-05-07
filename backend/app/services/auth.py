@@ -162,7 +162,7 @@ def export_user_data(db: Session, user: User) -> dict:
     return result
 
 
-def accept_invite(db: Session, token: str, password: str, full_name: str) -> tuple[User, str]:
+def accept_invite(db: Session, token: str, password: str, full_name: str) -> tuple[User, str, int]:
     payload = decode_invite_token(token)
     if not payload:
         raise AuthError("Convite inválido ou expirado", 400)
@@ -201,4 +201,4 @@ def accept_invite(db: Session, token: str, password: str, full_name: str) -> tup
     db.refresh(user)
 
     access_token = create_access_token(user.id)
-    return user, access_token
+    return user, access_token, elderly_id

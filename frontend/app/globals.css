@@ -649,6 +649,20 @@ textarea.field-input { resize: vertical; min-height: 80px; }
 }
 .drawer-link-admin:hover { background: rgba(124,58,237,0.18); color: #6D28D9; }
 
+.drawer-elderly {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  width: 100%;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+.drawer-elderly:hover { background: var(--surface) !important; }
+
 /* ── COMPLIANCE BAR ──────────────────────────────────── */
 
 .compliance-bar {

@@ -78,10 +78,15 @@ def export_my_data(current_user: User = Depends(get_current_user), db: Session =
     return JSONResponse(content=data)
 
 
-@router.post("/invite/accept", response_model=AuthResponse)
+@router.post("/invite/accept")
 def accept_family_invite(data: InviteAcceptRequest, db: Session = Depends(get_db)):
     try:
-        user, token = accept_invite(db, data.token, data.password, data.full_name)
-        return AuthResponse(access_token=token, user=UserResponse.model_validate(user))
+        user, token, elderly_id = accept_invite(db, data.token, data.password, data.full_name)
+        return {
+            "access_token": token,
+            "token_type": "bearer",
+            "user": UserResponse.model_validate(user).model_dump(),
+            "elderly_id": elderly_id,
+        }
     except AuthError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

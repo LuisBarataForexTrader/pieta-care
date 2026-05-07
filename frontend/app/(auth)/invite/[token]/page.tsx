@@ -16,8 +16,10 @@ export default function AcceptInvite() {
     try {
       const res = await api.acceptInvite(token, form.password, form.full_name)
       setToken(res.access_token)
-      const list = await api.listElderly()
-      if (list.length > 0) setElderlyId(list[0].id)
+      // Always use the elderly_id from the invite — don't depend on first
+      // listElderly() result, which could be a different profile if the
+      // invitee already had their own.
+      setElderlyId(res.elderly_id)
       router.replace('/dashboard')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Convite inválido ou expirado')

@@ -148,10 +148,13 @@ export const api = {
     request<{ unread: number }>('/api/v1/support/admin/unread'),
 
   acceptInvite: (token: string, password: string, full_name: string) =>
-    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
-      method: 'POST',
-      body: JSON.stringify({ token, password, full_name }),
-    }),
+    request<{ access_token: string; user: import('./types').User; elderly_id: number }>(
+      '/api/v1/auth/invite/accept',
+      {
+        method: 'POST',
+        body: JSON.stringify({ token, password, full_name }),
+      }
+    ),
 
   // elderly
   listElderly: () => request<import('./types').Elderly[]>('/api/v1/elderly'),
