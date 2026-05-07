@@ -226,6 +226,34 @@ def get_medication_history(
     return query.order_by(MedicationLog.scheduled_time.desc()).all()
 
 
+def fetch_description(
+    db: Session, elderly_id: int, medication_id: int, user: User, force: bool = False
+) -> Medication:
+    from app.services.medication_info import fetch_medication_description, MedicationInfoError
+
+    _check_access(db, elderly_id, user, require_manage=True)
+    med = db.query(Medication).filter(
+        Medication.id == medication_id,
+        Medication.elderly_id == elderly_id,
+    ).first()
+    if not med:
+        raise MedicationError("Medicamento não encontrado", 404)
+
+    if med.description and not force:
+        return med
+
+    try:
+        text = fetch_medication_description(med.name, med.dosage)
+    except MedicationInfoError as e:
+        raise MedicationError(e.message, e.status_code)
+
+    med.description = text
+    med.description_fetched_at = datetime.utcnow()
+    db.commit()
+    db.refresh(med)
+    return med
+
+
 def log_prn_medication(
     db: Session, elderly_id: int, medication_id: int, user: User, notes: str | None = None
 ) -> MedicationLog:

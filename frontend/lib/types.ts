@@ -51,6 +51,8 @@ export interface Medication {
   schedule_times: string[]
   is_active: boolean
   is_prn: boolean
+  description: string | null
+  description_fetched_at: string | null
   created_at: string
 }
 

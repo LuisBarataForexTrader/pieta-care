@@ -1,10 +1,102 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Pill, Plus, X, Zap, Check, Trash2 } from 'lucide-react'
+import { Pill, Plus, X, Zap, Trash2, BookOpen, RefreshCw, ChevronDown, ChevronUp, Sparkles } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Medication } from '@/lib/types'
 
 const TIMES = ['06:00','07:00','08:00','09:00','10:00','12:00','13:00','14:00','16:00','18:00','20:00','21:00','22:00']
+
+function renderDescription(text: string) {
+  // Render the markdown-ish description: **Heading** then paragraph
+  const parts: { heading?: string; body: string }[] = []
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean)
+  let current: { heading?: string; body: string } | null = null
+  for (const line of lines) {
+    const m = line.match(/^\*\*(.+?)\*\*:?(.*)$/)
+    if (m) {
+      if (current) parts.push(current)
+      current = { heading: m[1].trim(), body: m[2].trim() }
+    } else if (current) {
+      current.body = current.body ? current.body + ' ' + line : line
+    } else {
+      parts.push({ body: line })
+    }
+  }
+  if (current) parts.push(current)
+  return parts
+}
+
+function MedicationInfoBlock({ med, onFetched }: { med: Medication; onFetched: () => void }) {
+  const elderlyId = getElderlyId()
+  const [open, setOpen] = useState(!!med.description)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
+
+  async function fetchInfo(refresh = false) {
+    if (!elderlyId) return
+    setLoading(true)
+    setError('')
+    try {
+      await api.fetchMedicationInfo(elderlyId, med.id, refresh)
+      onFetched()
+      setOpen(true)
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao obter informação')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (!med.description) {
+    return (
+      <div style={{ marginTop: 10 }}>
+        <button
+          onClick={() => fetchInfo(false)}
+          disabled={loading}
+          className="info-fetch-btn"
+        >
+          {loading
+            ? <><Sparkles size={13} strokeWidth={2.25} /> A consultar…</>
+            : <><BookOpen size={13} strokeWidth={2.25} /> Buscar informação clínica</>}
+        </button>
+        {error && <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 6 }}>{error}</div>}
+      </div>
+    )
+  }
+
+  const parts = renderDescription(med.description)
+  return (
+    <div className="med-info" style={{ marginTop: 12 }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="med-info-toggle"
+      >
+        <BookOpen size={13} strokeWidth={2.25} />
+        Informação clínica
+        {open ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+      </button>
+      {open && (
+        <div className="med-info-body">
+          {parts.map((p, i) => (
+            <div key={i} className="med-info-section">
+              {p.heading && <div className="med-info-heading">{p.heading}</div>}
+              <div className="med-info-text">{p.body}</div>
+            </div>
+          ))}
+          <button
+            onClick={() => fetchInfo(true)}
+            disabled={loading}
+            className="med-info-refresh"
+            title="Voltar a consultar"
+          >
+            <RefreshCw size={11} strokeWidth={2.25} /> {loading ? 'A actualizar…' : 'Actualizar'}
+          </button>
+          {error && <div style={{ fontSize: 12, color: 'var(--danger)', marginTop: 6 }}>{error}</div>}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export default function MedicacaoPage() {
   const [meds, setMeds] = useState<Medication[]>([])
@@ -173,15 +265,16 @@ export default function MedicacaoPage() {
                 {prn.map(med => (
                   <div key={med.id} className="card" style={{ borderLeft: '3px solid #D69E2E' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                      <div style={{ flex: 1 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                           <div className="med-name">{med.name}</div>
                           <span style={{ background: '#FFFAF0', color: '#B7791F', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>{med.dosage}</span>
                           <span style={{ background: '#FFFAF0', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>PRN</span>
                         </div>
                         {med.instructions && (
-                          <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 10, fontStyle: 'italic' }}>{med.instructions}</div>
+                          <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 6, fontStyle: 'italic' }}>{med.instructions}</div>
                         )}
+                        <MedicationInfoBlock med={med} onFetched={load} />
                       </div>
                       <div style={{ display: 'flex', gap: 6, marginLeft: 8 }}>
                         <button
@@ -206,21 +299,22 @@ export default function MedicacaoPage() {
             {active.map(med => (
               <div key={med.id} className="card">
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                       <div className="med-name">{med.name}</div>
                       <span style={{ background: 'var(--brand-light)', color: 'var(--brand)', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>
                         {med.dosage}
                       </span>
                     </div>
                     {med.instructions && (
-                      <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 10, fontStyle: 'italic' }}>{med.instructions}</div>
+                      <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 8, fontStyle: 'italic' }}>{med.instructions}</div>
                     )}
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                       {med.schedule_times.map(t => (
                         <span key={t} className="time-chip">{t}</span>
                       ))}
                     </div>
+                    <MedicationInfoBlock med={med} onFetched={load} />
                   </div>
                   <button
                     onClick={() => deactivate(med.id)}

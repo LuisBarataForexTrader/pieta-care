@@ -45,6 +45,8 @@ class MedicationResponse(BaseModel):
     schedule_times: list[str]
     is_active: bool
     is_prn: bool = False
+    description: str | None = None
+    description_fetched_at: datetime | None = None
     created_at: datetime
 
     model_config = {"from_attributes": True}

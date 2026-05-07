@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     TOCONLINE_SERIES_ID: str = ""
     TOCONLINE_EXEMPTION_NON_EU: str = ""
 
+    # Anthropic — used for medication info lookups
+    ANTHROPIC_API_KEY: str = ""
+
     # Email — Resend (preferred) or SMTP fallback
     RESEND_API_KEY: str = ""
     SMTP_HOST: str = ""

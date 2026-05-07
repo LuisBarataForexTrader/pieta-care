@@ -22,6 +22,7 @@ from app.services.medication import (
     confirm_medication,
     get_medication_history,
     log_prn_medication,
+    fetch_description,
     MedicationError,
 )
 
@@ -133,6 +134,20 @@ def history(
                 notes=log.notes,
             ))
         return result
+    except MedicationError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.post("/{medication_id}/fetch-info", response_model=MedicationResponse)
+def fetch_info(
+    elderly_id: int,
+    medication_id: int,
+    refresh: bool = Query(default=False),
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        return fetch_description(db, elderly_id, medication_id, user, force=refresh)
     except MedicationError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 

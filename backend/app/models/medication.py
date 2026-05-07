@@ -15,6 +15,8 @@ class Medication(Base):
     schedule_times: Mapped[str] = mapped_column(Text)  # JSON: ["08:00", "20:00"]
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     is_prn: Mapped[bool] = mapped_column(Boolean, default=False)  # "pro re nata" — as needed
+    description: Mapped[str | None] = mapped_column(Text)
+    description_fetched_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
 
     elderly: Mapped["ElderlyProfile"] = relationship(back_populates="medications")

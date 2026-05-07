@@ -2,15 +2,20 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  Pill, Calendar as CalendarIcon, HeartPulse, Activity, Smile,
+  Pill, Calendar as CalendarIcon, HeartPulse, Activity,
   Stethoscope, Phone, Siren, ArrowRight, Check, Clock, ChevronRight,
-  AlertTriangle, User as UserIcon, Droplet, Plus,
+  AlertTriangle, User as UserIcon, Droplet, Plus, TrendingUp, TrendingDown,
+  Minus, FileText, Smile, Frown, Meh, ShieldAlert, Syringe, NotebookPen,
 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
-import type { DailyScheduleItem, CalendarEvent, Elderly, Medication, WellbeingLog, VitalSign } from '@/lib/types'
+import type {
+  DailyScheduleItem, CalendarEvent, Elderly, WellbeingLog, VitalSign,
+  Incident, DailyNote, ClinicalDiagnosis, Vaccination,
+} from '@/lib/types'
 
 const STATUS_LABEL: Record<string, string> = { taken: 'Tomado', pending: 'Pendente', skipped: 'Saltado', missed: 'Perdido' }
 const STATUS_PILL: Record<string, string>  = { taken: 'pill-taken', pending: 'pill-pending', skipped: 'pill-skipped', missed: 'pill-missed' }
+const MOOD_LABEL = ['', 'Mau', 'Fraco', 'Razoável', 'Bom', 'Muito bom']
 
 function timeLabel(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
@@ -29,35 +34,94 @@ function age(dob: string | null) {
   if (!dob) return null
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
 }
+function timeAgo(iso: string) {
+  const diff = (Date.now() - new Date(iso).getTime()) / 1000
+  if (diff < 60) return 'agora'
+  if (diff < 3600) return `há ${Math.floor(diff / 60)} min`
+  if (diff < 86400) return `há ${Math.floor(diff / 3600)} h`
+  const d = Math.floor(diff / 86400)
+  if (d < 7) return `há ${d} dia${d > 1 ? 's' : ''}`
+  return new Date(iso).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })
+}
+function MoodIcon({ mood, size = 16 }: { mood: number; size?: number }) {
+  if (mood <= 2) return <Frown size={size} strokeWidth={1.75} />
+  if (mood === 3) return <Meh size={size} strokeWidth={1.75} />
+  return <Smile size={size} strokeWidth={1.75} />
+}
+
+function Sparkline({
+  values, color = '#2A6049', height = 32, fill = true,
+}: { values: number[]; color?: string; height?: number; fill?: boolean }) {
+  if (values.length < 2) {
+    return <div style={{ height, display: 'flex', alignItems: 'center', color: 'var(--text-3)', fontSize: 11 }}>Sem dados</div>
+  }
+  const w = 100, h = height
+  const min = Math.min(...values), max = Math.max(...values)
+  const range = max - min || 1
+  const pts = values.map((v, i) => {
+    const x = (i / (values.length - 1)) * w
+    const y = h - ((v - min) / range) * (h - 4) - 2
+    return `${x.toFixed(1)},${y.toFixed(1)}`
+  })
+  const path = pts.join(' L ')
+  const area = `M 0,${h} L ${path} L ${w},${h} Z`
+  return (
+    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: '100%', height, display: 'block' }}>
+      {fill && <path d={area} fill={color} fillOpacity={0.10} />}
+      <path d={`M ${path}`} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function trendOf(values: number[]): 'up' | 'down' | 'flat' {
+  if (values.length < 2) return 'flat'
+  const first = values.slice(0, Math.ceil(values.length / 2))
+  const last = values.slice(Math.ceil(values.length / 2))
+  const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length
+  const a = avg(first), b = avg(last)
+  if (Math.abs(b - a) / (a || 1) < 0.03) return 'flat'
+  return b > a ? 'up' : 'down'
+}
 
 export default function Dashboard() {
   const [schedule,    setSchedule]    = useState<DailyScheduleItem[]>([])
   const [events,      setEvents]      = useState<CalendarEvent[]>([])
   const [elderly,     setElderly]     = useState<Elderly | null>(null)
-  const [medications, setMedications] = useState<Medication[]>([])
   const [wellbeing,   setWellbeing]   = useState<WellbeingLog | null | undefined>(undefined)
-  const [latestVital, setLatestVital] = useState<VitalSign | null>(null)
+  const [vitals,      setVitals]      = useState<VitalSign[]>([])
+  const [wbHistory,   setWbHistory]   = useState<WellbeingLog[]>([])
+  const [incidents,   setIncidents]   = useState<Incident[]>([])
+  const [notes,       setNotes]       = useState<DailyNote[]>([])
+  const [diagnoses,   setDiagnoses]   = useState<ClinicalDiagnosis[]>([])
+  const [vaccinations,setVaccinations]= useState<Vaccination[]>([])
   const [loading,     setLoading]     = useState(true)
   const [confirming,  setConfirming]  = useState<string | null>(null)
   const elderlyId = getElderlyId()
 
   const load = useCallback(async () => {
     if (!elderlyId) return
-    const [sched, evs, elderlyList, meds, wb, vitals] = await Promise.all([
+    const [sched, evs, elderlyList, wb, v, wbHist, inc, ns, dx, vac] = await Promise.all([
       api.dailySchedule(elderlyId),
       api.listEvents(elderlyId),
       api.listElderly(),
-      api.listMedications(elderlyId),
       api.todayWellbeing(elderlyId),
-      api.listVitals(elderlyId, 7),
+      api.listVitals(elderlyId, 14).catch(() => []),
+      api.listWellbeing(elderlyId, 14).catch(() => []),
+      api.listIncidents(elderlyId, false).catch(() => []),
+      api.listNotes(elderlyId, 7).catch(() => []),
+      api.listDiagnoses(elderlyId, false).catch(() => []),
+      api.listVaccinations(elderlyId).catch(() => []),
     ])
     setSchedule(sched)
-    const now = new Date()
-    setEvents(evs.filter(e => new Date(e.starts_at) >= now).sort((a, b) => a.starts_at.localeCompare(b.starts_at)).slice(0, 2))
+    setEvents(evs.sort((a, b) => a.starts_at.localeCompare(b.starts_at)))
     setElderly(elderlyList.find(e => e.id === elderlyId) ?? elderlyList[0] ?? null)
-    setMedications(meds)
     setWellbeing(wb)
-    setLatestVital(vitals[0] ?? null)
+    setVitals(v)
+    setWbHistory(wbHist)
+    setIncidents(inc)
+    setNotes(ns)
+    setDiagnoses(dx)
+    setVaccinations(vac)
     setLoading(false)
   }, [elderlyId])
 
@@ -73,6 +137,7 @@ export default function Dashboard() {
     } finally { setConfirming(null) }
   }
 
+  // ── Derived data ──
   const pending = schedule.filter(i => i.status === 'pending')
   const done    = schedule.filter(i => i.status !== 'pending')
   const taken   = schedule.filter(i => i.status === 'taken').length
@@ -80,6 +145,76 @@ export default function Dashboard() {
   const allDone    = schedule.length > 0 && pending.length === 0
 
   const elderlyAge = elderly ? age(elderly.date_of_birth) : null
+  const upcomingEvents = events.filter(e => new Date(e.starts_at) >= new Date()).slice(0, 3)
+  const nextEvent = upcomingEvents[0]
+
+  const latestVital = vitals[0] ?? null
+  const sysSeries  = vitals.slice(0, 14).reverse().map(v => v.blood_pressure_sys).filter((x): x is number => x !== null)
+  const wbSeries   = wbHistory.slice(0, 14).reverse().map(w => w.mood)
+  const wbAvg7     = wbHistory.slice(0, 7).reduce((s, w) => s + w.mood, 0) / (wbHistory.slice(0, 7).length || 1)
+
+  const incidents7d = incidents.filter(i => (Date.now() - new Date(i.occurred_at).getTime()) / 86400000 < 7)
+  const openIncidents = incidents.filter(i => !i.resolved)
+  const dueVaccines = vaccinations.filter(v => v.next_due_date && new Date(v.next_due_date) < new Date(Date.now() + 30 * 86400000))
+
+  // Activity feed: last 8 events sorted by time
+  type Activity = { type: 'note' | 'vital' | 'incident' | 'wellbeing'; date: string; title: string; sub: string; author: string; icon: React.ReactNode; tone?: string }
+  const activity: Activity[] = [
+    ...notes.slice(0, 5).map<Activity>(n => ({
+      type: 'note', date: n.created_at,
+      title: 'Nota de turno', sub: n.content.slice(0, 80) + (n.content.length > 80 ? '…' : ''),
+      author: n.recorded_by_name,
+      icon: <NotebookPen size={14} strokeWidth={2} />,
+    })),
+    ...vitals.slice(0, 3).map<Activity>(v => ({
+      type: 'vital', date: v.measured_at,
+      title: 'Sinais vitais',
+      sub: [v.blood_pressure_sys && `${v.blood_pressure_sys}/${v.blood_pressure_dia} mmHg`, v.heart_rate && `${v.heart_rate} bpm`, v.oxygen_saturation && `SpO₂ ${v.oxygen_saturation}%`].filter(Boolean).join(' · ') || 'Registo',
+      author: v.recorded_by_name,
+      icon: <HeartPulse size={14} strokeWidth={2} />,
+      tone: '#E53E3E',
+    })),
+    ...incidents7d.slice(0, 3).map<Activity>(i => ({
+      type: 'incident', date: i.occurred_at,
+      title: i.severity === 'high' ? 'Incidente grave' : 'Incidente',
+      sub: i.description.slice(0, 80),
+      author: i.reported_by_name,
+      icon: <AlertTriangle size={14} strokeWidth={2} />,
+      tone: i.severity === 'high' ? '#C53030' : '#C05621',
+    })),
+  ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 6)
+
+  // Today's combined timeline (medications + events today)
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
+  const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999)
+  const todayEvents = events.filter(e => {
+    const d = new Date(e.starts_at)
+    return d >= todayStart && d <= todayEnd
+  })
+  type TimelineItem =
+    | { kind: 'med'; time: string; data: DailyScheduleItem }
+    | { kind: 'event'; time: string; data: CalendarEvent }
+  const timeline: TimelineItem[] = [
+    ...schedule.map<TimelineItem>(s => ({ kind: 'med', time: s.scheduled_time, data: s })),
+    ...todayEvents.map<TimelineItem>(e => ({ kind: 'event', time: e.starts_at, data: e })),
+  ].sort((a, b) => a.time.localeCompare(b.time))
+
+  // Alerts
+  const alerts: { tone: 'warn' | 'danger'; icon: React.ReactNode; title: string; sub: string; href: string }[] = []
+  if (openIncidents.length > 0) {
+    alerts.push({ tone: 'danger', icon: <AlertTriangle size={16} strokeWidth={2} />,
+      title: `${openIncidents.length} incidente${openIncidents.length > 1 ? 's' : ''} por resolver`,
+      sub: openIncidents[0].description.slice(0, 60),
+      href: '/incidentes',
+    })
+  }
+  if (dueVaccines.length > 0) {
+    alerts.push({ tone: 'warn', icon: <Syringe size={16} strokeWidth={2} />,
+      title: `Vacina${dueVaccines.length > 1 ? 's' : ''} a renovar`,
+      sub: dueVaccines.map(v => v.vaccine_name).slice(0, 2).join(', '),
+      href: '/saude',
+    })
+  }
 
   return (
     <div>
@@ -91,7 +226,7 @@ export default function Dashboard() {
         </div>
         {allDone && (
           <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Check size={15} strokeWidth={2.5} /> Todas as tomas confirmadas
+            <Check size={15} strokeWidth={2.5} /> Tudo confirmado hoje
           </div>
         )}
       </div>
@@ -101,326 +236,359 @@ export default function Dashboard() {
           <p style={{ textAlign: 'center', padding: 64, color: 'var(--text-3)' }}>A carregar…</p>
         ) : (
           <>
-            {/* ── STATS ROW ── */}
-            <div className="grid-3" style={{ marginBottom: 28 }}>
-              {/* Medication compliance */}
-              <div className="stat-card">
-                <div className="stat-icon" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}><Pill size={22} strokeWidth={1.75} /></div>
-                <div>
-                  <div className="stat-label">Adesão hoje</div>
-                  <div className="stat-value">{compliance}%</div>
-                  <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${compliance}%` }} /></div>
-                  <div className="stat-sub">{taken} de {schedule.length} tomas</div>
+            {/* ── HERO PATIENT CARD ── */}
+            {elderly && (
+              <Link href="/perfil" style={{ textDecoration: 'none', display: 'block', marginBottom: 20 }}>
+                <div className="hero-card">
+                  <div className="hero-avatar">
+                    {elderly.photo_url
+                      ? <img src={elderly.photo_url} alt={elderly.full_name} />
+                      : <span>{initials(elderly.full_name)}</span>
+                    }
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="hero-name">{elderly.full_name}</div>
+                    <div className="hero-meta">
+                      {elderlyAge && <span>{elderlyAge} anos</span>}
+                      {elderly.blood_type && <span className="hero-chip"><Droplet size={11} strokeWidth={2.25} /> {elderly.blood_type}</span>}
+                      {elderly.health_number && <span className="hero-chip">SNS {elderly.health_number}</span>}
+                      {diagnoses.slice(0, 2).map(d => (
+                        <span key={d.id} className="hero-chip hero-chip-dx" title={d.description}>
+                          {d.description.length > 28 ? d.description.slice(0, 28) + '…' : d.description}
+                        </span>
+                      ))}
+                      {diagnoses.length > 2 && <span className="hero-chip">+{diagnoses.length - 2}</span>}
+                    </div>
+                  </div>
+                  <ChevronRight size={18} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
                 </div>
+              </Link>
+            )}
+
+            {/* ── KPI STRIP ── */}
+            <div className="kpi-grid">
+              {/* Adesão */}
+              <div className="kpi-card">
+                <div className="kpi-head">
+                  <div className="kpi-icon" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}><Pill size={18} strokeWidth={1.9} /></div>
+                  <div className="kpi-label">Adesão hoje</div>
+                </div>
+                <div className="kpi-value">{compliance}<span className="kpi-unit">%</span></div>
+                <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${compliance}%` }} /></div>
+                <div className="kpi-sub">{taken} de {schedule.length} tomas</div>
               </div>
 
-              {/* Next appointment */}
-              <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#EEF2FF', color: '#4F46E5' }}><CalendarIcon size={22} strokeWidth={1.75} /></div>
-                <div>
-                  <div className="stat-label">Próxima consulta</div>
-                  {events.length > 0 ? (
-                    <>
-                      <div className="stat-value" style={{ fontSize: 17, marginTop: 4 }}>{events[0].title}</div>
-                      <div className="stat-sub">
-                        {new Date(events[0].starts_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })}
-                        {' às '}
-                        {new Date(events[0].starts_at).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="stat-value" style={{ fontSize: 17, marginTop: 4 }}>—</div>
-                      <div className="stat-sub">Sem consultas marcadas</div>
-                    </>
-                  )}
+              {/* Tensão arterial */}
+              <div className="kpi-card">
+                <div className="kpi-head">
+                  <div className="kpi-icon" style={{ background: '#FFF0F0', color: '#E53E3E' }}><HeartPulse size={18} strokeWidth={1.9} /></div>
+                  <div className="kpi-label">Tensão arterial</div>
                 </div>
+                {latestVital?.blood_pressure_sys ? (
+                  <>
+                    <div className="kpi-value">{latestVital.blood_pressure_sys}<span className="kpi-unit">/{latestVital.blood_pressure_dia}</span></div>
+                    {sysSeries.length >= 2
+                      ? <div style={{ marginTop: 4 }}><Sparkline values={sysSeries} color="#E53E3E" /></div>
+                      : <div style={{ height: 32 }} />}
+                    <div className="kpi-sub">{timeAgo(latestVital.measured_at)}{latestVital.heart_rate ? ` · ${latestVital.heart_rate} bpm` : ''}</div>
+                  </>
+                ) : (
+                  <>
+                    <div className="kpi-value-muted">—</div>
+                    <div style={{ height: 32 }} />
+                    <div className="kpi-sub"><Link href="/saude" className="section-link" style={{ fontSize: 12 }}>Registar →</Link></div>
+                  </>
+                )}
               </div>
 
-              {/* Latest vital or wellbeing */}
-              <div className="stat-card">
-                <div className="stat-icon" style={{ background: '#FFF0F0', color: '#E53E3E' }}><HeartPulse size={22} strokeWidth={1.75} /></div>
-                <div>
-                  {latestVital?.blood_pressure_sys ? (
-                    <>
-                      <div className="stat-label">Tensão arterial</div>
-                      <div className="stat-value">{latestVital.blood_pressure_sys}/{latestVital.blood_pressure_dia}</div>
-                      <div className="stat-sub">
-                        {latestVital.heart_rate ? `${latestVital.heart_rate} bpm · ` : ''}
-                        {new Date(latestVital.measured_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })}
-                      </div>
-                    </>
-                  ) : wellbeing ? (
-                    <>
-                      <div className="stat-label">Bem-estar hoje</div>
-                      <div className="stat-value" style={{ fontSize: 26 }}>{['','😞','😟','😐','🙂','😄'][wellbeing.mood]}</div>
-                      <div className="stat-sub">{['','Mau','Fraco','Razoável','Bom','Muito bom'][wellbeing.mood]}</div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="stat-label">Sinais vitais</div>
-                      <div className="stat-value" style={{ fontSize: 17, marginTop: 4 }}>—</div>
-                      <div className="stat-sub"><Link href="/saude" style={{ color: 'var(--brand)' }}>Registar →</Link></div>
-                    </>
-                  )}
+              {/* Bem-estar */}
+              <div className="kpi-card">
+                <div className="kpi-head">
+                  <div className="kpi-icon" style={{ background: '#FFF7E6', color: '#D69E2E' }}><Activity size={18} strokeWidth={1.9} /></div>
+                  <div className="kpi-label">Bem-estar 7d</div>
                 </div>
+                {wbSeries.length > 0 ? (
+                  <>
+                    <div className="kpi-value">{wbAvg7.toFixed(1)}<span className="kpi-unit">/5</span></div>
+                    {wbSeries.length >= 2
+                      ? <div style={{ marginTop: 4 }}><Sparkline values={wbSeries} color="#D69E2E" /></div>
+                      : <div style={{ height: 32 }} />}
+                    <div className="kpi-sub">
+                      {trendOf(wbSeries) === 'up' && <><TrendingUp size={11} strokeWidth={2.25} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--success)' }} /> a melhorar</>}
+                      {trendOf(wbSeries) === 'down' && <><TrendingDown size={11} strokeWidth={2.25} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--danger)' }} /> a piorar</>}
+                      {trendOf(wbSeries) === 'flat' && <><Minus size={11} strokeWidth={2.25} style={{ display: 'inline', verticalAlign: '-2px' }} /> estável</>}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="kpi-value-muted">—</div>
+                    <div style={{ height: 32 }} />
+                    <div className="kpi-sub"><Link href="/saude" className="section-link" style={{ fontSize: 12 }}>Registar →</Link></div>
+                  </>
+                )}
+              </div>
+
+              {/* Próxima consulta */}
+              <div className="kpi-card">
+                <div className="kpi-head">
+                  <div className="kpi-icon" style={{ background: '#EEF2FF', color: '#4F46E5' }}><CalendarIcon size={18} strokeWidth={1.9} /></div>
+                  <div className="kpi-label">Próxima consulta</div>
+                </div>
+                {nextEvent ? (
+                  <>
+                    <div className="kpi-value-sm">
+                      {new Date(nextEvent.starts_at).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })}
+                    </div>
+                    <div className="kpi-event-title">{nextEvent.title}</div>
+                    <div className="kpi-sub">
+                      <Clock size={11} strokeWidth={2.25} style={{ display: 'inline', verticalAlign: '-2px', marginRight: 4 }} />
+                      {new Date(nextEvent.starts_at).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
+                      {nextEvent.doctor_name && ` · ${nextEvent.doctor_name}`}
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="kpi-value-muted">—</div>
+                    <div className="kpi-event-title" style={{ color: 'var(--text-3)' }}>Sem consultas marcadas</div>
+                    <div className="kpi-sub"><Link href="/calendario" className="section-link" style={{ fontSize: 12 }}>Marcar →</Link></div>
+                  </>
+                )}
               </div>
             </div>
 
-            {/* ── MAIN GRID ── */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
+            {/* ── ALERTS BANNER ── */}
+            {alerts.length > 0 && (
+              <div className="alerts-row">
+                {alerts.map((a, i) => (
+                  <Link key={i} href={a.href} className={`alert-card alert-${a.tone}`}>
+                    <div className="alert-icon">{a.icon}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="alert-title">{a.title}</div>
+                      <div className="alert-sub">{a.sub}</div>
+                    </div>
+                    <ChevronRight size={16} />
+                  </Link>
+                ))}
+              </div>
+            )}
 
-              {/* LEFT — Medication schedule */}
+            {/* ── MAIN GRID ── */}
+            <div className="dash-grid">
+
+              {/* LEFT — Today's timeline */}
               <div>
                 <div className="section-header">
-                  <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Pill size={17} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Medicação de hoje</div>
-                  <Link href="/medicacao" className="section-link">Ver tudo <ArrowRight size={14} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
+                  <div className="section-title"><Clock size={17} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Plano de hoje</div>
+                  {schedule.length > 0 && <Link href="/medicacao" className="section-link">Medicação <ArrowRight size={13} /></Link>}
                 </div>
 
-                {schedule.length === 0 ? (
+                {timeline.length === 0 ? (
                   <div className="card">
                     <div className="empty-state">
                       <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Pill size={42} strokeWidth={1.4} /></div>
-                      <div className="empty-state-title">Sem medicação registada</div>
-                      <div className="empty-state-text">Adicione os medicamentos no separador Medicação</div>
-                      <Link href="/medicacao" style={{ marginTop: 16 }}>
-                        <button className="btn-primary" style={{ width: 'auto', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={16} strokeWidth={2.5} /> Adicionar medicação</button>
-                      </Link>
+                      <div className="empty-state-title">Nada agendado para hoje</div>
+                      <div className="empty-state-text">Adicione medicação ou marque uma consulta para começar</div>
+                      <div style={{ display: 'flex', gap: 10, justifyContent: 'center', marginTop: 16 }}>
+                        <Link href="/medicacao"><button className="btn-primary" style={{ width: 'auto', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Plus size={15} strokeWidth={2.5} /> Medicação</button></Link>
+                        <Link href="/calendario"><button className="btn-secondary" style={{ width: 'auto', padding: '10px 18px', display: 'inline-flex', alignItems: 'center', gap: 6 }}><CalendarIcon size={15} strokeWidth={2} /> Agenda</button></Link>
+                      </div>
                     </div>
                   </div>
                 ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                    {pending.map(item => {
-                      const key = `${item.medication_id}-${item.scheduled_time}`
-                      const busy = confirming === key
+                  <div className="timeline">
+                    {timeline.map((item, i) => {
+                      const isPendingMed = item.kind === 'med' && item.data.status === 'pending'
+                      const isDoneMed    = item.kind === 'med' && item.data.status !== 'pending'
+                      const dotClass     = item.kind === 'event'
+                        ? 'tl-dot-event'
+                        : isPendingMed ? 'tl-dot-pending'
+                        : item.data.status === 'taken' ? 'tl-dot-taken'
+                        : 'tl-dot-other'
                       return (
-                        <div key={key} className="med-item med-item-pending">
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
-                            <div>
-                              <div className="med-name">{item.name}</div>
-                              <div className="med-dose">{item.dosage}</div>
-                              {item.instructions && (
-                                <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4, fontStyle: 'italic' }}>{item.instructions}</div>
-                              )}
-                            </div>
-                            <div style={{ textAlign: 'right' }}>
-                              <div className="med-time">{timeLabel(item.scheduled_time)}</div>
-                              <span className="pill pill-pending" style={{ marginTop: 4 }}>Pendente</span>
-                            </div>
+                        <div key={`${item.kind}-${i}`} className="tl-row">
+                          <div className="tl-time">{timeLabel(item.time)}</div>
+                          <div className="tl-rail">
+                            <div className={`tl-dot ${dotClass}`} />
+                            {i < timeline.length - 1 && <div className="tl-line" />}
                           </div>
-                          <div style={{ display: 'flex', gap: 8 }}>
-                            <button className="btn-confirm" onClick={() => confirm(item, 'taken')} disabled={busy} style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6 }}>
-                              {busy ? '…' : <><Check size={16} strokeWidth={2.5} /> Confirmar toma</>}
-                            </button>
-                            <button className="btn-skip" onClick={() => confirm(item, 'skipped')} disabled={busy}>Saltar</button>
+                          <div className="tl-body">
+                            {item.kind === 'med' ? (
+                              <div className={`tl-card ${isPendingMed ? 'tl-card-pending' : isDoneMed ? 'tl-card-done' : ''}`}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+                                  <div style={{ flex: 1, minWidth: 0 }}>
+                                    <div className="tl-title"><Pill size={14} strokeWidth={2} style={{ color: 'var(--brand)', marginRight: 6, verticalAlign: '-2px' }} />{item.data.name}</div>
+                                    <div className="tl-meta">{item.data.dosage}{item.data.instructions ? ` · ${item.data.instructions}` : ''}</div>
+                                    {item.data.confirmed_by_name && (
+                                      <div className="tl-foot">por {item.data.confirmed_by_name}{item.data.confirmed_at ? ` · ${timeAgo(item.data.confirmed_at)}` : ''}</div>
+                                    )}
+                                  </div>
+                                  <span className={`pill ${STATUS_PILL[item.data.status]}`}>{STATUS_LABEL[item.data.status]}</span>
+                                </div>
+                                {isPendingMed && (() => {
+                                  const key = `${item.data.medication_id}-${item.data.scheduled_time}`
+                                  const busy = confirming === key
+                                  return (
+                                    <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
+                                      <button className="btn-confirm" onClick={() => confirm(item.data, 'taken')} disabled={busy}>
+                                        {busy ? '…' : <><Check size={16} strokeWidth={2.5} /> Confirmar toma</>}
+                                      </button>
+                                      <button className="btn-skip" onClick={() => confirm(item.data, 'skipped')} disabled={busy}>Saltar</button>
+                                    </div>
+                                  )
+                                })()}
+                              </div>
+                            ) : (
+                              <div className="tl-card tl-card-event">
+                                <div className="tl-title"><CalendarIcon size={14} strokeWidth={2} style={{ color: '#4F46E5', marginRight: 6, verticalAlign: '-2px' }} />{item.data.title}</div>
+                                <div className="tl-meta">
+                                  {item.data.doctor_name && <><Stethoscope size={12} strokeWidth={2} style={{ display: 'inline', verticalAlign: '-1px', marginRight: 4 }} />{item.data.doctor_name}</>}
+                                  {item.data.location && <>{item.data.doctor_name ? ' · ' : ''}{item.data.location}</>}
+                                </div>
+                                {item.data.preparation_notes && <div className="tl-foot" style={{ marginTop: 4 }}>📋 {item.data.preparation_notes}</div>}
+                              </div>
+                            )}
                           </div>
                         </div>
                       )
                     })}
-
-                    {done.length > 0 && (
-                      <>
-                        <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: '8px 0 4px' }}>
-                          Histórico de hoje
-                        </div>
-                        {done.map(item => (
-                          <div key={`${item.medication_id}-${item.scheduled_time}`} className="med-item"
-                            style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.75 }}>
-                            <div>
-                              <div className="med-name" style={{ fontSize: 15 }}>{item.name}</div>
-                              <div className="med-dose">{item.dosage} · {timeLabel(item.scheduled_time)}</div>
-                              {item.confirmed_by_name && (
-                                <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3 }}>por {item.confirmed_by_name}</div>
-                              )}
-                            </div>
-                            <span className={`pill ${STATUS_PILL[item.status]}`}>{STATUS_LABEL[item.status]}</span>
-                          </div>
-                        ))}
-                      </>
-                    )}
                   </div>
                 )}
 
-                {/* Active medications list (non-PRN) */}
-                {medications.filter(m => m.is_active && !m.is_prn).length > 0 && schedule.length === 0 && (
-                  <div className="card" style={{ marginTop: 20 }}>
-                    <div className="section-title" style={{ marginBottom: 14, display: 'flex', alignItems: 'center', gap: 8 }}><Pill size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Medicação activa</div>
-                    {medications.filter(m => m.is_active && !m.is_prn).map(m => (
-                      <div key={m.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid var(--border)', alignItems: 'center' }}>
-                        <div>
-                          <div style={{ fontWeight: 600, fontSize: 14 }}>{m.name}</div>
-                          <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{m.dosage} · {m.schedule_times.join(', ')}</div>
+                {/* Trends panel */}
+                {(sysSeries.length >= 2 || wbSeries.length >= 2) && (
+                  <div className="trends-panel">
+                    <div className="section-header" style={{ marginBottom: 8 }}>
+                      <div className="section-title"><TrendingUp size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Tendências (14 dias)</div>
+                      <Link href="/saude" className="section-link">Detalhes <ArrowRight size={13} /></Link>
+                    </div>
+                    <div className="trends-grid">
+                      {sysSeries.length >= 2 && (
+                        <div className="trend-cell">
+                          <div className="trend-label">Tensão sistólica</div>
+                          <div className="trend-value">{sysSeries[sysSeries.length - 1]} <span className="kpi-unit">mmHg</span></div>
+                          <Sparkline values={sysSeries} color="#E53E3E" height={36} />
+                          <div className="trend-foot">
+                            min {Math.min(...sysSeries)} · máx {Math.max(...sysSeries)} · {sysSeries.length} registos
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      )}
+                      {wbSeries.length >= 2 && (
+                        <div className="trend-cell">
+                          <div className="trend-label">Bem-estar</div>
+                          <div className="trend-value">{MOOD_LABEL[Math.round(wbSeries[wbSeries.length - 1])]}</div>
+                          <Sparkline values={wbSeries} color="#D69E2E" height={36} />
+                          <div className="trend-foot">
+                            média {wbAvg7.toFixed(1)}/5 · {wbSeries.length} dias
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
 
               {/* RIGHT SIDEBAR */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16, position: 'sticky', top: 24, maxHeight: 'calc(100vh - 100px)', overflowY: 'auto' }}>
-
-                {/* ── Patient identity card ── */}
-                {elderly && (
-                  <Link href="/perfil" style={{ textDecoration: 'none' }}>
-                    <div className="card" style={{ display: 'flex', alignItems: 'center', gap: 14, cursor: 'pointer', transition: 'box-shadow .15s' }}>
-                      {/* Avatar */}
-                      <div style={{
-                        width: 56, height: 56, borderRadius: '50%',
-                        background: 'var(--brand)', color: '#fff',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 20, fontWeight: 800, flexShrink: 0, overflow: 'hidden',
-                      }}>
-                        {elderly.photo_url
-                          ? <img src={elderly.photo_url} alt={elderly.full_name} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                          : initials(elderly.full_name)
-                        }
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15, fontWeight: 800, color: 'var(--text)', marginBottom: 3, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {elderly.full_name}
-                        </div>
-                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                          {elderlyAge && (
-                            <span style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 600 }}>{elderlyAge} anos</span>
-                          )}
-                          {elderly.blood_type && (
-                            <span className="pill" style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Droplet size={11} strokeWidth={2.25} /> {elderly.blood_type}</span>
-                          )}
-                          {elderly.health_number && (
-                            <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)', fontSize: 11 }}>SNS {elderly.health_number}</span>
-                          )}
-                        </div>
-                      </div>
-                      <ChevronRight size={16} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
-                    </div>
-                  </Link>
-                )}
-
-                {/* ── Wellbeing check-in ── */}
+              <aside className="dash-aside">
+                {/* Wellbeing today */}
                 {wellbeing === null && (
                   <Link href="/saude" style={{ textDecoration: 'none' }}>
-                    <div className="card" style={{ border: '1.5px dashed var(--brand)', background: 'var(--brand-light)', cursor: 'pointer' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <Smile size={26} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
-                        <div style={{ flex: 1 }}>
-                          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)' }}>Como está hoje?</div>
-                          <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Regista o bem-estar diário</div>
-                        </div>
-                        <span style={{ fontSize: 13, color: 'var(--brand)', fontWeight: 600, display: 'inline-flex', alignItems: 'center', gap: 4 }}>Registar <ArrowRight size={14} /></span>
+                    <div className="prompt-card">
+                      <Smile size={24} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)' }}>Como está hoje?</div>
+                        <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Regista o bem-estar diário</div>
                       </div>
+                      <ArrowRight size={16} style={{ color: 'var(--brand)' }} />
                     </div>
                   </Link>
                 )}
                 {wellbeing && (
                   <div className="card">
                     <div className="section-header" style={{ marginBottom: 10 }}>
-                      <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Smile size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Bem-estar hoje</div>
-                      <Link href="/saude" className="section-link">Ver <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
+                      <div className="section-title"><Activity size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Bem-estar hoje</div>
+                      <Link href="/saude" className="section-link">Ver <ArrowRight size={13} /></Link>
                     </div>
-                    <div style={{ display: 'flex', gap: 14, alignItems: 'center' }}>
-                      <span style={{ fontSize: 34 }}>{['','😞','😟','😐','🙂','😄'][wellbeing.mood]}</span>
-                      <div>
-                        <div style={{ fontSize: 15, fontWeight: 700 }}>{['','Mau','Fraco','Razoável','Bom','Muito bom'][wellbeing.mood]}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div style={{ width: 44, height: 44, borderRadius: 12, background: 'var(--brand-light)', color: 'var(--brand)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <MoodIcon mood={wellbeing.mood} size={22} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 700 }}>{MOOD_LABEL[wellbeing.mood]}</div>
                         {wellbeing.pain_level !== null && wellbeing.pain_level !== undefined && wellbeing.pain_level > 0 && (
-                          <div style={{ fontSize: 12, color: wellbeing.pain_level >= 7 ? '#C53030' : wellbeing.pain_level >= 4 ? '#D69E2E' : 'var(--text-3)' }}>
-                            Dor: {wellbeing.pain_level}/10
+                          <div style={{ fontSize: 12, color: wellbeing.pain_level >= 7 ? '#C53030' : wellbeing.pain_level >= 4 ? '#D69E2E' : 'var(--text-3)', fontWeight: 600 }}>
+                            Dor {wellbeing.pain_level}/10
                           </div>
                         )}
-                        {wellbeing.notes && <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2, fontStyle: 'italic' }}>{wellbeing.notes}</div>}
+                        {wellbeing.notes && <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2, fontStyle: 'italic', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{wellbeing.notes}</div>}
                       </div>
                     </div>
                   </div>
                 )}
 
-                {/* ── Vitals compact ── */}
-                {latestVital && (
-                  <div className="card" style={{ padding: '12px 16px' }}>
-                    <div className="section-header" style={{ marginBottom: 8 }}>
-                      <div className="section-title" style={{ fontSize: 13, display: 'flex', alignItems: 'center', gap: 6 }}><HeartPulse size={14} strokeWidth={2} style={{ color: '#E53E3E' }} /> Sinais vitais</div>
-                      <Link href="/saude" className="section-link">Ver <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
-                    </div>
-                    <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                      {latestVital.blood_pressure_sys && latestVital.blood_pressure_dia && (
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
-                          {latestVital.blood_pressure_sys}/{latestVital.blood_pressure_dia} mmHg
-                        </span>
-                      )}
-                      {latestVital.oxygen_saturation && (
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
-                          SpO₂ {latestVital.oxygen_saturation}%
-                        </span>
-                      )}
-                      {latestVital.temperature && (
-                        <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)', background: 'var(--surface-2)', borderRadius: 6, padding: '3px 8px' }}>
-                          {latestVital.temperature}°C
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {/* ── Next event ── */}
-                {events.length > 0 && (
+                {/* Recent activity */}
+                {activity.length > 0 && (
                   <div className="card">
-                    <div className="section-header" style={{ marginBottom: 10 }}>
-                      <div className="section-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><CalendarIcon size={16} strokeWidth={2} style={{ color: '#4F46E5' }} /> Próxima consulta</div>
-                      <Link href="/calendario" className="section-link">Agenda <ArrowRight size={13} style={{ display: 'inline', verticalAlign: 'middle' }} /></Link>
+                    <div className="section-header" style={{ marginBottom: 12 }}>
+                      <div className="section-title"><Activity size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Atividade recente</div>
                     </div>
-                    {events.slice(0, 1).map(ev => {
-                      const d = new Date(ev.starts_at)
-                      return (
-                        <div key={ev.id} className="event-item">
-                          <div className="event-date-box">
-                            <div className="event-day">{d.getDate()}</div>
-                            <div className="event-month">{d.toLocaleDateString('pt-PT', { month: 'short' })}</div>
-                          </div>
-                          <div>
-                            <div className="event-title">{ev.title}</div>
-                            <div className="event-meta" style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                              <Clock size={12} strokeWidth={2} /> {d.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })}
-                              {ev.location && <> · {ev.location}</>}
-                            </div>
-                            {ev.doctor_name && (
-                              <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 3, display: 'flex', alignItems: 'center', gap: 4 }}><Stethoscope size={12} strokeWidth={2} /> {ev.doctor_name}</div>
-                            )}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                      {activity.map((a, i) => (
+                        <div key={i} className="activity-item">
+                          <div className="activity-icon" style={{ color: a.tone || 'var(--text-2)' }}>{a.icon}</div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <div className="activity-title">{a.title}</div>
+                            <div className="activity-sub">{a.sub}</div>
+                            <div className="activity-foot">{a.author} · {timeAgo(a.date)}</div>
                           </div>
                         </div>
-                      )
-                    })}
-                    <Link href="/calendario">
-                      <button className="btn-secondary" style={{ marginTop: 12, padding: '9px', fontSize: 13, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, width: '100%' }}>
-                        <Plus size={14} strokeWidth={2.5} /> Marcar consulta
-                      </button>
-                    </Link>
+                      ))}
+                    </div>
                   </div>
                 )}
 
-                {/* ── Emergency contacts (compact) ── */}
+                {/* Diagnoses */}
+                {diagnoses.length > 0 && (
+                  <div className="card">
+                    <div className="section-header" style={{ marginBottom: 10 }}>
+                      <div className="section-title"><ShieldAlert size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Diagnósticos ativos</div>
+                      <Link href="/clinico" className="section-link">Ver <ArrowRight size={13} /></Link>
+                    </div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                      {diagnoses.slice(0, 6).map(d => (
+                        <span key={d.id} className="dx-chip" title={d.description}>
+                          {d.is_chronic && <span className="dx-dot" />}
+                          {d.description.length > 32 ? d.description.slice(0, 32) + '…' : d.description}
+                        </span>
+                      ))}
+                      {diagnoses.length > 6 && <span className="dx-chip" style={{ color: 'var(--text-3)' }}>+{diagnoses.length - 6}</span>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Emergency */}
                 <div className="card">
-                  <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={16} strokeWidth={2} style={{ color: '#C53030' }} /> Emergência</div>
+                  <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={15} strokeWidth={2} style={{ color: '#C53030' }} /> Emergência</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: elderly?.emergency_contact_phone ? 10 : 0 }}>
                     <a href="tel:112" style={{ textDecoration: 'none' }}>
-                      <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '12px 8px', textAlign: 'center' }}>
-                        <Siren size={20} strokeWidth={1.75} style={{ color: '#C53030', margin: '0 auto 4px' }} />
+                      <div className="emergency-btn" style={{ background: '#FFF5F5', borderColor: '#FEB2B2' }}>
+                        <Siren size={20} strokeWidth={1.75} style={{ color: '#C53030' }} />
                         <div style={{ fontSize: 14, fontWeight: 800, color: '#C53030' }}>112</div>
                         <div style={{ fontSize: 10, color: 'var(--text-3)' }}>Emergência</div>
                       </div>
                     </a>
                     <a href="tel:808242424" style={{ textDecoration: 'none' }}>
-                      <div style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)', borderRadius: 10, padding: '12px 8px', textAlign: 'center' }}>
-                        <Phone size={20} strokeWidth={1.75} style={{ color: 'var(--brand)', margin: '0 auto 4px' }} />
+                      <div className="emergency-btn" style={{ background: 'var(--brand-light)', borderColor: 'rgba(42,96,73,0.2)' }}>
+                        <Phone size={20} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
                         <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand)' }}>SNS 24</div>
                         <div style={{ fontSize: 10, color: 'var(--text-3)' }}>808 24 24 24</div>
                       </div>
                     </a>
                   </div>
                   {elderly?.emergency_contact_name && (
-                    <a href={elderly.emergency_contact_phone ? `tel:${elderly.emergency_contact_phone}` : undefined}
-                       style={{ textDecoration: 'none' }}>
+                    <a href={elderly.emergency_contact_phone ? `tel:${elderly.emergency_contact_phone}` : undefined} style={{ textDecoration: 'none' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: 'var(--surface-2)', border: '1px solid var(--border)', borderRadius: 10, padding: '10px 12px' }}>
-                        <UserIcon size={18} strokeWidth={1.75} style={{ color: 'var(--text-2)' }} />
-                        <div>
+                        <UserIcon size={16} strokeWidth={1.75} style={{ color: 'var(--text-2)' }} />
+                        <div style={{ flex: 1, minWidth: 0 }}>
                           <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-2)' }}>{elderly.emergency_contact_name}</div>
                           {elderly.emergency_contact_phone && (
                             <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{elderly.emergency_contact_phone}</div>
@@ -430,8 +598,7 @@ export default function Dashboard() {
                     </a>
                   )}
                 </div>
-
-              </div>
+              </aside>
             </div>
           </>
         )}

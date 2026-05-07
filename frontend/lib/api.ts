@@ -1,4 +1,5 @@
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pieta.care'
+let _redirecting = false
 
 function getToken(): string | null {
   if (typeof window === 'undefined') return null
@@ -40,7 +41,10 @@ async function request<T>(
   const res = await fetch(`${BASE}${path}`, { ...options, headers })
   if (res.status === 401) {
     clearToken()
-    window.location.href = '/login'
+    if (!_redirecting) {
+      _redirecting = true
+      window.location.replace('/login')
+    }
     throw new Error('Unauthorized')
   }
   if (!res.ok) {
@@ -124,6 +128,12 @@ export const api = {
 
   deleteMedication: (elderlyId: number, medId: number) =>
     request(`/api/v1/elderly/${elderlyId}/medications/${medId}`, { method: 'DELETE' }),
+
+  fetchMedicationInfo: (elderlyId: number, medId: number, refresh = false) =>
+    request<import('./types').Medication>(
+      `/api/v1/elderly/${elderlyId}/medications/${medId}/fetch-info?refresh=${refresh}`,
+      { method: 'POST' }
+    ),
 
   dailySchedule: (elderlyId: number, date?: string) =>
     request<import('./types').DailyScheduleItem[]>(
