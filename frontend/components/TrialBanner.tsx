@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Clock, X } from 'lucide-react'
+import { Sparkles, X } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { BillingStatus } from '@/lib/types'
 
@@ -26,32 +26,36 @@ export default function TrialBanner() {
   if (!trialEnd) return null
 
   const daysLeft = Math.max(0, Math.ceil((trialEnd.getTime() - Date.now()) / 86400000))
-
-  // Don't show banner if trial has lots of days left (>10 days)
-  if (daysLeft > 10) return null
-
   const expired = daysLeft === 0
-  const tone = expired ? 'danger' : daysLeft <= 3 ? 'warn' : 'info'
+
+  // Tone scales with urgency
+  const tone = expired ? 'danger' : daysLeft <= 1 ? 'danger' : daysLeft <= 5 ? 'warn' : 'info'
 
   function dismiss(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    localStorage.setItem(DISMISS_KEY, String(Date.now() + 24 * 3600 * 1000))  // dismiss for 1 day
+    // Allow dismiss only when there's no urgency (info tone) — for 24h
+    localStorage.setItem(DISMISS_KEY, String(Date.now() + 24 * 3600 * 1000))
     setDismissed(true)
   }
 
   return (
     <Link href="/conta" className={`trial-banner trial-banner-${tone}`}>
-      <Clock size={14} strokeWidth={2.25} />
+      <Sparkles size={14} strokeWidth={2.25} />
       <span>
-        {expired
-          ? <>Trial terminou — escolhe um plano para continuar</>
-          : <>Trial termina em <strong>{daysLeft} dia{daysLeft !== 1 ? 's' : ''}</strong>. Escolhe um plano →</>
-        }
+        {expired ? (
+          <>O seu trial terminou — escolha um plano em <strong>A minha conta</strong> para continuar →</>
+        ) : daysLeft === 1 ? (
+          <>Amanhã termina o seu trial <strong>Família AI</strong>. Subscreva em <strong>A minha conta</strong> para manter os dados →</>
+        ) : (
+          <>A experimentar <strong>Família AI</strong> · faltam <strong>{daysLeft} dia{daysLeft !== 1 ? 's' : ''}</strong> · gerir em <strong>A minha conta</strong> →</>
+        )}
       </span>
-      <button onClick={dismiss} className="trial-banner-close" aria-label="Dispensar">
-        <X size={13} strokeWidth={2.5} />
-      </button>
+      {tone === 'info' && (
+        <button onClick={dismiss} className="trial-banner-close" aria-label="Dispensar">
+          <X size={13} strokeWidth={2.5} />
+        </button>
+      )}
     </Link>
   )
 }

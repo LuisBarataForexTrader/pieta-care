@@ -1,5 +1,5 @@
 from datetime import datetime
-from sqlalchemy import String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
@@ -22,5 +22,6 @@ class User(Base):
     email_verification_token: Mapped[str | None] = mapped_column(String(100))
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime)
+    trial_emails_sent: Mapped[str | None] = mapped_column(Text)  # JSON list e.g. '["day_2","day_7"]'
 
     family_memberships: Mapped[list["FamilyMember"]] = relationship(back_populates="user")

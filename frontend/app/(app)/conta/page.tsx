@@ -170,10 +170,18 @@ function ContaPageInner() {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 14, flexWrap: 'wrap', marginBottom: 16 }}>
             <div style={{ flex: 1, minWidth: 200 }}>
-              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em' }}>
-                {billing?.plan_name ?? (isTrial ? 'Trial gratuito' : 'Sem plano')}
+              <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
+                {isTrial ? (
+                  <>
+                    <Sparkles size={20} strokeWidth={2} style={{ color: '#7C3AED' }} />
+                    Família AI
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 99, background: 'linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trial</span>
+                  </>
+                ) : (
+                  billing?.plan_name ?? 'Sem plano'
+                )}
               </div>
-              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4 }}>
+              <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6 }}>
                 <span className={
                   isActive ? 'pill pill-taken' :
                   status === 'past_due' ? 'pill pill-missed' :
@@ -181,12 +189,18 @@ function ContaPageInner() {
                   'pill pill-pending'
                 } style={{ marginRight: 8 }}>{STATUS_LABEL[status] ?? status}</span>
                 {isTrial && trialDays !== null && (
-                  <>Trial termina em <strong>{trialDays} dia{trialDays !== 1 ? 's' : ''}</strong></>
+                  <>{trialDays === 0 ? 'Trial terminou hoje' : <>Trial termina em <strong>{trialDays} dia{trialDays !== 1 ? 's' : ''}</strong></>}</>
                 )}
                 {isActive && periodEnd && (
                   <>{billing?.cancel_at_period_end ? 'Termina' : 'Renova'} em <strong>{periodEnd}</strong></>
                 )}
               </div>
+              {isTrial && (
+                <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 10, padding: '10px 12px', background: 'var(--surface-2)', borderRadius: 10, border: '1px solid var(--border)', lineHeight: 1.5 }}>
+                  Está a experimentar o plano <strong>mais completo</strong> durante 14 dias, sem custos.
+                  Para continuar após o trial, escolha o plano que prefere abaixo.
+                </div>
+              )}
             </div>
 
             {billing?.has_subscription && (
