@@ -88,7 +88,11 @@ def get_presigned_url(key: str, expires_in: int = 3600) -> str:
     if _has_s3():
         return get_client().generate_presigned_url(
             "get_object",
-            Params={"Bucket": settings.HETZNER_STORAGE_BUCKET, "Key": key},
+            Params={
+                "Bucket": settings.HETZNER_STORAGE_BUCKET,
+                "Key": key,
+                "ResponseContentDisposition": "inline",
+            },
             ExpiresIn=expires_in,
         )
     return _local_url(key)

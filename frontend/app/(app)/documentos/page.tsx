@@ -1,13 +1,16 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
+import { FileText, Image, File as FileIcon2, Folder, Upload } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Document } from '@/lib/types'
 
-function fileIcon(type: string) {
-  if (type.includes('pdf')) return '📄'
-  if (type.includes('image')) return '🖼'
-  if (type.includes('doc') || type.includes('word')) return '📝'
-  return '📎'
+function FileIcon({ type, size = 22 }: { type?: string | null; size?: number }) {
+  const props = { size, strokeWidth: 1.75 }
+  if (!type) return <FileIcon2 {...props} />
+  if (type.includes('pdf'))                          return <FileText {...props} />
+  if (type.includes('image'))                        return <Image {...props} />
+  if (type.includes('doc') || type.includes('word')) return <FileText {...props} />
+  return <FileIcon2 {...props} />
 }
 
 function fmtSize(bytes: number) {
@@ -27,7 +30,7 @@ export default function DocumentosPage() {
   const [showForm, setShowForm] = useState(false)
   const [name, setName] = useState('')
   const [notes, setNotes] = useState('')
-  const [file, setFile] = useState<File | null>(null)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [error, setError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
   const elderlyId = getElderlyId()
@@ -43,18 +46,18 @@ export default function DocumentosPage() {
   function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0]
     if (!f) return
-    setFile(f)
+    setSelectedFile(f)
     if (!name) setName(f.name.replace(/\.[^.]+$/, ''))
   }
 
   async function upload(e: React.FormEvent) {
     e.preventDefault()
-    if (!elderlyId || !file) return
+    if (!elderlyId || !selectedFile) return
     setUploading(true)
     setError('')
     try {
-      await api.uploadDocument(elderlyId, file, name, notes || undefined)
-      setFile(null)
+      await api.uploadDocument(elderlyId, selectedFile, name, notes || undefined)
+      setSelectedFile(null)
       setName('')
       setNotes('')
       setShowForm(false)
@@ -77,7 +80,7 @@ export default function DocumentosPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">📁 Documentos</div>
+          <div className="page-title">Documentos</div>
           <div className="page-subtitle">{docs.length} documento{docs.length !== 1 ? 's' : ''} guardado{docs.length !== 1 ? 's' : ''}</div>
         </div>
         <button
@@ -85,7 +88,7 @@ export default function DocumentosPage() {
           className={showForm ? 'btn-ghost' : 'btn-primary'}
           style={{ width: 'auto', padding: '10px 20px' }}
         >
-          {showForm ? '✕ Cancelar' : '⬆ Upload'}
+          {showForm ? '✕ Cancelar' : <><Upload size={14} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 5 }} />Upload</>}
         </button>
       </div>
 
@@ -101,18 +104,18 @@ export default function DocumentosPage() {
                 borderRadius: 12,
                 padding: '24px',
                 textAlign: 'center',
-                background: file ? 'var(--brand-light)' : 'var(--surface-2)',
+                background: selectedFile ? 'var(--brand-light)' : 'var(--surface-2)',
                 transition: 'all 0.15s',
               }}>
-                {file ? (
+                {selectedFile ? (
                   <div style={{ color: 'var(--brand)', fontWeight: 600 }}>
-                    <span style={{ fontSize: 28 }}>{fileIcon(file.type)}</span>
-                    <div style={{ marginTop: 6 }}>{file.name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{fmtSize(file.size)}</div>
+                    <span style={{ display: 'flex', justifyContent: 'center', marginBottom: 4, color: 'var(--brand)' }}><FileIcon type={selectedFile.type} size={28} /></span>
+                    <div style={{ marginTop: 6 }}>{selectedFile.name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>{fmtSize(selectedFile.size)}</div>
                   </div>
                 ) : (
                   <div style={{ color: 'var(--text-3)' }}>
-                    <div style={{ fontSize: 32, marginBottom: 8 }}>📁</div>
+                    <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 8 }}><Folder size={32} strokeWidth={1.4} /></div>
                     <div style={{ fontWeight: 600, marginBottom: 4 }}>Clica para seleccionar</div>
                     <div style={{ fontSize: 12 }}>PDF, imagens, documentos Word</div>
                   </div>
@@ -138,7 +141,7 @@ export default function DocumentosPage() {
               </div>
             </div>
             {error && <div className="alert-error">{error}</div>}
-            <button className="btn-primary" type="submit" disabled={uploading || !file}>
+            <button className="btn-primary" type="submit" disabled={uploading || !selectedFile}>
               {uploading ? 'A enviar…' : 'Enviar documento'}
             </button>
           </form>
@@ -149,11 +152,11 @@ export default function DocumentosPage() {
         ) : docs.length === 0 ? (
           <div className="card">
             <div className="empty-state">
-              <div className="empty-state-icon">📁</div>
+              <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Folder size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Sem documentos guardados</div>
               <div className="empty-state-text">Guarda receitas, resultados de exames e relatórios médicos num só lugar</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>
-                ⬆ Fazer upload
+                Fazer upload
               </button>
             </div>
           </div>
@@ -161,8 +164,8 @@ export default function DocumentosPage() {
           <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
             {docs.map((doc, i) => (
               <div key={doc.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '16px 20px', borderBottom: i < docs.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                <div style={{ fontSize: 36, width: 44, textAlign: 'center', flexShrink: 0 }}>
-                  {fileIcon(doc.file_type)}
+                <div style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-2)', flexShrink: 0 }}>
+                  <FileIcon type={doc.mime_type} size={22} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontWeight: 700, fontSize: 15, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{doc.name}</div>
@@ -173,7 +176,7 @@ export default function DocumentosPage() {
                 </div>
                 <div style={{ display: 'flex', gap: 4, flexShrink: 0 }}>
                   <a
-                    href={doc.file_url}
+                    href={doc.download_url}
                     target="_blank"
                     rel="noopener noreferrer"
                     style={{

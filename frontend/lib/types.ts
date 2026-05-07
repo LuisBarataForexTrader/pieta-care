@@ -203,10 +203,14 @@ export interface MedicationLog {
 export interface Document {
   id: number
   elderly_id: number
-  name: string
-  file_type: string
-  file_url: string
-  notes: string | null
+  uploaded_by: number
   uploaded_by_name: string
+  name: string
+  category: string
+  mime_type: string | null
+  file_size: number | null
+  notes: string | null
+  document_date: string | null
   created_at: string
+  download_url: string
 }
