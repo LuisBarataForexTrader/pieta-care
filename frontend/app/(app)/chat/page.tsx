@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
 import { MessageCircle, Send, Sparkles, ArrowRight } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
+import { notifyNewChatMessage, requestNotificationPermission } from '@/lib/notify'
 import type { ChatMessage } from '@/lib/types'
 
 const POLL_MS = 3000
@@ -60,6 +61,14 @@ export default function ChatPage() {
           const fresh = await api.listChat(elderlyId!, lastId)
           if (!alive || fresh.length === 0) return
           setMessages(prev => [...prev, ...fresh])
+          // Audible/haptic alert if any new message is from someone else
+          const fromOthers = fresh.find(m => m.sender_id !== meIdRef.current)
+          if (fromOthers) {
+            notifyNewChatMessage({
+              title: `${fromOthers.sender_name}`,
+              body: fromOthers.content.slice(0, 80),
+            })
+          }
           await api.markChatRead(elderlyId!, fresh[fresh.length - 1].id).catch(() => {})
         }
       } catch (e) {
@@ -102,6 +111,17 @@ export default function ChatPage() {
   const messagesRef = useRef<ChatMessage[]>([])
   useEffect(() => { messagesRef.current = messages }, [messages])
 
+  const meIdRef = useRef<number | null>(null)
+  useEffect(() => { meIdRef.current = meId }, [meId])
+
+  // Ask for browser notification permission on first chat send (user gesture)
+  function maybeAskNotificationPermission() {
+    if (typeof Notification === 'undefined') return
+    if (Notification.permission === 'default') {
+      requestNotificationPermission().catch(() => {})
+    }
+  }
+
   // Autoscroll to bottom on new messages
   useEffect(() => {
     if (scrollRef.current) {
@@ -116,6 +136,7 @@ export default function ChatPage() {
     setError('')
     const text = input.trim()
     setInput('')
+    maybeAskNotificationPermission()
     try {
       const msg = await api.sendChat(elderlyId, text)
       setMessages(prev => [...prev, msg])

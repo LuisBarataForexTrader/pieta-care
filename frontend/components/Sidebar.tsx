@@ -9,6 +9,7 @@ import {
   Plus, Check, LogOut, Leaf, LifeBuoy, MessagesSquare,
 } from 'lucide-react'
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
+import { notifyNewChatMessage } from '@/lib/notify'
 import type { Elderly, User } from '@/lib/types'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
@@ -74,9 +75,21 @@ export default function Sidebar() {
   useEffect(() => {
     if (!elderly) return
     let alive = true
+    let prev = chatUnread
     const fetchUnread = () => {
       api.chatUnread(elderly.id)
-        .then(r => { if (alive) setChatUnread(r.unread) })
+        .then(r => {
+          if (!alive) return
+          // Fire sound/vibration if unread increased AND user isn't on /chat
+          if (r.unread > prev && pathname !== '/chat') {
+            notifyNewChatMessage({
+              title: 'Nova mensagem no chat familiar',
+              body: 'Toque para abrir',
+            })
+          }
+          prev = r.unread
+          setChatUnread(r.unread)
+        })
         .catch(() => { if (alive) setChatUnread(0) })
     }
     fetchUnread()
@@ -88,7 +101,8 @@ export default function Sidebar() {
       clearInterval(interval)
       document.removeEventListener('visibilitychange', onVisible)
     }
-  }, [elderly])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elderly, pathname])
 
   // Reset chat badge when navigating to chat page
   useEffect(() => {
