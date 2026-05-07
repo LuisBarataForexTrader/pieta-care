@@ -1141,6 +1141,51 @@ textarea.field-input { resize: vertical; min-height: 80px; }
   flex-shrink: 0;
 }
 
+/* ── ADMIN SUPPORT PANEL ─────────────────────────────── */
+
+.admin-support-body {
+  height: calc(100dvh - 160px);
+  max-height: calc(100dvh - 160px);
+}
+.admin-support-grid {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: 16px;
+  height: 100%;
+}
+.admin-support-list, .admin-support-detail {
+  min-height: 0;
+}
+.admin-support-back {
+  display: none;  /* hidden on desktop */
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+  flex-shrink: 0;
+}
+.admin-support-back:hover { background: var(--bg); }
+
+@media (max-width: 768px) {
+  .admin-support-body {
+    height: calc(100dvh - 232px);
+    max-height: calc(100dvh - 232px);
+    padding: 0 12px 4px;
+  }
+  .admin-support-grid {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .admin-support-list-hidden-mobile { display: none; }
+  .admin-support-detail-hidden-mobile { display: none; }
+  .admin-support-back { display: inline-flex; }
+}
+
 /* ── CHAT ────────────────────────────────────────────── */
 
 .chat-page-body {

@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { LifeBuoy, Send, RefreshCw } from 'lucide-react'
+import { LifeBuoy, Send, ArrowLeft } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { SupportThread, SupportMessage } from '@/lib/types'
 
@@ -50,7 +50,9 @@ export default function AdminSuportePage() {
         const list = await api.adminListSupportThreads()
         if (!alive) return
         setThreads(list)
-        if (selectedId === null && list.length > 0) {
+        // Auto-select on desktop only — mobile shows the list first
+        const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 769
+        if (selectedId === null && list.length > 0 && isDesktop) {
           setSelectedId(list[0].id)
         }
         setLoading(false)
@@ -177,11 +179,11 @@ export default function AdminSuportePage() {
         </div>
       </div>
 
-      <div className="page-body" style={{ height: 'calc(100dvh - 160px)', maxHeight: 'calc(100dvh - 160px)' }}>
-        <div style={{ display: 'grid', gridTemplateColumns: '320px 1fr', gap: 16, height: '100%' }}>
+      <div className="page-body admin-support-body">
+        <div className="admin-support-grid">
 
           {/* Thread list */}
-          <div className="card" style={{ padding: 0, overflowY: 'auto' }}>
+          <div className={`card admin-support-list${selectedId ? ' admin-support-list-hidden-mobile' : ''}`} style={{ padding: 0, overflowY: 'auto' }}>
             {threads.length === 0 ? (
               <div className="empty-state" style={{ padding: 32 }}>
                 <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><LifeBuoy size={32} strokeWidth={1.4} /></div>
@@ -224,16 +226,26 @@ export default function AdminSuportePage() {
           </div>
 
           {/* Conversation */}
-          <div className="card" style={{ padding: 0, display: 'flex', flexDirection: 'column' }}>
+          <div className={`card admin-support-detail${!selectedId ? ' admin-support-detail-hidden-mobile' : ''}`} style={{ padding: 0, display: 'flex', flexDirection: 'column' }}>
             {!selected ? (
               <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-3)' }}>
                 Selecciona uma conversa
               </div>
             ) : (
               <>
-                <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)' }}>
-                  <div style={{ fontWeight: 700, fontSize: 15 }}>{selected.user_name}</div>
-                  <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{selected.user_email}</div>
+                <div style={{ padding: '12px 16px', borderBottom: '1px solid var(--border)', display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => setSelectedId(null)}
+                    className="admin-support-back"
+                    aria-label="Voltar à lista"
+                  >
+                    <ArrowLeft size={18} strokeWidth={2.25} />
+                  </button>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontWeight: 700, fontSize: 15 }}>{selected.user_name}</div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{selected.user_email}</div>
+                  </div>
                 </div>
                 <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
                   {messages.map(m => {
