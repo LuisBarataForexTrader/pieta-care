@@ -39,3 +39,27 @@ class SupportUserSummaryResponse(BaseModel):
     thread_id: int | None
     has_thread: bool
     unread: int
+
+
+class HouseholdMemberThreadInfo(BaseModel):
+    thread_id: int
+    user_id: int
+    user_name: str
+    user_email: str
+    user_phone: str | None
+    is_owner: bool
+    last_message_at: datetime | None
+    last_message_preview: str | None
+    admin_unread: int
+
+
+class HouseholdSummary(BaseModel):
+    owner_user_id: int
+    owner_name: str
+    owner_email: str
+    owner_phone: str | None
+    subscription_status: str
+    subscription_plan: str | None
+    elderly_names: list[str]
+    members: list[HouseholdMemberThreadInfo]
+    total_admin_unread: int

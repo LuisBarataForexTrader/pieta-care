@@ -136,6 +136,9 @@ export const api = {
   adminListSupportThreads: () =>
     request<import('./types').SupportThread[]>('/api/v1/support/admin/threads'),
 
+  adminListSupportHouseholds: () =>
+    request<import('./types').SupportHousehold[]>('/api/v1/support/admin/households'),
+
   adminGetSupportThread: (threadId: number) =>
     request<{ thread: import('./types').SupportThread; messages: import('./types').SupportMessage[] }>(
       `/api/v1/support/admin/threads/${threadId}`

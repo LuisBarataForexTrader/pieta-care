@@ -9,12 +9,16 @@ from sqlalchemy import desc
 from sqlalchemy.orm import Session
 
 from app.core.email import send_email
+from app.models.elderly import ElderlyProfile
+from app.models.family import FamilyMember
 from app.models.support import SupportThread, SupportMessage
 from app.models.user import User
 from app.schemas.support import (
     SupportMessageResponse,
     SupportThreadResponse,
     SupportUserSummaryResponse,
+    HouseholdSummary,
+    HouseholdMemberThreadInfo,
 )
 
 log = logging.getLogger(__name__)
@@ -208,6 +212,137 @@ def admin_unread_total(db: Session, admin: User) -> int:
     _require_admin(admin)
     rows = db.query(SupportThread).all()
     return sum(t.admin_unread or 0 for t in rows)
+
+
+def _find_household_owner(db: Session, user: User) -> User | None:
+    """Return the paying owner of the household this user belongs to.
+    If the user themselves owns an elderly profile, returns the user.
+    Otherwise, returns the owner of the first elderly they're an
+    accepted member of. Returns None if the user has no household."""
+    own = db.query(FamilyMember).filter(
+        FamilyMember.user_id == user.id,
+        FamilyMember.role == "owner",
+        FamilyMember.is_accepted == True,
+    ).first()
+    if own:
+        return user
+
+    member = db.query(FamilyMember).filter(
+        FamilyMember.user_id == user.id,
+        FamilyMember.is_accepted == True,
+    ).first()
+    if not member:
+        return None
+
+    owner_membership = db.query(FamilyMember).filter(
+        FamilyMember.elderly_id == member.elderly_id,
+        FamilyMember.role == "owner",
+        FamilyMember.is_accepted == True,
+    ).first()
+    if not owner_membership:
+        return None
+    return db.query(User).filter(User.id == owner_membership.user_id).first()
+
+
+def _elderly_names_for_owner(db: Session, owner: User) -> list[str]:
+    memberships = db.query(FamilyMember).filter(
+        FamilyMember.user_id == owner.id,
+        FamilyMember.role == "owner",
+        FamilyMember.is_accepted == True,
+    ).all()
+    elderly_ids = [m.elderly_id for m in memberships]
+    if not elderly_ids:
+        return []
+    elderlies = db.query(ElderlyProfile).filter(ElderlyProfile.id.in_(elderly_ids)).all()
+    return [e.full_name for e in elderlies]
+
+
+def list_admin_households(db: Session, admin: User) -> list[HouseholdSummary]:
+    """Group support threads by household — the paying owner up top, with
+    their family members nested below as sub-rows."""
+    _require_admin(admin)
+
+    threads = (
+        db.query(SupportThread)
+        .order_by(desc(SupportThread.last_message_at), desc(SupportThread.id))
+        .all()
+    )
+
+    households: dict[int, dict] = {}
+
+    for thread in threads:
+        user = db.query(User).filter(User.id == thread.user_id).first()
+        if not user:
+            continue
+
+        owner = _find_household_owner(db, user) or user
+        h = households.get(owner.id)
+        if not h:
+            h = {
+                "owner": owner,
+                "elderly_names": _elderly_names_for_owner(db, owner),
+                "threads": [],
+            }
+            households[owner.id] = h
+        h["threads"].append((thread, user))
+
+    result: list[HouseholdSummary] = []
+    for h in households.values():
+        owner: User = h["owner"]
+        members: list[HouseholdMemberThreadInfo] = []
+        total_unread = 0
+        for thread, user in h["threads"]:
+            last_msg = (
+                db.query(SupportMessage)
+                .filter(
+                    SupportMessage.thread_id == thread.id,
+                    SupportMessage.deleted_at.is_(None),
+                )
+                .order_by(desc(SupportMessage.id))
+                .first()
+            )
+            preview = None
+            if last_msg:
+                preview = last_msg.content[:80] + ("…" if len(last_msg.content) > 80 else "")
+            total_unread += thread.admin_unread or 0
+            members.append(
+                HouseholdMemberThreadInfo(
+                    thread_id=thread.id,
+                    user_id=user.id,
+                    user_name=user.full_name,
+                    user_email=user.email,
+                    user_phone=user.phone,
+                    is_owner=user.id == owner.id,
+                    last_message_at=thread.last_message_at,
+                    last_message_preview=preview,
+                    admin_unread=thread.admin_unread or 0,
+                )
+            )
+        # Owner first, then members alphabetically
+        members.sort(key=lambda m: (not m.is_owner, m.user_name.lower()))
+
+        result.append(
+            HouseholdSummary(
+                owner_user_id=owner.id,
+                owner_name=owner.full_name,
+                owner_email=owner.email,
+                owner_phone=owner.phone,
+                subscription_status=owner.subscription_status,
+                subscription_plan=owner.subscription_plan,
+                elderly_names=h["elderly_names"],
+                members=members,
+                total_admin_unread=total_unread,
+            )
+        )
+
+    # Households with unread first; within unread, most recent first
+    result.sort(
+        key=lambda h: (
+            -h.total_admin_unread,
+            -max((m.last_message_at.timestamp() if m.last_message_at else 0) for m in h.members),
+        )
+    )
+    return result
 
 
 def admin_delete_message(db: Session, admin: User, message_id: int) -> None:

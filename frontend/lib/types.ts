@@ -81,6 +81,30 @@ export interface SupportSummary {
   unread: number
 }
 
+export interface SupportHouseholdMember {
+  thread_id: number
+  user_id: number
+  user_name: string
+  user_email: string
+  user_phone: string | null
+  is_owner: boolean
+  last_message_at: string | null
+  last_message_preview: string | null
+  admin_unread: number
+}
+
+export interface SupportHousehold {
+  owner_user_id: number
+  owner_name: string
+  owner_email: string
+  owner_phone: string | null
+  subscription_status: string
+  subscription_plan: string | null
+  elderly_names: string[]
+  members: SupportHouseholdMember[]
+  total_admin_unread: number
+}
+
 export interface AuthResponse {
   access_token: string
   token_type: string

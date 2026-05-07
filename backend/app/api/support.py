@@ -8,12 +8,14 @@ from app.schemas.support import (
     SupportMessageResponse,
     SupportThreadResponse,
     SupportUserSummaryResponse,
+    HouseholdSummary,
 )
 from app.services.support import (
     get_user_summary,
     list_user_messages,
     post_user_message,
     list_admin_threads,
+    list_admin_households,
     get_admin_thread,
     post_admin_reply,
     admin_unread_total,
@@ -54,6 +56,14 @@ def send(
 def admin_list(db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
     try:
         return list_admin_threads(db, admin)
+    except SupportError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.get("/admin/households", response_model=list[HouseholdSummary])
+def admin_households(db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
+    try:
+        return list_admin_households(db, admin)
     except SupportError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 

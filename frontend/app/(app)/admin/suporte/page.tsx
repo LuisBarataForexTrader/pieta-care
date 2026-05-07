@@ -1,8 +1,8 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { LifeBuoy, Send, ArrowLeft, Trash2 } from 'lucide-react'
+import { LifeBuoy, Send, ArrowLeft, Trash2, Phone, Mail, Sparkles, Crown } from 'lucide-react'
 import { api } from '@/lib/api'
-import type { SupportThread, SupportMessage } from '@/lib/types'
+import type { SupportHousehold, SupportMessage } from '@/lib/types'
 
 const POLL_MS = 8000
 
@@ -20,8 +20,14 @@ function fmtRelative(iso: string | null) {
   return new Date(iso).toLocaleDateString('pt-PT', { day: 'numeric', month: 'short' })
 }
 
+const PLAN_LABEL: Record<string, string> = {
+  familia: 'Família',
+  familia_plus: 'Família+',
+  cuidador_pro: 'Família AI',
+}
+
 export default function AdminSuportePage() {
-  const [threads, setThreads] = useState<SupportThread[]>([])
+  const [households, setHouseholds] = useState<SupportHousehold[]>([])
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [messages, setMessages] = useState<SupportMessage[]>([])
   const [meId, setMeId] = useState<number | null>(null)
@@ -37,7 +43,7 @@ export default function AdminSuportePage() {
     let alive = true
     let timer: number | undefined
 
-    async function loadThreads() {
+    async function loadHouseholds() {
       try {
         const me = await api.me()
         if (!alive) return
@@ -47,13 +53,14 @@ export default function AdminSuportePage() {
           setLoading(false)
           return
         }
-        const list = await api.adminListSupportThreads()
+        const list = await api.adminListSupportHouseholds()
         if (!alive) return
-        setThreads(list)
-        // Auto-select on desktop only — mobile shows the list first
+        setHouseholds(list)
+        // Auto-select first thread on desktop only — mobile shows the list first
         const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 769
-        if (selectedId === null && list.length > 0 && isDesktop) {
-          setSelectedId(list[0].id)
+        if (selectedId === null && isDesktop) {
+          const first = list.flatMap(h => h.members)[0]
+          if (first) setSelectedId(first.thread_id)
         }
         setLoading(false)
       } catch (e) {
@@ -72,14 +79,14 @@ export default function AdminSuportePage() {
       timer = window.setTimeout(async () => {
         if (!alive || authError) return
         try {
-          const list = await api.adminListSupportThreads()
-          if (alive) setThreads(list)
+          const list = await api.adminListSupportHouseholds()
+          if (alive) setHouseholds(list)
         } catch { /* polling errors stay silent */ }
         if (alive) schedule()
       }, POLL_MS)
     }
 
-    loadThreads().then(() => { if (alive) schedule() })
+    loadHouseholds().then(() => { if (alive) schedule() })
 
     return () => {
       alive = false
@@ -100,7 +107,13 @@ export default function AdminSuportePage() {
         const data = await api.adminGetSupportThread(selectedId!)
         if (!alive) return
         setMessages(data.messages)
-        setThreads(prev => prev.map(t => t.id === selectedId ? { ...t, admin_unread: 0 } : t))
+        setHouseholds(prev => prev.map(h => ({
+          ...h,
+          members: h.members.map(m => m.thread_id === selectedId ? { ...m, admin_unread: 0 } : m),
+          total_admin_unread: h.members.reduce(
+            (sum, m) => sum + (m.thread_id === selectedId ? 0 : m.admin_unread), 0
+          ),
+        })))
         consecutiveFailures = 0
         if (error) setError('')
       } catch (e) {
@@ -185,7 +198,16 @@ export default function AdminSuportePage() {
     )
   }
 
-  const selected = threads.find(t => t.id === selectedId)
+  // Find the selected member + their household across all households
+  let selectedHousehold: SupportHousehold | null = null
+  let selected: SupportHousehold['members'][number] | null = null
+  for (const h of households) {
+    const m = h.members.find(m => m.thread_id === selectedId)
+    if (m) { selectedHousehold = h; selected = m; break }
+  }
+
+  const totalThreads = households.reduce((s, h) => s + h.members.length, 0)
+  const totalUnread = households.reduce((s, h) => s + h.total_admin_unread, 0)
 
   return (
     <div>
@@ -194,51 +216,102 @@ export default function AdminSuportePage() {
           <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
             <LifeBuoy size={20} strokeWidth={2} /> Painel de Suporte
           </div>
-          <div className="page-subtitle">{threads.length} conversa{threads.length !== 1 ? 's' : ''}</div>
+          <div className="page-subtitle">
+            {households.length} {households.length === 1 ? 'cliente' : 'clientes'}
+            {totalThreads > 0 && <> · {totalThreads} conversa{totalThreads !== 1 ? 's' : ''}</>}
+            {totalUnread > 0 && <> · <span style={{ color: '#EF4444', fontWeight: 700 }}>{totalUnread} por ler</span></>}
+          </div>
         </div>
       </div>
 
       <div className="page-body admin-support-body">
         <div className="admin-support-grid">
 
-          {/* Thread list */}
+          {/* Household list */}
           <div className={`card admin-support-list${selectedId ? ' admin-support-list-hidden-mobile' : ''}`} style={{ padding: 0, overflowY: 'auto' }}>
-            {threads.length === 0 ? (
+            {households.length === 0 ? (
               <div className="empty-state" style={{ padding: 32 }}>
                 <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><LifeBuoy size={32} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem conversas</div>
               </div>
             ) : (
-              threads.map((t, i) => (
-                <div
-                  key={t.id}
-                  onClick={() => setSelectedId(t.id)}
-                  style={{
-                    padding: '12px 16px',
-                    borderBottom: i < threads.length - 1 ? '1px solid var(--border)' : 'none',
-                    cursor: 'pointer',
-                    background: selectedId === t.id ? 'var(--brand-light)' : 'transparent',
-                    transition: 'background 0.1s',
-                  }}
-                  onMouseEnter={e => { if (selectedId !== t.id) (e.currentTarget as HTMLElement).style.background = 'var(--surface-2)' }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLElement).style.background = selectedId === t.id ? 'var(--brand-light)' : 'transparent' }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {t.user_name}
+              households.map((h, hi) => (
+                <div key={h.owner_user_id} style={{ borderBottom: hi < households.length - 1 ? '6px solid var(--bg)' : 'none' }}>
+                  {/* Household header */}
+                  <div className="household-header">
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 2 }}>
+                          <Crown size={12} strokeWidth={2.25} style={{ color: '#D69E2E', flexShrink: 0 }} />
+                          <span style={{ fontSize: 14, fontWeight: 800, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{h.owner_name}</span>
+                        </div>
+                        <div style={{ fontSize: 11, color: 'var(--text-3)', display: 'flex', flexWrap: 'wrap', gap: 8, alignItems: 'center', lineHeight: 1.4 }}>
+                          {h.owner_phone && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}><Phone size={10} strokeWidth={2.25} /> {h.owner_phone}</span>}
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: 180 }}>
+                            <Mail size={10} strokeWidth={2.25} /> {h.owner_email}
+                          </span>
+                        </div>
+                        <div style={{ marginTop: 5, display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+                          {h.subscription_plan === 'cuidador_pro' && (
+                            <span className="household-plan-pill" style={{ background: 'linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%)', color: '#fff' }}>
+                              <Sparkles size={9} strokeWidth={2.5} /> {PLAN_LABEL[h.subscription_plan]}
+                            </span>
+                          )}
+                          {h.subscription_plan && h.subscription_plan !== 'cuidador_pro' && (
+                            <span className="household-plan-pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>{PLAN_LABEL[h.subscription_plan] ?? h.subscription_plan}</span>
+                          )}
+                          {!h.subscription_plan && h.subscription_status === 'trial' && (
+                            <span className="household-plan-pill" style={{ background: '#FFF7E6', color: '#B7791F' }}>Trial</span>
+                          )}
+                          {h.subscription_status && h.subscription_status !== 'trial' && (
+                            <span className="household-plan-pill" style={{ background: 'var(--surface-2)', color: 'var(--text-3)' }}>{h.subscription_status}</span>
+                          )}
+                          {h.elderly_names.map(name => (
+                            <span key={name} className="household-plan-pill" style={{ background: 'var(--surface-2)', color: 'var(--text-2)' }}>{name}</span>
+                          ))}
+                        </div>
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        {t.last_message_preview ?? t.user_email}
-                      </div>
-                      <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 4 }}>
-                        {fmtRelative(t.last_message_at)}
+                      {h.total_admin_unread > 0 && (
+                        <span className="nav-badge" style={{ marginLeft: 0, marginTop: 2 }}>
+                          {h.total_admin_unread > 99 ? '99+' : h.total_admin_unread}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Members of this household */}
+                  {h.members.map(m => (
+                    <div
+                      key={m.thread_id}
+                      onClick={() => setSelectedId(m.thread_id)}
+                      className={`household-member${selectedId === m.thread_id ? ' selected' : ''}`}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <div className="household-member-avatar" style={{ background: m.is_owner ? 'var(--brand)' : 'var(--text-2)' }}>
+                          {(m.user_name[0] || '?').toUpperCase()}
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{m.user_name}</span>
+                            <span style={{ fontSize: 10, color: m.is_owner ? '#D69E2E' : 'var(--text-3)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.04em', flexShrink: 0 }}>
+                              {m.is_owner ? 'titular' : 'familiar'}
+                            </span>
+                          </div>
+                          <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {m.last_message_preview ?? m.user_email}
+                          </div>
+                          <div style={{ fontSize: 10, color: 'var(--text-3)', marginTop: 2 }}>
+                            {fmtRelative(m.last_message_at)}
+                          </div>
+                        </div>
+                        {m.admin_unread > 0 && (
+                          <span className="nav-badge" style={{ marginLeft: 0 }}>
+                            {m.admin_unread > 99 ? '99+' : m.admin_unread}
+                          </span>
+                        )}
                       </div>
                     </div>
-                    {t.admin_unread > 0 && (
-                      <span className="nav-badge" style={{ marginLeft: 0 }}>{t.admin_unread > 99 ? '99+' : t.admin_unread}</span>
-                    )}
-                  </div>
+                  ))}
                 </div>
               ))
             )}
@@ -262,8 +335,28 @@ export default function AdminSuportePage() {
                     <ArrowLeft size={18} strokeWidth={2.25} />
                   </button>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontWeight: 700, fontSize: 15 }}>{selected.user_name}</div>
-                    <div style={{ fontSize: 12, color: 'var(--text-3)' }}>{selected.user_email}</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <span style={{ fontWeight: 700, fontSize: 15 }}>{selected.user_name}</span>
+                      <span style={{ fontSize: 10, color: selected.is_owner ? '#D69E2E' : 'var(--text-3)', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                        {selected.is_owner ? '👑 titular' : 'familiar'}
+                      </span>
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                        <Mail size={10} strokeWidth={2.25} /> {selected.user_email}
+                      </span>
+                      {selected.user_phone && (
+                        <a href={`tel:${selected.user_phone}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 3, color: 'var(--brand)', textDecoration: 'none' }}>
+                          <Phone size={10} strokeWidth={2.25} /> {selected.user_phone}
+                        </a>
+                      )}
+                      {!selected.is_owner && selectedHousehold && (
+                        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 3 }}>
+                          <Crown size={10} strokeWidth={2.25} style={{ color: '#D69E2E' }} />
+                          família de <strong>{selectedHousehold.owner_name}</strong>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div ref={scrollRef} style={{ flex: 1, overflowY: 'auto', padding: '12px 16px' }}>
