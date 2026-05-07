@@ -28,5 +28,6 @@ class SupportMessage(Base):
     is_admin_reply: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     content: Mapped[str] = mapped_column(Text, nullable=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
 
     sender = relationship("User", foreign_keys=[sender_id])

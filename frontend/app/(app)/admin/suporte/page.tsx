@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useRef, useState } from 'react'
-import { LifeBuoy, Send, ArrowLeft } from 'lucide-react'
+import { LifeBuoy, Send, ArrowLeft, Trash2 } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { SupportThread, SupportMessage } from '@/lib/types'
 
@@ -138,6 +138,16 @@ export default function AdminSuportePage() {
     }
   }, [messages.length, selectedId])
 
+  async function deleteOwnMessage(msgId: number) {
+    if (!confirm('Apagar esta mensagem? O cliente deixará de a ver.')) return
+    try {
+      await api.adminDeleteSupportMessage(msgId)
+      setMessages(prev => prev.filter(m => m.id !== msgId))
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Erro ao apagar mensagem')
+    }
+  }
+
   async function reply(e: React.FormEvent) {
     e.preventDefault()
     if (!selectedId || !input.trim() || sending) return
@@ -266,12 +276,25 @@ export default function AdminSuportePage() {
                             {(m.sender_name[0] || '?').toUpperCase()}
                           </div>
                         )}
-                        <div className={`chat-bubble ${own ? 'chat-bubble-own' : ''}`} style={{ maxWidth: '78%' }}>
-                          <div className="chat-sender" style={{ color: m.is_admin_reply ? '#7C3AED' : 'var(--brand)' }}>
-                            {m.is_admin_reply ? `${m.sender_name} (suporte)` : m.sender_name}
+                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: own ? 'flex-end' : 'flex-start', maxWidth: '78%' }}>
+                          <div className={`chat-bubble ${own ? 'chat-bubble-own' : ''}`} style={{ maxWidth: '100%' }}>
+                            <div className="chat-sender" style={{ color: m.is_admin_reply ? '#7C3AED' : 'var(--brand)' }}>
+                              {m.is_admin_reply ? `${m.sender_name} (suporte)` : m.sender_name}
+                            </div>
+                            <div className="chat-content">{m.content}</div>
+                            <div className="chat-time">{fmtTime(m.created_at)}</div>
                           </div>
-                          <div className="chat-content">{m.content}</div>
-                          <div className="chat-time">{fmtTime(m.created_at)}</div>
+                          {m.is_admin_reply && (
+                            <button
+                              type="button"
+                              onClick={() => deleteOwnMessage(m.id)}
+                              className="chat-delete-btn"
+                              title="Apagar mensagem"
+                              aria-label="Apagar mensagem"
+                            >
+                              <Trash2 size={11} strokeWidth={2.25} /> apagar
+                            </button>
+                          )}
                         </div>
                       </div>
                     )

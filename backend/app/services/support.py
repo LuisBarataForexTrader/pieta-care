@@ -42,7 +42,7 @@ def _thread_resp(db: Session, t: SupportThread, last_msg: SupportMessage | None 
     if last_msg is None:
         last_msg = (
             db.query(SupportMessage)
-            .filter(SupportMessage.thread_id == t.id)
+            .filter(SupportMessage.thread_id == t.id, SupportMessage.deleted_at.is_(None))
             .order_by(desc(SupportMessage.id))
             .first()
         )
@@ -85,7 +85,7 @@ def list_user_messages(db: Session, user: User) -> list[SupportMessageResponse]:
         return []
     msgs = (
         db.query(SupportMessage)
-        .filter(SupportMessage.thread_id == thread.id)
+        .filter(SupportMessage.thread_id == thread.id, SupportMessage.deleted_at.is_(None))
         .order_by(SupportMessage.id.asc())
         .all()
     )
@@ -170,7 +170,7 @@ def get_admin_thread(db: Session, admin: User, thread_id: int) -> tuple[SupportT
         raise SupportError("Thread não encontrada", 404)
     msgs = (
         db.query(SupportMessage)
-        .filter(SupportMessage.thread_id == thread.id)
+        .filter(SupportMessage.thread_id == thread.id, SupportMessage.deleted_at.is_(None))
         .order_by(SupportMessage.id.asc())
         .all()
     )
@@ -208,3 +208,18 @@ def admin_unread_total(db: Session, admin: User) -> int:
     _require_admin(admin)
     rows = db.query(SupportThread).all()
     return sum(t.admin_unread or 0 for t in rows)
+
+
+def admin_delete_message(db: Session, admin: User, message_id: int) -> None:
+    """Soft-delete an admin reply. Only admin replies can be deleted —
+    user messages are immutable. Any admin can delete any admin reply."""
+    _require_admin(admin)
+    msg = db.query(SupportMessage).filter(SupportMessage.id == message_id).first()
+    if not msg:
+        raise SupportError("Mensagem não encontrada", 404)
+    if not msg.is_admin_reply:
+        raise SupportError("Só é possível apagar respostas do suporte", 403)
+    if msg.deleted_at is not None:
+        return  # already deleted, no-op
+    msg.deleted_at = datetime.utcnow()
+    db.commit()

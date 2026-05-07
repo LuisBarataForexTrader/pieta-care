@@ -147,6 +147,9 @@ export const api = {
   adminSupportUnread: () =>
     request<{ unread: number }>('/api/v1/support/admin/unread'),
 
+  adminDeleteSupportMessage: (messageId: number) =>
+    request<void>(`/api/v1/support/admin/messages/${messageId}`, { method: 'DELETE' }),
+
   acceptInvite: (token: string, password: string, full_name: string) =>
     request<{ access_token: string; user: import('./types').User; elderly_id: number }>(
       '/api/v1/auth/invite/accept',

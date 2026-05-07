@@ -17,6 +17,7 @@ from app.services.support import (
     get_admin_thread,
     post_admin_reply,
     admin_unread_total,
+    admin_delete_message,
     SupportError,
 )
 
@@ -87,5 +88,17 @@ def admin_reply(
 def admin_unread(db: Session = Depends(get_db), admin: User = Depends(get_current_user)):
     try:
         return {"unread": admin_unread_total(db, admin)}
+    except SupportError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
+@router.delete("/admin/messages/{message_id}", status_code=204)
+def admin_delete(
+    message_id: int,
+    db: Session = Depends(get_db),
+    admin: User = Depends(get_current_user),
+):
+    try:
+        admin_delete_message(db, admin, message_id)
     except SupportError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
