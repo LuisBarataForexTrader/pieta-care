@@ -74,7 +74,7 @@ export default function AdminSuportePage() {
         try {
           const list = await api.adminListSupportThreads()
           if (alive) setThreads(list)
-        } catch { /* silent */ }
+        } catch { /* polling errors stay silent */ }
         if (alive) schedule()
       }, POLL_MS)
     }
@@ -93,34 +93,43 @@ export default function AdminSuportePage() {
     if (!selectedId) { setMessages([]); return }
     let alive = true
     let timer: number | undefined
+    let consecutiveFailures = 0
 
-    async function loadMsgs() {
+    async function loadMsgs(initial = false) {
       try {
         const data = await api.adminGetSupportThread(selectedId!)
         if (!alive) return
         setMessages(data.messages)
-        // Mark this thread as read in local list
         setThreads(prev => prev.map(t => t.id === selectedId ? { ...t, admin_unread: 0 } : t))
+        consecutiveFailures = 0
+        if (error) setError('')
       } catch (e) {
         if (!alive) return
-        setError(e instanceof Error ? e.message : 'Erro ao carregar thread')
+        consecutiveFailures += 1
+        // Only surface the error to the user if the initial load fails or
+        // if many polls in a row fail (transient blips are common during
+        // deploys / network hiccups and shouldn't disrupt the admin)
+        if (initial || consecutiveFailures >= 3) {
+          setError(e instanceof Error ? e.message : 'Erro ao carregar thread')
+        }
       }
     }
 
     function schedule() {
       timer = window.setTimeout(async () => {
         if (!alive) return
-        await loadMsgs()
+        await loadMsgs(false)
         if (alive) schedule()
       }, POLL_MS)
     }
 
-    loadMsgs().then(() => { if (alive) schedule() })
+    loadMsgs(true).then(() => { if (alive) schedule() })
 
     return () => {
       alive = false
       if (timer) window.clearTimeout(timer)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId])
 
   useEffect(() => {
