@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Settings, User as UserIcon, CreditCard, Download, Trash2, AlertTriangle,
@@ -32,6 +32,14 @@ function daysUntil(iso: string | null) {
 }
 
 export default function ContaPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 48, textAlign: 'center', color: 'var(--text-3)' }}>A carregar…</div>}>
+      <ContaPageInner />
+    </Suspense>
+  )
+}
+
+function ContaPageInner() {
   const router = useRouter()
   const search = useSearchParams()
   const [user, setUser] = useState<User | null>(null)
