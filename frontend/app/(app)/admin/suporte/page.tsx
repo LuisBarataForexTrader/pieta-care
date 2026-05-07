@@ -276,23 +276,21 @@ export default function AdminSuportePage() {
                             {(m.sender_name[0] || '?').toUpperCase()}
                           </div>
                         )}
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: own ? 'flex-end' : 'flex-start', maxWidth: '78%' }}>
-                          <div className={`chat-bubble ${own ? 'chat-bubble-own' : ''}`} style={{ maxWidth: '100%' }}>
-                            <div className="chat-sender" style={{ color: m.is_admin_reply ? '#7C3AED' : 'var(--brand)' }}>
-                              {m.is_admin_reply ? `${m.sender_name} (suporte)` : m.sender_name}
-                            </div>
-                            <div className="chat-content">{m.content}</div>
-                            <div className="chat-time">{fmtTime(m.created_at)}</div>
+                        <div className={`chat-bubble chat-bubble-deletable ${own ? 'chat-bubble-own' : ''}`} style={{ maxWidth: '78%' }}>
+                          <div className="chat-sender" style={{ color: m.is_admin_reply ? '#7C3AED' : 'var(--brand)' }}>
+                            {m.is_admin_reply ? `${m.sender_name} (suporte)` : m.sender_name}
                           </div>
+                          <div className="chat-content">{m.content}</div>
+                          <div className="chat-time">{fmtTime(m.created_at)}</div>
                           {m.is_admin_reply && (
                             <button
                               type="button"
                               onClick={() => deleteOwnMessage(m.id)}
-                              className="chat-delete-btn"
+                              className="chat-bubble-trash"
                               title="Apagar mensagem"
                               aria-label="Apagar mensagem"
                             >
-                              <Trash2 size={11} strokeWidth={2.25} /> apagar
+                              <Trash2 size={13} strokeWidth={2.25} />
                             </button>
                           )}
                         </div>

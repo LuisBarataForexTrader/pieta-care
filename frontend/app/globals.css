@@ -1286,28 +1286,37 @@ textarea.field-input { resize: vertical; min-height: 80px; }
 }
 .chat-bubble-own .chat-time { color: rgba(255,255,255,0.65); }
 
-.chat-delete-btn {
-  display: inline-flex;
+/* In-bubble trash icon (admin's own support replies) */
+.chat-bubble-deletable { position: relative; }
+.chat-bubble-deletable .chat-sender { padding-right: 32px; }
+.chat-bubble-trash {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  display: flex;
   align-items: center;
-  gap: 4px;
-  margin-top: 4px;
-  padding: 3px 9px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 99px;
-  color: var(--text-3);
-  font-size: 10px;
-  font-weight: 600;
-  font-family: inherit;
+  justify-content: center;
+  background: rgba(255,255,255,0.18);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 7px;
+  color: rgba(255,255,255,0.75);
   cursor: pointer;
-  transition: background 0.12s, color 0.12s, border-color 0.12s;
-  opacity: 0.6;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, opacity 0.12s;
+  opacity: 0;
+  padding: 0;
 }
-.chat-delete-btn:hover {
-  background: var(--danger-light);
-  color: var(--danger);
-  border-color: #FEB2B2;
-  opacity: 1;
+/* Visible on hover (desktop) */
+.chat-bubble-deletable:hover .chat-bubble-trash { opacity: 1; }
+.chat-bubble-trash:hover {
+  background: rgba(229,62,62,0.85);
+  color: #fff;
+  border-color: rgba(229,62,62,0.85);
+}
+/* Mobile / touch: always visible */
+@media (hover: none), (max-width: 768px) {
+  .chat-bubble-trash { opacity: 1; }
 }
 
 .chat-composer {
