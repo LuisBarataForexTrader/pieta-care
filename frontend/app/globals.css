@@ -528,6 +528,126 @@ textarea.field-input { resize: vertical; min-height: 80px; }
 }
 .bottom-nav-item.active { color: var(--brand); }
 .bottom-nav-item svg { width: 22px; height: 22px; }
+.bottom-nav-item button, .bottom-nav-inner button {
+  background: transparent; border: none; cursor: pointer;
+  font-family: inherit;
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: -5px;
+  right: -8px;
+  min-width: 16px;
+  height: 16px;
+  background: #EF4444;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 4px;
+  letter-spacing: -0.02em;
+  border: 1.5px solid var(--surface);
+}
+
+/* ── DRAWER (mobile "Mais") ──────────────────────────── */
+
+.drawer-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,31,24,0.45);
+  z-index: 30;
+  animation: drawer-fade 0.2s ease-out;
+}
+@keyframes drawer-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.drawer-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--surface);
+  border-radius: 22px 22px 0 0;
+  z-index: 31;
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.18);
+  padding-bottom: max(env(safe-area-inset-bottom, 0), 16px);
+  animation: drawer-slide 0.22s ease-out;
+}
+@keyframes drawer-slide {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+
+.drawer-handle {
+  width: 36px;
+  height: 4px;
+  background: var(--border-2);
+  border-radius: 99px;
+  margin: 9px auto 4px;
+}
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.drawer-close {
+  margin-left: auto;
+  background: var(--surface-2);
+  border: none;
+  border-radius: 99px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: var(--text-2);
+}
+
+.drawer-grid {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 12px 12px;
+}
+
+.drawer-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 11px;
+  color: var(--text);
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  width: 100%;
+  transition: background 0.12s;
+}
+.drawer-link:hover, .drawer-link.active { background: var(--brand-light); color: var(--brand); }
+.drawer-link svg { color: inherit; flex-shrink: 0; }
+
+.drawer-link-admin {
+  background: rgba(124,58,237,0.10);
+  color: #6D28D9;
+  margin: 6px 0;
+}
+.drawer-link-admin:hover { background: rgba(124,58,237,0.18); color: #6D28D9; }
 
 /* ── COMPLIANCE BAR ──────────────────────────────────── */
 
@@ -1008,6 +1128,22 @@ textarea.field-input { resize: vertical; min-height: 80px; }
 }
 
 /* ── CHAT ────────────────────────────────────────────── */
+
+.chat-page-body {
+  display: flex;
+  flex-direction: column;
+  height: calc(100dvh - 160px);
+  max-height: calc(100dvh - 160px);
+}
+@media (max-width: 768px) {
+  .chat-page-body {
+    /* Mobile: subtract bottom nav (72) + page-top + presence bar */
+    height: calc(100dvh - 232px);
+    max-height: calc(100dvh - 232px);
+    padding: 0 12px 4px;
+  }
+}
+
 
 .chat-day-divider {
   text-align: center;

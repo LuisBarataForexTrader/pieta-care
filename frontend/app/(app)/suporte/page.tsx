@@ -122,7 +122,7 @@ export default function SuportePage() {
         </div>
       </div>
 
-      <div className="page-body" style={{ display: 'flex', flexDirection: 'column', height: 'calc(100dvh - 160px)', maxHeight: 'calc(100dvh - 160px)', maxWidth: 760 }}>
+      <div className="page-body chat-page-body" style={{ maxWidth: 760 }}>
         <div ref={scrollRef} className="chat-scroll" style={{ flex: 1, overflowY: 'auto', padding: '8px 4px 16px' }}>
           {loading ? (
             <p style={{ textAlign: 'center', padding: 48, color: 'var(--text-3)' }}>A carregar…</p>
