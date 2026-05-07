@@ -9,7 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.stripe_client import build_price_map
-from app.api import auth, elderly, medication, calendar, document, billing, health
+from app.api import auth, elderly, medication, calendar, document, billing, health, chat
 from app.tasks.trial_emails import run_trial_emails
 
 UPLOAD_DIR = "/app/uploads"
@@ -71,6 +71,7 @@ app.include_router(calendar.router, prefix="/api/v1")
 app.include_router(document.router, prefix="/api/v1")
 app.include_router(billing.router, prefix="/api/v1")
 app.include_router(health.router, prefix="/api/v1")
+app.include_router(chat.router, prefix="/api/v1")
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR, check_dir=False), name="uploads")
 

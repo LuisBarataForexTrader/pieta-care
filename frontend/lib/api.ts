@@ -97,6 +97,27 @@ export const api = {
 
   listInvoices: () => request<import('./types').Invoice[]>('/api/v1/billing/invoices'),
 
+  // family chat
+  listChat: (elderlyId: number, sinceId?: number) =>
+    request<import('./types').ChatMessage[]>(
+      `/api/v1/elderly/${elderlyId}/chat${sinceId ? `?since_id=${sinceId}` : ''}`
+    ),
+
+  sendChat: (elderlyId: number, content: string) =>
+    request<import('./types').ChatMessage>(`/api/v1/elderly/${elderlyId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  markChatRead: (elderlyId: number, lastReadMessageId: number) =>
+    request<void>(`/api/v1/elderly/${elderlyId}/chat/read`, {
+      method: 'POST',
+      body: JSON.stringify({ last_read_message_id: lastReadMessageId }),
+    }),
+
+  chatUnread: (elderlyId: number) =>
+    request<import('./types').ChatUnread>(`/api/v1/elderly/${elderlyId}/chat/unread`),
+
   acceptInvite: (token: string, password: string, full_name: string) =>
     request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
       method: 'POST',

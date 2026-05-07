@@ -36,6 +36,21 @@ export interface Invoice {
   invoice_url: string | null
 }
 
+export interface ChatMessage {
+  id: number
+  elderly_id: number
+  sender_id: number
+  sender_name: string
+  content: string
+  created_at: string
+}
+
+export interface ChatUnread {
+  elderly_id: number
+  unread: number
+  last_message_id: number | null
+}
+
 export interface AuthResponse {
   access_token: string
   token_type: string

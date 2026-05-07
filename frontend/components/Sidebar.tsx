@@ -6,7 +6,7 @@ import {
   Home, Pill, Calendar, Users, HeartPulse, AlertTriangle,
   FileText, User as UserIcon, NotebookPen, ClipboardList,
   BarChart3, Stethoscope, FileBarChart, Settings, ChevronDown,
-  Plus, Check, LogOut, Leaf, MessageCircle,
+  Plus, Check, LogOut, Leaf, MessageCircle, MessagesSquare,
 } from 'lucide-react'
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import type { Elderly, User } from '@/lib/types'
@@ -19,6 +19,7 @@ const NAV = [
   { href: '/medicacao', label: 'Medicação', icon: <Pill {...ICON_PROPS} /> },
   { href: '/calendario', label: 'Agenda', icon: <Calendar {...ICON_PROPS} /> },
   { href: '/familia', label: 'Família', icon: <Users {...ICON_PROPS} /> },
+  { href: '/chat', label: 'Chat familiar', icon: <MessagesSquare {...ICON_PROPS} /> },
   { href: '/saude', label: 'Saúde', icon: <HeartPulse {...ICON_PROPS} /> },
   { href: '/incidentes', label: 'Incidentes', icon: <AlertTriangle {...ICON_PROPS} /> },
   { href: '/documentos', label: 'Documentos', icon: <FileText {...ICON_PROPS} /> },
@@ -42,6 +43,7 @@ export default function Sidebar() {
   const [elderly, setElderly] = useState<Elderly | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [showSwitcher, setShowSwitcher] = useState(false)
+  const [chatUnread, setChatUnread] = useState(0)
   const switcherRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -67,6 +69,31 @@ export default function Sidebar() {
     document.addEventListener('mousedown', handler)
     return () => document.removeEventListener('mousedown', handler)
   }, [])
+
+  // Poll chat unread count for badge (every 20s)
+  useEffect(() => {
+    if (!elderly) return
+    let alive = true
+    const fetchUnread = () => {
+      api.chatUnread(elderly.id)
+        .then(r => { if (alive) setChatUnread(r.unread) })
+        .catch(() => { if (alive) setChatUnread(0) })
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 20000)
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchUnread() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      alive = false
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [elderly])
+
+  // Reset badge when navigating to chat page
+  useEffect(() => {
+    if (pathname === '/chat') setChatUnread(0)
+  }, [pathname])
 
   function switchTo(id: number) {
     setElderlyId(id)
@@ -193,7 +220,10 @@ export default function Sidebar() {
             className={`nav-link${pathname.startsWith(item.href) ? ' active' : ''}`}
           >
             {item.icon}
-            {item.label}
+            <span style={{ flex: 1 }}>{item.label}</span>
+            {item.href === '/chat' && chatUnread > 0 && (
+              <span className="nav-badge">{chatUnread > 99 ? '99+' : chatUnread}</span>
+            )}
           </Link>
         ))}
       </nav>
