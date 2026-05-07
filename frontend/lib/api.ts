@@ -118,6 +118,35 @@ export const api = {
   chatUnread: (elderlyId: number) =>
     request<import('./types').ChatUnread>(`/api/v1/elderly/${elderlyId}/chat/unread`),
 
+  // support chat
+  supportSummary: () => request<import('./types').SupportSummary>('/api/v1/support/me'),
+
+  listSupportMessages: () =>
+    request<import('./types').SupportMessage[]>('/api/v1/support/messages'),
+
+  sendSupportMessage: (content: string) =>
+    request<import('./types').SupportMessage>('/api/v1/support/messages', {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  adminListSupportThreads: () =>
+    request<import('./types').SupportThread[]>('/api/v1/support/admin/threads'),
+
+  adminGetSupportThread: (threadId: number) =>
+    request<{ thread: import('./types').SupportThread; messages: import('./types').SupportMessage[] }>(
+      `/api/v1/support/admin/threads/${threadId}`
+    ),
+
+  adminReplySupport: (threadId: number, content: string) =>
+    request<import('./types').SupportMessage>(`/api/v1/support/admin/threads/${threadId}/reply`, {
+      method: 'POST',
+      body: JSON.stringify({ content }),
+    }),
+
+  adminSupportUnread: () =>
+    request<{ unread: number }>('/api/v1/support/admin/unread'),
+
   acceptInvite: (token: string, password: string, full_name: string) =>
     request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
       method: 'POST',

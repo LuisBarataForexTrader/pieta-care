@@ -28,6 +28,7 @@ class UserResponse(BaseModel):
     phone: str | None
     subscription_status: str
     is_verified: bool
+    is_admin: bool = False
 
     model_config = {"from_attributes": True}
 

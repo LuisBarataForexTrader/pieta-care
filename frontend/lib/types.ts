@@ -5,6 +5,7 @@ export interface User {
   phone: string | null
   subscription_status: string
   is_verified: boolean
+  is_admin?: boolean
 }
 
 export interface Plan {
@@ -49,6 +50,35 @@ export interface ChatUnread {
   elderly_id: number
   unread: number
   last_message_id: number | null
+}
+
+export interface SupportMessage {
+  id: number
+  thread_id: number
+  sender_id: number
+  sender_name: string
+  is_admin_reply: boolean
+  content: string
+  created_at: string
+}
+
+export interface SupportThread {
+  id: number
+  user_id: number
+  user_name: string
+  user_email: string
+  status: string
+  last_message_at: string | null
+  user_unread: number
+  admin_unread: number
+  last_message_preview: string | null
+  created_at: string
+}
+
+export interface SupportSummary {
+  thread_id: number | null
+  has_thread: boolean
+  unread: number
 }
 
 export interface AuthResponse {

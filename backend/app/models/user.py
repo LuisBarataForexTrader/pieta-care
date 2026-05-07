@@ -23,5 +23,6 @@ class User(Base):
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime)
     trial_emails_sent: Mapped[str | None] = mapped_column(Text)  # JSON list e.g. '["day_2","day_7"]'
+    is_admin: Mapped[bool] = mapped_column(Boolean, default=False)
 
     family_memberships: Mapped[list["FamilyMember"]] = relationship(back_populates="user")

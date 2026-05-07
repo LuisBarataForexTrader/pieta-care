@@ -1,6 +1,5 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import ChatWidget from '@/components/ChatWidget'
 import './globals.css'
 
 const inter = Inter({
@@ -24,10 +23,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="pt" className={inter.variable}>
-      <body>
-        {children}
-        <ChatWidget />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }

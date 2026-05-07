@@ -6,11 +6,10 @@ import {
   Home, Pill, Calendar, Users, HeartPulse, AlertTriangle,
   FileText, User as UserIcon, NotebookPen, ClipboardList,
   BarChart3, Stethoscope, FileBarChart, Settings, ChevronDown,
-  Plus, Check, LogOut, Leaf, MessageCircle, MessagesSquare,
+  Plus, Check, LogOut, Leaf, LifeBuoy, MessagesSquare,
 } from 'lucide-react'
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import type { Elderly, User } from '@/lib/types'
-import { identifyChatUser, openChat } from '@/components/ChatWidget'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -44,6 +43,8 @@ export default function Sidebar() {
   const [user, setUser] = useState<User | null>(null)
   const [showSwitcher, setShowSwitcher] = useState(false)
   const [chatUnread, setChatUnread] = useState(0)
+  const [supportUnread, setSupportUnread] = useState(0)
+  const [adminSupportUnread, setAdminSupportUnread] = useState(0)
   const switcherRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -55,7 +56,6 @@ export default function Sidebar() {
       if (active && !id) setElderlyId(active.id)
       setElderly(active)
       // Pass identity to Crisp so the agent sees who's writing
-      identifyChatUser({ email: me.email, name: me.full_name, userId: me.id })
     }).catch(() => {})
   }, [])
 
@@ -90,10 +90,49 @@ export default function Sidebar() {
     }
   }, [elderly])
 
-  // Reset badge when navigating to chat page
+  // Reset chat badge when navigating to chat page
   useEffect(() => {
     if (pathname === '/chat') setChatUnread(0)
+    if (pathname === '/suporte') setSupportUnread(0)
+    if (pathname.startsWith('/admin/suporte')) setAdminSupportUnread(0)
   }, [pathname])
+
+  // Poll support unread (own thread)
+  useEffect(() => {
+    if (!user) return
+    let alive = true
+    const fetchUnread = () => {
+      api.supportSummary()
+        .then(s => { if (alive) setSupportUnread(s.unread) })
+        .catch(() => { if (alive) setSupportUnread(0) })
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 30000)
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchUnread() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      alive = false
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [user])
+
+  // Poll admin support unread (admins only)
+  useEffect(() => {
+    if (!user?.is_admin) return
+    let alive = true
+    const fetchUnread = () => {
+      api.adminSupportUnread()
+        .then(r => { if (alive) setAdminSupportUnread(r.unread) })
+        .catch(() => { if (alive) setAdminSupportUnread(0) })
+    }
+    fetchUnread()
+    const interval = setInterval(fetchUnread, 20000)
+    return () => {
+      alive = false
+      clearInterval(interval)
+    }
+  }, [user])
 
   function switchTo(id: number) {
     setElderlyId(id)
@@ -230,15 +269,31 @@ export default function Sidebar() {
 
       {/* User footer */}
       <div className="sidebar-footer">
-        <button
-          type="button"
-          onClick={openChat}
+        {user?.is_admin && (
+          <Link
+            href="/admin/suporte"
+            className="sidebar-help"
+            title="Painel de suporte"
+            style={{ background: 'rgba(124,58,237,0.18)', borderColor: 'rgba(124,58,237,0.3)' }}
+          >
+            <LifeBuoy size={16} strokeWidth={2} />
+            <span style={{ flex: 1 }}>Painel suporte</span>
+            {adminSupportUnread > 0 && (
+              <span className="nav-badge" style={{ marginLeft: 0 }}>{adminSupportUnread > 99 ? '99+' : adminSupportUnread}</span>
+            )}
+          </Link>
+        )}
+        <Link
+          href="/suporte"
           className="sidebar-help"
           title="Falar com o suporte"
         >
-          <MessageCircle size={16} strokeWidth={2} />
-          <span>Ajuda · Falar connosco</span>
-        </button>
+          <LifeBuoy size={16} strokeWidth={2} />
+          <span style={{ flex: 1 }}>Ajuda · Falar connosco</span>
+          {supportUnread > 0 && (
+            <span className="nav-badge" style={{ marginLeft: 0 }}>{supportUnread > 99 ? '99+' : supportUnread}</span>
+          )}
+        </Link>
         {user && (
           <div className="sidebar-user" onClick={logout} title="Sair da conta">
             <div className="user-avatar">{initials(user.full_name)}</div>
