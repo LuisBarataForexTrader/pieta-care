@@ -2,7 +2,6 @@
 import { useState } from 'react'
 
 export const BODY_ZONES: Record<string, string> = {
-  // Front
   cabeca:    'Cabeça',
   torax:     'Tórax / Peito',
   abdomem:   'Abdómen',
@@ -15,7 +14,8 @@ export const BODY_ZONES: Record<string, string> = {
   coxa_dir:  'Coxa dir.',
   perna_esq: 'Perna / Joelho esq.',
   perna_dir: 'Perna / Joelho dir.',
-  // Back
+  pe_esq:    'Pé esq.',
+  pe_dir:    'Pé dir.',
   p_cabeca:    'Cabeça (costas)',
   p_torax:     'Costas superiores',
   p_abdomem:   'Lombar',
@@ -28,6 +28,8 @@ export const BODY_ZONES: Record<string, string> = {
   p_coxa_dir:  'Coxa post. dir.',
   p_perna_esq: 'Gémeo / Calcanhar esq.',
   p_perna_dir: 'Gémeo / Calcanhar dir.',
+  p_pe_esq:    'Planta do pé esq.',
+  p_pe_dir:    'Planta do pé dir.',
 }
 
 interface BodyMapProps {
@@ -38,78 +40,87 @@ interface BodyMapProps {
 
 type Gender = 'female' | 'male'
 
-// viewBox 0 0 200 500
-// Female pelvis path (wider hips)
-const BACIA_F = 'M 44,226 L 44,270 Q 44,290 100,292 Q 156,290 156,270 L 156,226 C 156,236 136,242 100,242 C 64,242 44,236 44,226 Z'
-// Male pelvis path (narrower)
-const BACIA_M = 'M 50,226 L 50,268 Q 50,286 100,288 Q 150,286 150,268 L 150,226 C 150,234 136,240 100,240 C 64,240 50,234 50,226 Z'
-// Female thigh left (wider)
-const COXA_ESQ_F = 'M 45,292 L 45,374 Q 45,392 76,394 Q 100,392 100,374 L 100,292 Z'
-const COXA_DIR_F = 'M 155,292 L 155,374 Q 155,392 124,394 Q 100,392 100,374 L 100,292 Z'
-// Male thigh (normal)
-const COXA_ESQ_M = 'M 51,288 L 51,370 Q 51,388 76,390 Q 100,388 100,370 L 100,288 Z'
-const COXA_DIR_M = 'M 149,288 L 149,370 Q 149,388 124,390 Q 100,388 100,370 L 100,288 Z'
-// Female lower leg
-const PERNA_ESQ_F = 'M 47,394 L 47,462 Q 47,478 76,480 Q 98,478 97,464 L 95,394 Z'
-const PERNA_DIR_F = 'M 153,394 L 153,462 Q 153,478 124,480 Q 102,478 103,464 L 105,394 Z'
-const PERNA_ESQ_M = 'M 53,390 L 53,460 Q 53,474 76,476 Q 98,474 97,462 L 95,390 Z'
-const PERNA_DIR_M = 'M 147,390 L 147,460 Q 147,474 124,476 Q 102,474 103,462 L 105,390 Z'
+// ── Pelvis ────────────────────────────────────────────
+const BACIA_F = 'M 60,246 C 54,260 48,274 48,294 Q 48,312 100,316 Q 152,312 152,294 C 152,274 146,260 140,246 Z'
+const BACIA_M = 'M 56,246 C 52,260 50,274 52,292 Q 52,308 100,312 Q 148,308 148,292 C 150,274 148,260 144,246 Z'
+
+// ── Thighs ────────────────────────────────────────────
+const COXA_ESQ_F = 'M 48,304 L 52,390 Q 52,408 78,410 Q 100,408 100,390 L 100,304 Z'
+const COXA_ESQ_M = 'M 52,300 L 56,388 Q 56,406 78,408 Q 100,406 100,388 L 100,300 Z'
+const COXA_DIR_F = 'M 152,304 L 148,390 Q 148,408 122,410 Q 100,408 100,390 L 100,304 Z'
+const COXA_DIR_M = 'M 148,300 L 144,388 Q 144,406 122,408 Q 100,406 100,388 L 100,300 Z'
+
+// ── Lower legs ────────────────────────────────────────
+const PERNA_ESQ_F = 'M 52,410 L 48,474 Q 48,490 76,492 Q 98,490 97,474 L 95,410 Z'
+const PERNA_ESQ_M = 'M 56,408 L 52,472 Q 52,488 76,490 Q 98,488 97,472 L 95,408 Z'
+const PERNA_DIR_F = 'M 148,410 L 152,474 Q 152,490 124,492 Q 102,490 103,474 L 105,410 Z'
+const PERNA_DIR_M = 'M 144,408 L 148,472 Q 148,488 124,490 Q 102,488 103,472 L 105,408 Z'
+
+// ── Torso ─────────────────────────────────────────────
+const TORAX_F = 'M 90,78 L 48,86 C 40,92 38,110 38,132 C 38,152 50,168 66,178 Q 83,186 100,188 Q 117,186 134,178 C 150,168 162,152 162,132 C 162,110 160,92 152,86 L 110,78 Z'
+const TORAX_M = 'M 90,78 L 48,86 C 40,92 38,110 38,132 C 38,156 40,172 46,186 L 154,186 C 160,172 162,156 162,132 C 162,110 160,92 152,86 L 110,78 Z'
+
+// ── Abdomen ───────────────────────────────────────────
+const ABDOMEM_F = 'M 66,178 Q 83,186 100,188 Q 117,186 134,178 C 136,196 138,220 140,246 L 60,246 C 62,220 64,196 66,178 Z'
+const ABDOMEM_M = 'M 46,186 C 50,202 54,222 56,246 L 144,246 C 146,222 150,202 154,186 Z'
+
+// ── Arms (same shape for both genders) ───────────────
+const ARM_ESQ = 'M 62,84 C 56,112 48,156 44,190 C 42,216 36,252 32,274 L 18,272 C 22,250 28,214 30,188 C 34,154 40,110 42,84 Z'
+const ARM_DIR = 'M 138,84 C 144,112 152,156 156,190 C 158,216 164,252 168,274 L 182,272 C 178,250 172,214 170,188 C 166,154 160,110 158,84 Z'
+
+// ── Feet (front view) ─────────────────────────────────
+const PE_ESQ = 'M 52,490 L 40,506 Q 36,522 66,526 Q 84,524 84,512 L 82,492 Z'
+const PE_DIR = 'M 148,490 L 160,506 Q 164,522 134,526 Q 116,524 116,512 L 118,492 Z'
+
+const SKIN   = 'rgba(240,217,200,0.60)'
+const SKIN_S = '#C4A57A'
 
 export default function BodyMap({ value = [], onChange, readOnly = false }: BodyMapProps) {
   const [gender, setGender] = useState<Gender>('female')
-  const [view, setView] = useState<'front' | 'back'>('front')
+  const [view, setView]     = useState<'front' | 'back'>('front')
   const [hovered, setHovered] = useState<string | null>(null)
 
   const selected = new Set(value)
-  const prefix = view === 'back' ? 'p_' : ''
+  const prefix   = view === 'back' ? 'p_' : ''
 
   function toggle(id: string) {
     if (readOnly) return
-    const key = prefix + id
+    const key  = prefix + id
     const next = new Set(selected)
-    if (next.has(key)) next.delete(key)
-    else next.add(key)
+    next.has(key) ? next.delete(key) : next.add(key)
     onChange?.(Array.from(next))
   }
 
-  function rp(id: string) {
+  function zp(id: string) {
     const key = prefix + id
-    const on = selected.has(key)
+    const on  = selected.has(key)
     const hov = hovered === id
     return {
-      fill: on ? 'rgba(220,38,38,0.32)' : hov ? 'rgba(220,38,38,0.10)' : 'rgba(0,0,0,0)',
-      stroke: on ? '#DC2626' : '#374151',
-      strokeWidth: on ? 1.8 : 1.0,
-      strokeLinejoin: 'round' as const,
-      style: { cursor: readOnly ? 'default' : 'pointer', transition: 'all 0.1s' },
-      onClick: readOnly ? undefined : () => toggle(id),
-      onMouseEnter: readOnly ? undefined : () => setHovered(id),
-      onMouseLeave: readOnly ? undefined : () => setHovered(null),
+      fill:            on ? 'rgba(220,38,38,0.28)' : hov ? 'rgba(220,38,38,0.09)' : SKIN,
+      stroke:          on ? '#DC2626' : SKIN_S,
+      strokeWidth:     on ? 1.6 : 0.8,
+      strokeLinejoin:  'round' as const,
+      style:           { cursor: readOnly ? 'default' : 'pointer', transition: 'fill 0.12s, stroke 0.12s' },
+      onClick:         readOnly ? undefined : () => toggle(id),
+      onMouseEnter:    readOnly ? undefined : () => setHovered(id),
+      onMouseLeave:    readOnly ? undefined : () => setHovered(null),
     }
   }
 
-  const isF = gender === 'female'
+  const isF        = gender === 'female'
+  const toraxPath  = isF ? TORAX_F  : TORAX_M
+  const abdPath    = isF ? ABDOMEM_F : ABDOMEM_M
   const baciaPath  = isF ? BACIA_F  : BACIA_M
-  const coxaEPath  = isF ? COXA_ESQ_F : COXA_ESQ_M
-  const coxaDPath  = isF ? COXA_DIR_F : COXA_DIR_M
-  const pernaEPath = isF ? PERNA_ESQ_F : PERNA_ESQ_M
-  const pernaDPath = isF ? PERNA_DIR_F : PERNA_DIR_M
-
-  // Chest: slightly different for female (bust curve)
-  const toraxPath = isF
-    ? 'M 52,86 Q 58,65 100,63 Q 142,65 148,86 C 148,100 148,122 148,144 Q 130,156 100,158 Q 70,156 52,144 C 52,122 52,100 52,86 Z'
-    : 'M 52,86 Q 58,65 100,63 Q 142,65 148,86 C 148,118 146,148 144,170 L 56,170 C 54,148 52,118 52,86 Z'
-
-  const abdomenPath = isF
-    ? 'M 52,144 Q 70,156 100,158 Q 130,156 148,144 L 144,230 C 136,242 100,244 100,244 C 100,244 64,242 56,230 Z'
-    : 'M 56,170 L 56,230 C 56,236 64,240 100,240 C 136,240 144,236 144,230 L 144,170 Z'
+  const coxaE      = isF ? COXA_ESQ_F : COXA_ESQ_M
+  const coxaD      = isF ? COXA_DIR_F : COXA_DIR_M
+  const pernaE     = isF ? PERNA_ESQ_F : PERNA_ESQ_M
+  const pernaD     = isF ? PERNA_DIR_F : PERNA_DIR_M
 
   const selectedKeys = Array.from(selected)
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
-      {/* Controls */}
       {!readOnly && (
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
           <div style={{ display: 'flex', background: 'var(--surface-2)', borderRadius: 8, padding: 3, gap: 2 }}>
@@ -139,57 +150,55 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
         </div>
       )}
 
-      {/* SVG Body */}
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <svg viewBox="0 0 200 500" width={160} height={400} style={{ display: 'block', overflow: 'visible' }}>
+        <svg viewBox="0 0 200 540" width={150} height={405} style={{ display: 'block', overflow: 'visible' }}>
 
-          {/* Arms */}
-          <path d="M 52,86 C 52,100 50,122 46,146 C 42,168 40,186 38,202 L 22,202 C 20,188 16,170 14,148 C 12,126 14,104 18,94 C 22,84 26,80 32,82 Z"
-            {...rp('braco_esq')} />
-          <path d="M 148,86 C 148,100 150,122 154,146 C 158,168 160,186 162,202 L 178,202 C 180,188 184,170 186,148 C 188,126 186,104 182,94 C 178,84 174,80 168,82 Z"
-            {...rp('braco_dir')} />
+          {/* ── Arms ── */}
+          <path d={ARM_ESQ} {...zp('braco_esq')} />
+          <path d={ARM_DIR} {...zp('braco_dir')} />
 
-          {/* Torso */}
-          <path d={toraxPath} {...rp('torax')} />
-          <path d={abdomenPath} {...rp('abdomem')} />
-          <path d={baciaPath} {...rp('bacia')} />
+          {/* ── Torso ── */}
+          <path d={toraxPath}  {...zp('torax')} />
+          <path d={abdPath}    {...zp('abdomem')} />
+          <path d={baciaPath}  {...zp('bacia')} />
 
-          {/* Thighs */}
-          <path d={coxaEPath} {...rp('coxa_esq')} />
-          <path d={coxaDPath} {...rp('coxa_dir')} />
+          {/* ── Legs ── */}
+          <path d={coxaE}  {...zp('coxa_esq')} />
+          <path d={coxaD}  {...zp('coxa_dir')} />
+          <path d={pernaE} {...zp('perna_esq')} />
+          <path d={pernaD} {...zp('perna_dir')} />
 
-          {/* Lower legs */}
-          <path d={pernaEPath} {...rp('perna_esq')} />
-          <path d={pernaDPath} {...rp('perna_dir')} />
+          {/* ── Feet ── */}
+          <path d={PE_ESQ} {...zp('pe_esq')} />
+          <path d={PE_DIR} {...zp('pe_dir')} />
 
-          {/* Hands */}
-          <ellipse cx={20} cy={214} rx={13} ry={19} {...rp('mao_esq')} />
-          <ellipse cx={180} cy={214} rx={13} ry={19} {...rp('mao_dir')} />
+          {/* ── Hands ── */}
+          <ellipse cx={25}  cy={288} rx={11} ry={17} {...zp('mao_esq')} />
+          <ellipse cx={175} cy={288} rx={11} ry={17} {...zp('mao_dir')} />
 
-          {/* Neck strip (non-interactive, visual only) */}
-          <rect x={89} y={58} width={22} height={27} rx={7}
-            fill="rgba(0,0,0,0)" stroke="#374151" strokeWidth={1}
+          {/* ── Neck (decorative, non-interactive) ── */}
+          <rect x={90} y={58} width={20} height={22} rx={5}
+            fill={SKIN} stroke={SKIN_S} strokeWidth={0.8}
             style={{ pointerEvents: 'none' }} />
 
-          {/* Head */}
-          <ellipse cx={100} cy={34} rx={25} ry={29} {...rp('cabeca')} />
+          {/* ── Head (rendered last so it's on top of arms) ── */}
+          <ellipse cx={100} cy={31} rx={24} ry={27} {...zp('cabeca')} />
 
-          {/* Female bust hint (decorative, non-interactive) */}
+          {/* ── Female bust suggestion (decorative) ── */}
           {isF && view === 'front' && (
-            <g style={{ pointerEvents: 'none' }}>
-              <path d="M 70,120 Q 80,138 100,140 Q 120,138 130,120"
-                fill="none" stroke="#374151" strokeWidth={0.8} opacity={0.5} />
-            </g>
+            <path d="M 72,132 Q 82,148 100,150 Q 118,148 128,132"
+              fill="none" stroke="#C4A088" strokeWidth={0.7} opacity={0.5}
+              style={{ pointerEvents: 'none' }} />
           )}
 
-          {/* View label */}
-          <text x={100} y={496} textAnchor="middle" fontSize={9} fill="#9CA3AF" style={{ pointerEvents: 'none' }}>
-            {view === 'front' ? '▲ Frente' : '▼ Costas'}
+          {/* ── View label ── */}
+          <text x={100} y={536} textAnchor="middle" fontSize={8} fill="#9CA3AF"
+            style={{ pointerEvents: 'none', userSelect: 'none' }}>
+            {view === 'front' ? '▲ FRENTE' : '▼ COSTAS'}
           </text>
         </svg>
       </div>
 
-      {/* Selected tags */}
       {selectedKeys.length > 0 && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, justifyContent: 'center' }}>
           {selectedKeys.map(key => (
@@ -203,7 +212,9 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
               {!readOnly && (
                 <button type="button" onClick={() => {
                   const next = new Set(selected); next.delete(key); onChange?.(Array.from(next))
-                }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', padding: 0, lineHeight: 1, fontSize: 14 }}>×</button>
+                }} style={{ background: 'none', border: 'none', color: '#DC2626', cursor: 'pointer', padding: 0, lineHeight: 1, fontSize: 14 }}>
+                  ×
+                </button>
               )}
             </span>
           ))}
@@ -211,7 +222,7 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
       )}
       {selectedKeys.length === 0 && !readOnly && (
         <p style={{ textAlign: 'center', fontSize: 12, color: 'var(--text-3)', margin: 0 }}>
-          Toca nas áreas afectadas do corpo
+          Toca nas áreas afectadas
         </p>
       )}
     </div>

@@ -211,7 +211,7 @@ export default function SaudePage() {
             )}
 
             {loading ? <p className="loading" style={{ textAlign: 'center', padding: 48 }}>A carregar…</p> : vitals.length === 0 ? (
-              <div className="card"><div className="empty-state"><div className="empty-state-icon">❤️</div><div className="empty-state-title">Sem medições registadas</div><div className="empty-state-text">Regista sinais vitais para acompanhar a evolução da saúde</div><button className="btn-primary" onClick={() => setShowVitalForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar agora</button></div></div>
+              <div className="card"><div className="empty-state"><div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><HeartPulse size={42} strokeWidth={1.4} /></div><div className="empty-state-title">Sem medições registadas</div><div className="empty-state-text">Regista sinais vitais para acompanhar a evolução da saúde</div><button className="btn-primary" onClick={() => setShowVitalForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar agora</button></div></div>
             ) : (
               <>
                 {/* Latest reading cards */}
@@ -414,7 +414,7 @@ export default function SaudePage() {
             )}
 
             {loading ? <p className="loading" style={{ textAlign: 'center', padding: 48 }}>A carregar…</p> : wellbeing.length === 0 ? (
-              <div className="card"><div className="empty-state"><div className="empty-state-icon">😊</div><div className="empty-state-title">Sem registos de bem-estar</div><div className="empty-state-text">Regista diariamente como o familiar se sente para identificar tendências</div><button className="btn-primary" onClick={() => setShowMoodForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar agora</button></div></div>
+              <div className="card"><div className="empty-state"><div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Smile size={42} strokeWidth={1.4} /></div><div className="empty-state-title">Sem registos de bem-estar</div><div className="empty-state-text">Regista diariamente como o familiar se sente para identificar tendências</div><button className="btn-primary" onClick={() => setShowMoodForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar agora</button></div></div>
             ) : (
               <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 {wellbeing.map((w, i) => (

@@ -1,0 +1,16 @@
+{
+  "name": "pieta.care",
+  "short_name": "pieta.care",
+  "description": "Cuidar de quem amamos, juntos.",
+  "start_url": "/dashboard",
+  "display": "standalone",
+  "background_color": "#F5F2ED",
+  "theme_color": "#166534",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "256x256",
+      "type": "image/x-icon"
+    }
+  ]
+}

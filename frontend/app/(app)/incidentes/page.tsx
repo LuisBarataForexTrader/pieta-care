@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { AlertTriangle, Calendar as CalendarIcon, MapPin, Edit3, Stethoscope } from 'lucide-react'
+import { AlertTriangle, Calendar as CalendarIcon, MapPin, Edit3, Stethoscope, Pill, Brain, Building2, ClipboardList, User, CheckCircle2, Trash2 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Incident } from '@/lib/types'
 import BodyMap, { BODY_ZONES } from '@/components/BodyMap'
@@ -13,8 +13,14 @@ const TYPE_LABEL: Record<string, string> = {
   comportamento: 'Comportamento',
   outro: 'Outro',
 }
-const TYPE_ICON: Record<string, string> = {
-  queda: '🤕', medicacao: '💊', emergencia: '🚨', hospitalizacao: '🏥', comportamento: '🧠', outro: '📋',
+function TypeIcon({ type, size = 20 }: { type: string; size?: number }) {
+  const props = { size, strokeWidth: 1.75 }
+  if (type === 'queda')         return <User {...props} />
+  if (type === 'medicacao')     return <Pill {...props} />
+  if (type === 'emergencia')    return <AlertTriangle {...props} />
+  if (type === 'hospitalizacao') return <Building2 {...props} />
+  if (type === 'comportamento') return <Brain {...props} />
+  return <ClipboardList {...props} />
 }
 const SEV_COLOR: Record<string, string> = {
   baixa: '#276749', media: '#D69E2E', alta: '#C05621', critica: '#C53030',
@@ -142,7 +148,7 @@ export default function IncidentesPage() {
               <div>
                 <label className="field-label">Tipo de incidente</label>
                 <select className="field-input" value={form.type} onChange={e => setForm(f => ({ ...f, type: e.target.value }))}>
-                  {Object.entries(TYPE_LABEL).map(([k, v]) => <option key={k} value={k}>{TYPE_ICON[k]} {v}</option>)}
+                  {Object.entries(TYPE_LABEL).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                 </select>
               </div>
             </div>
@@ -187,7 +193,7 @@ export default function IncidentesPage() {
 
         {loading ? <p className="loading" style={{ textAlign: 'center', padding: 48 }}>A carregar…</p> :
           incidents.length === 0 && !showForm ? (
-            <div className="card"><div className="empty-state"><div className="empty-state-icon">✅</div><div className="empty-state-title">Sem incidentes registados</div><div className="empty-state-text">Regista quedas, erros de medicação e outros eventos para manter um historial completo</div><button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar incidente</button></div></div>
+            <div className="card"><div className="empty-state"><div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><CheckCircle2 size={42} strokeWidth={1.4} /></div><div className="empty-state-title">Sem incidentes registados</div><div className="empty-state-text">Regista quedas, erros de medicação e outros eventos para manter um historial completo</div><button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar incidente</button></div></div>
           ) : incidents.length > 0 ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
               {open.length > 0 && (
@@ -198,7 +204,7 @@ export default function IncidentesPage() {
                       <div key={inc.id} className="card" style={{ borderLeft: `4px solid ${SEV_COLOR[inc.severity]}` }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                           <div style={{ display: 'flex', gap: 14, flex: 1 }}>
-                            <span style={{ fontSize: 28, flexShrink: 0 }}>{TYPE_ICON[inc.type]}</span>
+                            <span style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--surface-2)', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-2)', flexShrink: 0 }}><TypeIcon type={inc.type} size={18} /></span>
                             <div style={{ flex: 1 }}>
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                                 <span style={{ fontWeight: 700, fontSize: 15 }}>{TYPE_LABEL[inc.type]}</span>
@@ -225,7 +231,7 @@ export default function IncidentesPage() {
                             )}
                             <button onClick={() => startEdit(inc)} className="btn-ghost" style={{ fontSize: 12, padding: '6px 10px', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Edit3 size={12} strokeWidth={2.25} /> Editar</button>
                             <button onClick={() => resolve(inc.id)} style={{ background: 'var(--success-light)', color: 'var(--success)', border: 'none', borderRadius: 8, padding: '6px 12px', fontSize: 12, fontWeight: 700, cursor: 'pointer' }}>✓ Resolver</button>
-                            <button onClick={() => del(inc.id)} className="btn-danger-ghost">🗑</button>
+                            <button onClick={() => del(inc.id)} className="btn-danger-ghost"><Trash2 size={16} strokeWidth={2} /></button>
                           </div>
                         </div>
                       </div>
@@ -240,12 +246,12 @@ export default function IncidentesPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {resolved.map(inc => (
                       <div key={inc.id} className="card" style={{ opacity: 0.6, display: 'flex', gap: 12, alignItems: 'center' }}>
-                        <span>{TYPE_ICON[inc.type]}</span>
+                        <span style={{ color: 'var(--text-3)' }}><TypeIcon type={inc.type} size={16} /></span>
                         <div style={{ flex: 1 }}>
                           <span style={{ fontWeight: 600, fontSize: 14, textDecoration: 'line-through', color: 'var(--text-3)' }}>{TYPE_LABEL[inc.type]}</span>
                           <span style={{ fontSize: 12, color: 'var(--text-3)', marginLeft: 8 }}>{fmtDT(inc.occurred_at)}</span>
                         </div>
-                        <button onClick={() => del(inc.id)} className="btn-danger-ghost">🗑</button>
+                        <button onClick={() => del(inc.id)} className="btn-danger-ghost"><Trash2 size={16} strokeWidth={2} /></button>
                       </div>
                     ))}
                   </div>

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PUBLIC = ['/', '/login', '/register', '/invite', '/verificar-email', '/privacidade', '/termos']
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
 
   const isPublic = PUBLIC.some(p => pathname === p || pathname.startsWith(p + '/'))
@@ -16,5 +16,5 @@ export function middleware(req: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next|favicon.ico|public).*)'],
+  matcher: ['/((?!_next|favicon\\.ico|manifest\\.json|public).*)'],
 }

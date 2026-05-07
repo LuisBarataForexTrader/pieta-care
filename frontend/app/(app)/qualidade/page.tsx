@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { Pill, Smile, AlertTriangle, Lightbulb } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { MedicationLog, WellbeingLog, Incident } from '@/lib/types'
 
@@ -170,19 +171,19 @@ export default function QualidadePage() {
         {/* Component breakdown */}
         <div className="grid-3" style={{ marginBottom: 24 }}>
           <Bar
-            label="💊 Medicação"
+            label="Medicação"
             score={medScore}
             sub={medTotal > 0 ? `${medTaken}/${medTotal} tomas confirmadas` : 'Sem medicação agendada'}
             lastScore={lastLogs.length > 0 ? lastMedScore : undefined}
           />
           <Bar
-            label="😊 Bem-estar"
+            label="Bem-estar"
             score={wbScore}
             sub={`${wbDays}/7 dias registados${avgMoodThis ? ` · humor médio ${avgMoodThis.toFixed(1)}/5` : ''}`}
             lastScore={lastWbScore}
           />
           <div className="card">
-            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', marginBottom: 10 }}>⚠️ Incidentes</div>
+            <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-3)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 5 }}><AlertTriangle size={12} strokeWidth={2} /> Incidentes</div>
             <div style={{ fontSize: 30, fontWeight: 800, color: thisInc.length === 0 ? '#276749' : critCount > 0 ? '#C53030' : '#D69E2E', marginBottom: 2 }}>
               {thisInc.length}
             </div>
@@ -248,7 +249,7 @@ export default function QualidadePage() {
 
         {/* Insights */}
         <div className="card" style={{ marginBottom: 24, background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
-          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)', marginBottom: 10 }}>💡 Insights desta semana</div>
+          <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}><Lightbulb size={14} strokeWidth={2} /> Insights desta semana</div>
           <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 6 }}>
             {medTotal === 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Sem medicação agendada — adiciona medicamentos para acompanhar a adesão</li>}
             {medTotal > 0 && medScore >= 90 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Excelente adesão à medicação esta semana ({Math.round(medScore)}%)</li>}
@@ -265,13 +266,13 @@ export default function QualidadePage() {
         {/* Quick actions */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
           {[
-            { href: '/medicacao', icon: '💊', label: 'Medicação' },
-            { href: '/saude', icon: '😊', label: 'Bem-estar' },
-            { href: '/incidentes', icon: '⚠️', label: 'Incidentes' },
-          ].map(({ href, icon, label }) => (
+            { href: '/medicacao', Icon: Pill, label: 'Medicação' },
+            { href: '/saude', Icon: Smile, label: 'Bem-estar' },
+            { href: '/incidentes', Icon: AlertTriangle, label: 'Incidentes' },
+          ].map(({ href, Icon, label }) => (
             <Link key={href} href={href} style={{ textDecoration: 'none' }}>
               <div className="card" style={{ textAlign: 'center', cursor: 'pointer' }}>
-                <div style={{ fontSize: 22, marginBottom: 4 }}>{icon}</div>
+                <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 6, color: 'var(--brand)' }}><Icon size={22} strokeWidth={1.75} /></div>
                 <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--brand)' }}>{label}</div>
               </div>
             </Link>

@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
-import CrispChat from '@/components/CrispChat'
+import ChatWidget from '@/components/ChatWidget'
 import './globals.css'
 
 const inter = Inter({
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="pt" className={inter.variable}>
       <body>
         {children}
-        <CrispChat />
+        <ChatWidget />
       </body>
     </html>
   )

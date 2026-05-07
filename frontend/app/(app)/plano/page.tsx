@@ -1,6 +1,6 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { ClipboardList } from 'lucide-react'
+import { ClipboardList, Droplets, UtensilsCrossed, Activity, Users, Pill, Trash2 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { CarePlanItem } from '@/lib/types'
 
@@ -12,8 +12,14 @@ const CAT_LABEL: Record<string, string> = {
   medico: 'Cuidados Médicos',
   outro: 'Outro',
 }
-const CAT_ICON: Record<string, string> = {
-  higiene: '🛁', nutricao: '🍽️', mobilidade: '🚶', social: '👥', medico: '💊', outro: '📋',
+function CatIcon({ cat, size = 16 }: { cat: string; size?: number }) {
+  const props = { size, strokeWidth: 1.75 }
+  if (cat === 'higiene')   return <Droplets {...props} />
+  if (cat === 'nutricao')  return <UtensilsCrossed {...props} />
+  if (cat === 'mobilidade') return <Activity {...props} />
+  if (cat === 'social')    return <Users {...props} />
+  if (cat === 'medico')    return <Pill {...props} />
+  return <ClipboardList {...props} />
 }
 const CAT_COLOR: Record<string, string> = {
   higiene: '#2B6CB0', nutricao: '#276749', mobilidade: '#C05621', social: '#553C9A', medico: '#C53030', outro: '#4A5568',
@@ -131,7 +137,7 @@ export default function PlanoPage() {
                       cursor: 'pointer', fontWeight: 700, fontSize: 13,
                     }}
                   >
-                    {CAT_ICON[c]} {CAT_LABEL[c]}
+                    <CatIcon cat={c} size={14} /> {CAT_LABEL[c]}
                   </button>
                 ))}
               </div>
@@ -179,7 +185,7 @@ export default function PlanoPage() {
         ) : active.length === 0 && !showForm ? (
           <div className="card">
             <div className="empty-state">
-              <div className="empty-state-icon">🗂️</div>
+              <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><ClipboardList size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Plano de cuidados vazio</div>
               <div className="empty-state-text">Define as rotinas de cuidado — higiene, nutrição, mobilidade, actividades sociais e cuidados médicos</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar item</button>
@@ -190,7 +196,7 @@ export default function PlanoPage() {
             {Object.entries(grouped).map(([cat, catItems]) => (
               <div key={cat}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-                  <span style={{ fontSize: 18 }}>{CAT_ICON[cat]}</span>
+                  <span style={{ color: CAT_COLOR[cat] }}><CatIcon cat={cat} size={16} /></span>
                   <div style={{ fontSize: 13, fontWeight: 700, color: CAT_COLOR[cat] }}>{CAT_LABEL[cat]}</div>
                   <div style={{ height: 1, flex: 1, background: 'var(--border)' }} />
                 </div>
@@ -219,7 +225,7 @@ export default function PlanoPage() {
                           >
                             Pausar
                           </button>
-                          <button onClick={() => del(item.id)} className="btn-danger-ghost">🗑</button>
+                          <button onClick={() => del(item.id)} className="btn-danger-ghost"><Trash2 size={16} strokeWidth={2} /></button>
                         </div>
                       </div>
                     </div>
@@ -237,7 +243,7 @@ export default function PlanoPage() {
                   {inactive.map(item => (
                     <div key={item.id} className="card" style={{ opacity: 0.55, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <div>
-                        <span style={{ fontSize: 14, fontWeight: 600, textDecoration: 'line-through', color: 'var(--text-3)' }}>{CAT_ICON[item.category]} {item.title}</span>
+                        <span style={{ fontSize: 14, fontWeight: 600, textDecoration: 'line-through', color: 'var(--text-3)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><CatIcon cat={item.category} size={14} /> {item.title}</span>
                         <span style={{ fontSize: 12, color: 'var(--text-3)', marginLeft: 8 }}>{CAT_LABEL[item.category]}</span>
                       </div>
                       <div style={{ display: 'flex', gap: 6 }}>
@@ -247,7 +253,7 @@ export default function PlanoPage() {
                         >
                           Reactivar
                         </button>
-                        <button onClick={() => del(item.id)} className="btn-danger-ghost">🗑</button>
+                        <button onClick={() => del(item.id)} className="btn-danger-ghost"><Trash2 size={16} strokeWidth={2} /></button>
                       </div>
                     </div>
                   ))}

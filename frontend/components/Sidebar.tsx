@@ -10,7 +10,7 @@ import {
 } from 'lucide-react'
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import type { Elderly, User } from '@/lib/types'
-import { identifyCrispUser, openCrispChat } from '@/components/CrispChat'
+import { identifyChatUser, openChat } from '@/components/ChatWidget'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -53,7 +53,7 @@ export default function Sidebar() {
       if (active && !id) setElderlyId(active.id)
       setElderly(active)
       // Pass identity to Crisp so the agent sees who's writing
-      identifyCrispUser({ email: me.email, name: me.full_name, userId: me.id })
+      identifyChatUser({ email: me.email, name: me.full_name, userId: me.id })
     }).catch(() => {})
   }, [])
 
@@ -202,7 +202,7 @@ export default function Sidebar() {
       <div className="sidebar-footer">
         <button
           type="button"
-          onClick={openCrispChat}
+          onClick={openChat}
           className="sidebar-help"
           title="Falar com o suporte"
         >

@@ -1,10 +1,16 @@
 'use client'
 import { useEffect, useState } from 'react'
+import { FileText, Sunrise, Sun, Moon } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { DailyNote } from '@/lib/types'
 
 const SHIFT_LABEL: Record<string, string> = { manha: 'Manhã', tarde: 'Tarde', noite: 'Noite' }
-const SHIFT_ICON: Record<string, string> = { manha: '🌅', tarde: '☀️', noite: '🌙' }
+function ShiftIcon({ shift, size = 18 }: { shift: string; size?: number }) {
+  const props = { size, strokeWidth: 1.75 }
+  if (shift === 'manha') return <Sunrise {...props} />
+  if (shift === 'tarde') return <Sun {...props} />
+  return <Moon {...props} />
+}
 const SHIFT_COLOR: Record<string, string> = { manha: '#D69E2E', tarde: '#DD6B20', noite: '#553C9A' }
 const SHIFT_BG: Record<string, string> = { manha: '#FFFAF0', tarde: '#FFF5F0', noite: '#F5F3FF' }
 
@@ -83,7 +89,7 @@ export default function NotasPage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">📝 Notas de Turno</div>
+          <div className="page-title">Notas de Turno</div>
           <div className="page-subtitle">{notes.length} nota{notes.length !== 1 ? 's' : ''} nos últimos {days} dias</div>
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
@@ -130,7 +136,7 @@ export default function NotasPage() {
                         color: form.shift === s ? SHIFT_COLOR[s] : 'var(--text-3)',
                       }}
                     >
-                      {SHIFT_ICON[s]} {SHIFT_LABEL[s]}
+                      <ShiftIcon shift={s} size={13} /> {SHIFT_LABEL[s]}
                     </button>
                   ))}
                 </div>
@@ -181,7 +187,7 @@ export default function NotasPage() {
         ) : notes.length === 0 ? (
           <div className="card">
             <div className="empty-state">
-              <div className="empty-state-icon">📝</div>
+              <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><FileText size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Sem notas registadas</div>
               <div className="empty-state-text">Regista as observações de cada turno — alimentação, sono, comportamento, eventos relevantes</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar nota</button>
@@ -201,7 +207,7 @@ export default function NotasPage() {
                     <div key={note.id} className="card" style={{ borderLeft: `3px solid ${SHIFT_COLOR[note.shift]}` }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                         <div style={{ display: 'flex', gap: 12, flex: 1 }}>
-                          <span style={{ fontSize: 24, flexShrink: 0 }}>{SHIFT_ICON[note.shift]}</span>
+                          <span style={{ width: 38, height: 38, borderRadius: 10, background: SHIFT_BG[note.shift], display: 'inline-flex', alignItems: 'center', justifyContent: 'center', color: SHIFT_COLOR[note.shift], flexShrink: 0 }}><ShiftIcon shift={note.shift} size={17} /></span>
                           <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, flexWrap: 'wrap' }}>
                               <span style={{ background: SHIFT_BG[note.shift], color: SHIFT_COLOR[note.shift], fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>
