@@ -29,7 +29,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
         full_name=data.full_name,
         phone=data.phone,
         subscription_status="trial",
-        trial_ends_at=datetime.utcnow() + timedelta(days=14),
+        trial_ends_at=datetime.utcnow() + timedelta(days=30),
         is_verified=False,
         email_verification_token=token,
     )

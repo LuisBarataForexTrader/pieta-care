@@ -95,6 +95,8 @@ export const api = {
 
   billingPortal: () => request<{ url: string }>('/api/v1/billing/portal'),
 
+  listInvoices: () => request<import('./types').Invoice[]>('/api/v1/billing/invoices'),
+
   acceptInvite: (token: string, password: string, full_name: string) =>
     request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
       method: 'POST',

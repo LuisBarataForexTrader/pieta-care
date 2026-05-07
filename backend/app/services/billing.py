@@ -203,7 +203,7 @@ def create_checkout_session(db: Session, user: User, plan: str) -> str:
         "metadata": {"user_id": str(user.id), "plan": plan},
     }
     if not has_subscribed_before:
-        subscription_data["trial_period_days"] = 14
+        subscription_data["trial_period_days"] = 30
 
     try:
         session = stripe.checkout.Session.create(

@@ -27,6 +27,15 @@ export interface BillingStatus {
   has_subscription: boolean
 }
 
+export interface Invoice {
+  id: string
+  amount: number          // cents
+  currency: string
+  status: string
+  created: string
+  invoice_url: string | null
+}
+
 export interface AuthResponse {
   access_token: string
   token_type: string

@@ -3,10 +3,10 @@ import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import {
   Settings, User as UserIcon, CreditCard, Download, Trash2, AlertTriangle,
-  Check, Sparkles, ExternalLink, Clock,
+  Check, Sparkles, ExternalLink, Clock, Receipt,
 } from 'lucide-react'
 import { api, clearToken } from '@/lib/api'
-import type { User, Plan, BillingStatus } from '@/lib/types'
+import type { User, Plan, BillingStatus, Invoice } from '@/lib/types'
 
 const STATUS_LABEL: Record<string, string> = {
   trial: 'Período de experimentação',
@@ -45,6 +45,7 @@ function ContaPageInner() {
   const [user, setUser] = useState<User | null>(null)
   const [billing, setBilling] = useState<BillingStatus | null>(null)
   const [plans, setPlans] = useState<Plan[]>([])
+  const [invoices, setInvoices] = useState<Invoice[]>([])
   const [loading, setLoading] = useState(true)
   const [checkingOut, setCheckingOut] = useState<string | null>(null)
   const [openingPortal, setOpeningPortal] = useState(false)
@@ -60,10 +61,12 @@ function ContaPageInner() {
       api.me(),
       api.billingStatus().catch(() => null),
       api.listPlans().catch(() => []),
-    ]).then(([u, b, p]) => {
+      api.listInvoices().catch(() => []),
+    ]).then(([u, b, p, inv]) => {
       setUser(u)
       setBilling(b)
       setPlans(p)
+      setInvoices(inv)
       setLoading(false)
     }).catch(() => setLoading(false))
   }, [])
@@ -243,6 +246,54 @@ function ContaPageInner() {
             </>
           )}
         </div>
+
+        {/* Invoices */}
+        {invoices.length > 0 && (
+          <div className="card card-lg" style={{ marginBottom: 20 }}>
+            <div className="section-title" style={{ marginBottom: 16 }}>
+              <Receipt size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Facturas
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column' }}>
+              {invoices.map((inv, i) => (
+                <div key={inv.id} style={{
+                  display: 'flex', alignItems: 'center', gap: 12,
+                  padding: '12px 0',
+                  borderBottom: i < invoices.length - 1 ? '1px solid var(--border)' : 'none',
+                }}>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--text)' }}>
+                      {(inv.amount / 100).toLocaleString('pt-PT', { style: 'currency', currency: inv.currency.toUpperCase() })}
+                    </div>
+                    <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 2 }}>
+                      {new Date(inv.created).toLocaleDateString('pt-PT', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    </div>
+                  </div>
+                  <span className={
+                    inv.status === 'paid' ? 'pill pill-taken' :
+                    inv.status === 'open' ? 'pill pill-pending' :
+                    'pill pill-skipped'
+                  } style={{ fontSize: 11 }}>
+                    {inv.status === 'paid' ? 'Paga' : inv.status === 'open' ? 'Pendente' : inv.status}
+                  </span>
+                  {inv.invoice_url && (
+                    <a href={inv.invoice_url} target="_blank" rel="noopener noreferrer" style={{
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      fontSize: 12, fontWeight: 700, color: 'var(--brand)',
+                      textDecoration: 'none',
+                      padding: '6px 10px', borderRadius: 6,
+                      background: 'var(--brand-light)',
+                    }}>
+                      <ExternalLink size={12} strokeWidth={2.25} /> Ver
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 12 }}>
+              As facturas oficiais (com IVA, NIF Flow88) são emitidas via TOConline e enviadas por email.
+            </div>
+          </div>
+        )}
 
         {/* Profile info */}
         {user && (
