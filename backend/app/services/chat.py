@@ -1,5 +1,7 @@
 """Family chat — coordinated messaging between accepted family members
-of an elderly profile. Gated to Família AI tier (or active trial)."""
+of an elderly profile. Access depends on the owner's subscription:
+all accepted family members can chat as long as the family owner is
+on a trial or Família AI plan."""
 from datetime import datetime
 from sqlalchemy import desc
 from sqlalchemy.orm import Session
@@ -20,13 +22,53 @@ class ChatError(Exception):
 AI_PLAN_KEYS = {"cuidador_pro"}
 
 
-def _user_has_chat_access(user: User) -> bool:
-    """User can use family chat when on the Família AI plan or active trial."""
-    if user.subscription_status == "trial":
+def _user_grants_chat(u: User | None) -> bool:
+    if not u:
+        return False
+    if u.subscription_status == "trial":
         return True
-    if user.subscription_status in ("active", "trialing"):
-        return user.subscription_plan in AI_PLAN_KEYS
+    if u.subscription_status in ("active", "trialing"):
+        return u.subscription_plan in AI_PLAN_KEYS
     return False
+
+
+def _family_has_chat_access(db: Session, elderly_id: int, user: User) -> tuple[bool, bool]:
+    """Returns (has_access, requesting_user_is_owner).
+
+    Access is granted if either:
+      - the requesting user themselves has AI/trial access, OR
+      - the owner of this elderly profile has AI/trial access (so an
+        invited member benefits from the subscriber's plan).
+    """
+    is_owner = False
+    if _user_grants_chat(user):
+        # Even non-owners with their own trial/AI sub get access.
+        return True, _is_owner(db, elderly_id, user.id)
+
+    owner = _get_owner(db, elderly_id)
+    if owner and _user_grants_chat(owner):
+        return True, owner.id == user.id
+    is_owner = owner is not None and owner.id == user.id
+    return False, is_owner
+
+
+def _get_owner(db: Session, elderly_id: int) -> User | None:
+    membership = db.query(FamilyMember).filter(
+        FamilyMember.elderly_id == elderly_id,
+        FamilyMember.role == "owner",
+        FamilyMember.is_accepted == True,
+    ).first()
+    if not membership:
+        return None
+    return db.query(User).filter(User.id == membership.user_id).first()
+
+
+def _is_owner(db: Session, elderly_id: int, user_id: int) -> bool:
+    return db.query(FamilyMember).filter(
+        FamilyMember.elderly_id == elderly_id,
+        FamilyMember.user_id == user_id,
+        FamilyMember.role == "owner",
+    ).first() is not None
 
 
 def _check_membership(db: Session, elderly_id: int, user: User) -> FamilyMember:
@@ -42,12 +84,15 @@ def _check_membership(db: Session, elderly_id: int, user: User) -> FamilyMember:
 
 def _check_access(db: Session, elderly_id: int, user: User) -> FamilyMember:
     membership = _check_membership(db, elderly_id, user)
-    if not _user_has_chat_access(user):
-        raise ChatError(
-            "O chat familiar está disponível no plano Família AI. "
-            "Faça upgrade na sua área de cliente.",
-            402,  # 402 Payment Required
-        )
+    has_access, is_owner = _family_has_chat_access(db, elderly_id, user)
+    if not has_access:
+        if is_owner:
+            msg = ("O chat familiar está disponível no plano Família AI. "
+                   "Faça upgrade na sua área de cliente.")
+        else:
+            msg = ("O chat familiar requer que o titular da família esteja "
+                   "no plano Família AI.")
+        raise ChatError(msg, 402)
     return membership
 
 
