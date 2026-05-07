@@ -128,7 +128,7 @@ def invite_family_member(
     db.add(new_member)
     db.commit()
 
-    invite_link = f"https://pieta.care/invite?token={invite_token}"
+    invite_link = f"https://pieta.care/invite/{invite_token}"
 
     elderly_obj = db.query(ElderlyProfile).filter(ElderlyProfile.id == elderly_id).first()
     elderly_name = elderly_obj.full_name if elderly_obj else "um familiar"

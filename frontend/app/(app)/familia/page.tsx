@@ -23,7 +23,20 @@ export default function FamiliaPage() {
     setElderly(list.find(e => e.id === elderlyId) ?? list[0] ?? null)
   }
 
-  useEffect(() => { load() }, [elderlyId])
+  useEffect(() => {
+    load()
+    const onFocus = () => load()
+    const onVisible = () => { if (document.visibilityState === 'visible') load() }
+    window.addEventListener('focus', onFocus)
+    document.addEventListener('visibilitychange', onVisible)
+    const interval = setInterval(load, 30000)
+    return () => {
+      window.removeEventListener('focus', onFocus)
+      document.removeEventListener('visibilitychange', onVisible)
+      clearInterval(interval)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [elderlyId])
 
   async function invite(e: React.FormEvent) {
     e.preventDefault()
