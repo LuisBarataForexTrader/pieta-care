@@ -7,6 +7,26 @@ export interface User {
   is_verified: boolean
 }
 
+export interface Plan {
+  key: string
+  name: string
+  price: number
+  max_elderly: number
+  max_family_members: number | null
+  has_ai: boolean
+  features: string[]
+}
+
+export interface BillingStatus {
+  status: string
+  plan: string | null
+  plan_name: string | null
+  trial_ends_at: string | null
+  current_period_end: string | null
+  cancel_at_period_end: boolean
+  has_subscription: boolean
+}
+
 export interface AuthResponse {
   access_token: string
   token_type: string

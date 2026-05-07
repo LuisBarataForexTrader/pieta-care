@@ -12,6 +12,16 @@ PLANS = {
         "amount_excl_vat": 35.00,       # €35 + IVA
         "item_code": "PIETA-FAM-M",
         "description": "pieta.care — Plano Família (mensal)",
+        "max_elderly": 1,
+        "max_family_members": 2,
+        "has_ai": False,
+        "features": [
+            "1 perfil de familiar",
+            "Até 2 familiares",
+            "Medicação, agenda e sinais vitais",
+            "Incidentes e documentos",
+            "Notas de turno",
+        ],
     },
     "familia_plus": {
         "name": "Família+",
@@ -19,13 +29,36 @@ PLANS = {
         "amount_excl_vat": 59.00,       # €59 + IVA
         "item_code": "PIETA-FAM-PLUS-M",
         "description": "pieta.care — Plano Família+ (mensal)",
+        "max_elderly": 2,
+        "max_family_members": 5,
+        "has_ai": False,
+        "features": [
+            "Até 2 perfis de familiar",
+            "Até 5 familiares",
+            "Tudo do plano Família",
+            "Relatório médico completo",
+            "Dados clínicos avançados",
+            "Plano de cuidados detalhado",
+        ],
     },
     "cuidador_pro": {
-        "name": "Cuidador Pro",
+        # Tier de topo — internamente "cuidador_pro" para não partir env vars
+        # já criadas no Stripe; mostrado como "Família AI" na UI.
+        "name": "Família AI",
         "price_env": "STRIPE_PRICE_CUIDADOR_PRO",
-        "amount_excl_vat": 19.00,       # €19 + IVA
-        "item_code": "PIETA-CUI-PRO-M",
-        "description": "pieta.care — Cuidador Pro (mensal)",
+        "amount_excl_vat": 88.00,       # €88 + IVA
+        "item_code": "PIETA-FAM-AI-M",
+        "description": "pieta.care — Plano Família AI (mensal)",
+        "max_elderly": 4,
+        "max_family_members": None,     # ilimitado
+        "has_ai": True,
+        "features": [
+            "Até 4 perfis de familiar",
+            "Familiares ilimitados",
+            "Tudo do plano Família+",
+            "Assistente IA — informação clínica de medicação",
+            "Resumos automáticos e alertas inteligentes",
+        ],
     },
 }
 

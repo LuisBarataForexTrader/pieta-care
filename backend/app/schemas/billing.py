@@ -7,6 +7,14 @@ class SubscribeRequest(BaseModel):
     payment_method_id: str  # from Stripe.js on frontend
 
 
+class CheckoutSessionRequest(BaseModel):
+    plan: str  # familia, familia_plus, cuidador_pro
+
+
+class CheckoutSessionResponse(BaseModel):
+    url: str
+
+
 class SubscriptionResponse(BaseModel):
     subscription_id: str
     status: str
@@ -27,3 +35,23 @@ class InvoiceResponse(BaseModel):
     status: str
     created: datetime
     invoice_url: str | None
+
+
+class PlanInfo(BaseModel):
+    key: str
+    name: str
+    price: float                 # excl. VAT
+    max_elderly: int
+    max_family_members: int | None
+    has_ai: bool
+    features: list[str]
+
+
+class BillingStatusResponse(BaseModel):
+    status: str                  # trial, trialing, active, past_due, canceled, none
+    plan: str | None
+    plan_name: str | None
+    trial_ends_at: datetime | None
+    current_period_end: datetime | None
+    cancel_at_period_end: bool
+    has_subscription: bool

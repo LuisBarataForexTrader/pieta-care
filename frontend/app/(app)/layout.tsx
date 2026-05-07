@@ -1,6 +1,7 @@
 import Sidebar from '@/components/Sidebar'
 import BottomNav from '@/components/BottomNav'
 import PresenceBar from '@/components/PresenceBar'
+import TrialBanner from '@/components/TrialBanner'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -8,6 +9,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="main-content">
         <PresenceBar />
+        <TrialBanner />
         {children}
       </div>
       <BottomNav />

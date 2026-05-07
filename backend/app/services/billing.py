@@ -5,7 +5,9 @@ from sqlalchemy.orm import Session
 from app.core.config import settings
 from app.core.stripe_client import PLANS
 from app.models.user import User
-from app.schemas.billing import SubscriptionResponse, InvoiceResponse
+from app.schemas.billing import (
+    SubscriptionResponse, InvoiceResponse, PlanInfo, BillingStatusResponse,
+)
 
 
 class BillingError(Exception):
@@ -138,13 +140,98 @@ def cancel_subscription(db: Session, user: User) -> SubscriptionResponse:
     )
 
 
+def list_plans() -> list[PlanInfo]:
+    return [
+        PlanInfo(
+            key=key,
+            name=info["name"],
+            price=info["amount_excl_vat"],
+            max_elderly=info["max_elderly"],
+            max_family_members=info["max_family_members"],
+            has_ai=info["has_ai"],
+            features=info["features"],
+        )
+        for key, info in PLANS.items()
+    ]
+
+
+def billing_status(db: Session, user: User) -> BillingStatusResponse:
+    sub = None
+    if user.stripe_customer_id and settings.STRIPE_SECRET_KEY:
+        try:
+            subs = stripe.Subscription.list(
+                customer=user.stripe_customer_id, status="all", limit=1
+            )
+            sub = subs.data[0] if subs.data else None
+        except Exception:
+            sub = None
+
+    if sub:
+        return BillingStatusResponse(
+            status=sub.status,
+            plan=user.subscription_plan or sub.metadata.get("plan"),
+            plan_name=PLANS.get(user.subscription_plan or sub.metadata.get("plan", ""), {}).get("name"),
+            trial_ends_at=_ts(getattr(sub, "trial_end", None)),
+            current_period_end=_ts(getattr(sub, "current_period_end", None)),
+            cancel_at_period_end=getattr(sub, "cancel_at_period_end", False),
+            has_subscription=True,
+        )
+
+    # No active Stripe subscription — fall back to local trial state
+    return BillingStatusResponse(
+        status=user.subscription_status or "trial",
+        plan=user.subscription_plan,
+        plan_name=PLANS.get(user.subscription_plan or "", {}).get("name") if user.subscription_plan else None,
+        trial_ends_at=user.trial_ends_at,
+        current_period_end=None,
+        cancel_at_period_end=False,
+        has_subscription=False,
+    )
+
+
+def create_checkout_session(db: Session, user: User, plan: str) -> str:
+    """Create a Stripe-hosted Checkout Session for subscription signup."""
+    if not settings.STRIPE_SECRET_KEY:
+        raise BillingError("Pagamentos não configurados no servidor", 503)
+
+    price_id = _get_price_id(plan)
+    customer_id = ensure_stripe_customer(db, user)
+
+    # Pre-fill 14-day trial only on first-ever subscription
+    has_subscribed_before = bool(user.subscription_plan)
+    subscription_data = {
+        "metadata": {"user_id": str(user.id), "plan": plan},
+    }
+    if not has_subscribed_before:
+        subscription_data["trial_period_days"] = 14
+
+    try:
+        session = stripe.checkout.Session.create(
+            mode="subscription",
+            customer=customer_id,
+            line_items=[{"price": price_id, "quantity": 1}],
+            subscription_data=subscription_data,
+            allow_promotion_codes=True,
+            success_url=f"{settings.FRONTEND_URL}/conta?checkout=success&plan={plan}",
+            cancel_url=f"{settings.FRONTEND_URL}/conta?checkout=cancel",
+            client_reference_id=str(user.id),
+            metadata={"user_id": str(user.id), "plan": plan},
+        )
+    except stripe.error.StripeError as e:
+        raise BillingError(f"Stripe: {e.user_message or str(e)}", 502)
+
+    return session.url
+
+
 def get_billing_portal_url(user: User) -> str:
     if not user.stripe_customer_id:
         raise BillingError("Sem conta de faturação", 404)
+    if not settings.STRIPE_SECRET_KEY:
+        raise BillingError("Pagamentos não configurados no servidor", 503)
 
     session = stripe.billing_portal.Session.create(
         customer=user.stripe_customer_id,
-        return_url=f"{settings.FRONTEND_URL}/dashboard",
+        return_url=f"{settings.FRONTEND_URL}/conta",
     )
     return session.url
 

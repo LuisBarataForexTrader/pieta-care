@@ -10,6 +10,10 @@ from app.schemas.billing import (
     SubscriptionResponse,
     BillingPortalResponse,
     InvoiceResponse,
+    CheckoutSessionRequest,
+    CheckoutSessionResponse,
+    PlanInfo,
+    BillingStatusResponse,
 )
 from app.services.billing import (
     create_subscription,
@@ -17,11 +21,40 @@ from app.services.billing import (
     cancel_subscription,
     get_billing_portal_url,
     list_invoices,
+    list_plans,
+    billing_status,
+    create_checkout_session,
     handle_webhook,
     BillingError,
 )
 
 router = APIRouter(prefix="/billing", tags=["billing"])
+
+
+@router.get("/plans", response_model=list[PlanInfo])
+def plans():
+    return list_plans()
+
+
+@router.get("/status", response_model=BillingStatusResponse)
+def status(
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    return billing_status(db, user)
+
+
+@router.post("/checkout", response_model=CheckoutSessionResponse)
+def checkout(
+    data: CheckoutSessionRequest,
+    db: Session = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    try:
+        url = create_checkout_session(db, user, data.plan)
+        return CheckoutSessionResponse(url=url)
+    except BillingError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
 @router.post("/subscribe", response_model=SubscriptionResponse, status_code=201)
@@ -87,6 +120,10 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
 
     if event_type == "invoice.paid":
         await _on_invoice_paid(db, obj)
+    elif event_type == "checkout.session.completed":
+        _on_checkout_completed(db, obj)
+    elif event_type == "customer.subscription.created":
+        _sync_subscription_status(db, obj)
     elif event_type == "customer.subscription.updated":
         _sync_subscription_status(db, obj)
     elif event_type == "customer.subscription.deleted":
@@ -95,6 +132,19 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
         _sync_subscription_status(db, obj.get("subscription"), force_status="past_due")
 
     return {"received": True}
+
+
+def _on_checkout_completed(db: Session, session_obj: dict) -> None:
+    customer_id = session_obj.get("customer")
+    if not customer_id:
+        return
+    user = db.query(User).filter(User.stripe_customer_id == customer_id).first()
+    if not user:
+        return
+    plan = (session_obj.get("metadata") or {}).get("plan")
+    if plan and plan in PLANS:
+        user.subscription_plan = plan
+    db.commit()
 
 
 async def _on_invoice_paid(db: Session, invoice_obj: dict) -> None:
@@ -152,4 +202,18 @@ def _sync_subscription_status(db: Session, sub_obj, force_status: str | None = N
     status = force_status or (sub_obj.get("status") if isinstance(sub_obj, dict) else None)
     if status:
         user.subscription_status = status
-        db.commit()
+
+    # Track plan from subscription metadata or price ID
+    if isinstance(sub_obj, dict):
+        meta_plan = (sub_obj.get("metadata") or {}).get("plan")
+        if meta_plan and meta_plan in PLANS:
+            user.subscription_plan = meta_plan
+        else:
+            items = (sub_obj.get("items") or {}).get("data", [])
+            for item in items:
+                price_id = (item.get("price") or {}).get("id", "")
+                if price_id in STRIPE_PRICE_TO_PLAN:
+                    user.subscription_plan = STRIPE_PRICE_TO_PLAN[price_id]
+                    break
+
+    db.commit()

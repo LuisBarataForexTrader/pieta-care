@@ -16,6 +16,7 @@ class User(Base):
     is_verified: Mapped[bool] = mapped_column(Boolean, default=False)
     stripe_customer_id: Mapped[str | None] = mapped_column(String(100))
     subscription_status: Mapped[str] = mapped_column(String(20), default="trial")
+    subscription_plan: Mapped[str | None] = mapped_column(String(30))
     trial_ends_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     email_verification_token: Mapped[str | None] = mapped_column(String(100))

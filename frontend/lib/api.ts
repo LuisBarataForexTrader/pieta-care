@@ -82,6 +82,19 @@ export const api = {
 
   ping: () => request<void>('/api/v1/auth/ping', { method: 'POST' }),
 
+  // billing
+  listPlans: () => request<import('./types').Plan[]>('/api/v1/billing/plans'),
+
+  billingStatus: () => request<import('./types').BillingStatus>('/api/v1/billing/status'),
+
+  createCheckoutSession: (plan: string) =>
+    request<{ url: string }>('/api/v1/billing/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ plan }),
+    }),
+
+  billingPortal: () => request<{ url: string }>('/api/v1/billing/portal'),
+
   acceptInvite: (token: string, password: string, full_name: string) =>
     request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/invite/accept', {
       method: 'POST',
