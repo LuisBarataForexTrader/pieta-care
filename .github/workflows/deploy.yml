@@ -14,24 +14,37 @@ jobs:
         uses: appleboy/ssh-action@v1.0.3
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
+          STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
+          STRIPE_PRICE_FAMILIA: ${{ secrets.STRIPE_PRICE_FAMILIA }}
+          STRIPE_PRICE_FAMILIA_PLUS: ${{ secrets.STRIPE_PRICE_FAMILIA_PLUS }}
+          STRIPE_PRICE_CUIDADOR_PRO: ${{ secrets.STRIPE_PRICE_CUIDADOR_PRO }}
         with:
           host: 178.104.5.182
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: ANTHROPIC_API_KEY
+          envs: ANTHROPIC_API_KEY,STRIPE_SECRET_KEY,STRIPE_WEBHOOK_SECRET,STRIPE_PRICE_FAMILIA,STRIPE_PRICE_FAMILIA_PLUS,STRIPE_PRICE_CUIDADOR_PRO
           script: |
             cd /opt/pieta-care
             git pull origin main
 
-            # Sync ANTHROPIC_API_KEY into backend/.env (idempotent)
-            if [ -n "$ANTHROPIC_API_KEY" ]; then
+            # Sync env vars into backend/.env (idempotent)
+            sync_env() {
+              local key="$1"; local value="$2"
+              [ -z "$value" ] && return
               touch backend/.env
-              if grep -q '^ANTHROPIC_API_KEY=' backend/.env; then
-                sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}|" backend/.env
+              if grep -q "^${key}=" backend/.env; then
+                sed -i "s|^${key}=.*|${key}=${value}|" backend/.env
               else
-                echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" >> backend/.env
+                echo "${key}=${value}" >> backend/.env
               fi
-            fi
+            }
+            sync_env ANTHROPIC_API_KEY "$ANTHROPIC_API_KEY"
+            sync_env STRIPE_SECRET_KEY "$STRIPE_SECRET_KEY"
+            sync_env STRIPE_WEBHOOK_SECRET "$STRIPE_WEBHOOK_SECRET"
+            sync_env STRIPE_PRICE_FAMILIA "$STRIPE_PRICE_FAMILIA"
+            sync_env STRIPE_PRICE_FAMILIA_PLUS "$STRIPE_PRICE_FAMILIA_PLUS"
+            sync_env STRIPE_PRICE_CUIDADOR_PRO "$STRIPE_PRICE_CUIDADOR_PRO"
 
             docker compose build --no-cache api
             docker compose up -d
