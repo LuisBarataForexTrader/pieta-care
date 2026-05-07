@@ -23,13 +23,13 @@ jobs:
             cd /opt/pieta-care
             git pull origin main
 
-            # Sync ANTHROPIC_API_KEY into .env (idempotent)
+            # Sync ANTHROPIC_API_KEY into backend/.env (idempotent)
             if [ -n "$ANTHROPIC_API_KEY" ]; then
-              touch .env
-              if grep -q '^ANTHROPIC_API_KEY=' .env; then
-                sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}|" .env
+              touch backend/.env
+              if grep -q '^ANTHROPIC_API_KEY=' backend/.env; then
+                sed -i "s|^ANTHROPIC_API_KEY=.*|ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}|" backend/.env
               else
-                echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" >> .env
+                echo "ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}" >> backend/.env
               fi
             fi
 
