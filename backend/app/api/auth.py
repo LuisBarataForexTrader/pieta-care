@@ -58,6 +58,14 @@ def me(current_user: User = Depends(get_current_user)):
     return UserResponse.model_validate(current_user)
 
 
+@router.post("/ping", status_code=204)
+def ping(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    from datetime import datetime
+    current_user.last_seen_at = datetime.utcnow()
+    db.commit()
+    return None
+
+
 @router.delete("/account", status_code=200)
 def delete_my_account(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     delete_account(db, current_user)

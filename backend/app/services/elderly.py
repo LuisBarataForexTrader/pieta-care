@@ -51,19 +51,29 @@ def _resolve_photo(elderly: ElderlyProfile) -> ElderlyProfile:
     return elderly
 
 
+def _enrich_members(elderly: ElderlyProfile) -> ElderlyProfile:
+    """Pull full_name + last_seen_at from each member's joined User row
+    onto the FamilyMember instance so Pydantic from_attributes picks them up."""
+    for m in elderly.family_members:
+        u = m.user
+        m.full_name = u.full_name if u else None
+        m.last_seen_at = u.last_seen_at if u else None
+    return elderly
+
+
 def get_elderly(db: Session, elderly_id: int, user: User) -> ElderlyProfile:
     membership = _get_membership(db, elderly_id, user)
     if not membership:
         raise ElderlyError("Sem acesso a este perfil", 403)
 
     elderly = db.query(ElderlyProfile).options(
-        joinedload(ElderlyProfile.family_members)
+        joinedload(ElderlyProfile.family_members).joinedload(FamilyMember.user)
     ).filter(ElderlyProfile.id == elderly_id).first()
 
     if not elderly:
         raise ElderlyError("Perfil não encontrado", 404)
 
-    return _resolve_photo(elderly)
+    return _enrich_members(_resolve_photo(elderly))
 
 
 def list_elderly(db: Session, user: User) -> list[ElderlyProfile]:
@@ -73,8 +83,10 @@ def list_elderly(db: Session, user: User) -> list[ElderlyProfile]:
     ).all()
 
     elderly_ids = [m.elderly_id for m in memberships]
-    profiles = db.query(ElderlyProfile).filter(ElderlyProfile.id.in_(elderly_ids)).all()
-    return [_resolve_photo(p) for p in profiles]
+    profiles = db.query(ElderlyProfile).options(
+        joinedload(ElderlyProfile.family_members).joinedload(FamilyMember.user)
+    ).filter(ElderlyProfile.id.in_(elderly_ids)).all()
+    return [_enrich_members(_resolve_photo(p)) for p in profiles]
 
 
 def update_elderly(

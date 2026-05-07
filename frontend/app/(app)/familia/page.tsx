@@ -97,24 +97,43 @@ export default function FamiliaPage() {
                       Membros activos ({active.length})
                     </div>
                     <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-                      {active.map((m, i) => (
-                        <div key={m.id} className="member-item" style={{ padding: '16px 20px', borderBottom: i < active.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                          <div className="member-avatar">
-                            {m.full_name ? initials(m.full_name) : m.invited_email[0].toUpperCase()}
-                          </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontWeight: 700, fontSize: 15 }}>{m.full_name ?? m.invited_email}</div>
-                            {m.full_name && <div style={{ fontSize: 13, color: 'var(--text-3)' }}>{m.invited_email}</div>}
-                            <div style={{ display: 'flex', gap: 6, marginTop: 5 }}>
-                              {m.relation && (
-                                <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>{m.relation}</span>
-                              )}
-                              <span className="pill pill-taken">Activo</span>
+                      {active.map((m, i) => {
+                        const online = m.last_seen_at && (Date.now() - new Date(m.last_seen_at).getTime() < 90_000)
+                        const lastSeenLabel = m.last_seen_at && !online
+                          ? new Date(m.last_seen_at).toLocaleString('pt-PT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
+                          : null
+                        return (
+                          <div key={m.id} className="member-item" style={{ padding: '16px 20px', borderBottom: i < active.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                            <div className="member-avatar" style={{ position: 'relative' }}>
+                              {m.full_name ? initials(m.full_name) : m.invited_email[0].toUpperCase()}
+                              {online && <span style={{
+                                position: 'absolute', bottom: -2, right: -2,
+                                width: 13, height: 13, borderRadius: '50%',
+                                background: '#22C55E', border: '2.5px solid var(--surface)',
+                              }} />}
                             </div>
+                            <div style={{ flex: 1 }}>
+                              <div style={{ fontWeight: 700, fontSize: 15 }}>{m.full_name ?? m.invited_email}</div>
+                              {m.full_name && <div style={{ fontSize: 13, color: 'var(--text-3)' }}>{m.invited_email}</div>}
+                              <div style={{ display: 'flex', gap: 6, marginTop: 5, alignItems: 'center', flexWrap: 'wrap' }}>
+                                {m.relation && (
+                                  <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>{m.relation}</span>
+                                )}
+                                {online ? (
+                                  <span className="pill" style={{ background: '#DCFCE7', color: '#166534', display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                                    <span className="online-dot" style={{ margin: 0 }} /> Online
+                                  </span>
+                                ) : lastSeenLabel ? (
+                                  <span style={{ fontSize: 12, color: 'var(--text-3)', fontWeight: 500 }}>Visto {lastSeenLabel}</span>
+                                ) : (
+                                  <span className="pill pill-taken">Activo</span>
+                                )}
+                              </div>
+                            </div>
+                            <button onClick={() => remove(m)} className="btn-danger-ghost" title="Remover"><Trash2 size={15} strokeWidth={2} /></button>
                           </div>
-                          <button onClick={() => remove(m)} className="btn-danger-ghost" title="Remover"><Trash2 size={15} strokeWidth={2} /></button>
-                        </div>
-                      ))}
+                        )
+                      })}
                     </div>
                   </div>
                 )}

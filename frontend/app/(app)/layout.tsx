@@ -1,11 +1,13 @@
 import Sidebar from '@/components/Sidebar'
 import BottomNav from '@/components/BottomNav'
+import PresenceBar from '@/components/PresenceBar'
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="app-shell">
       <Sidebar />
       <div className="main-content">
+        <PresenceBar />
         {children}
       </div>
       <BottomNav />

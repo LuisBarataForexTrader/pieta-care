@@ -983,6 +983,111 @@ textarea.field-input { resize: vertical; min-height: 80px; }
   flex-shrink: 0;
 }
 
+/* ── PRESENCE BAR ────────────────────────────────────── */
+
+.presence-bar {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 24px;
+  background: rgba(255,255,255,0.85);
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-2);
+  transition: background 0.15s;
+}
+.presence-bar:hover { background: rgba(255,255,255,0.95); }
+
+@media (max-width: 768px) {
+  .presence-bar { padding: 7px 16px; gap: 8px; }
+}
+
+.presence-pulse {
+  color: var(--success);
+  animation: presence-pulse 2.4s ease-in-out infinite;
+}
+@keyframes presence-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+.presence-count {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-2);
+  letter-spacing: -0.01em;
+}
+
+.presence-avatars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.presence-avatar {
+  position: relative;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 800;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--surface);
+}
+.presence-avatar-me {
+  background: linear-gradient(135deg, var(--brand) 0%, var(--brand-mid) 100%);
+}
+
+.presence-avatar-dot {
+  position: absolute;
+  bottom: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #22C55E;
+  border: 2px solid var(--surface);
+}
+
+.presence-more {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-3);
+  margin-left: 4px;
+}
+
+.presence-empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-3);
+}
+
+/* Online dot for /familia member rows */
+.online-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22C55E;
+  margin-right: 6px;
+  vertical-align: middle;
+  box-shadow: 0 0 0 2px rgba(34,197,94,0.18);
+}
+
 /* ── MEDICATION INFO ─────────────────────────────────── */
 
 .info-fetch-btn {

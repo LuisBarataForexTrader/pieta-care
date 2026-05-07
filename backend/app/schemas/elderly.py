@@ -38,6 +38,7 @@ class FamilyMemberResponse(BaseModel):
     can_manage_medications: bool
     can_manage_documents: bool
     joined_at: datetime | None
+    last_seen_at: datetime | None = None
 
     model_config = {"from_attributes": True}
 

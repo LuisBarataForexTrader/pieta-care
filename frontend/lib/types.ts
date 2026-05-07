@@ -23,6 +23,7 @@ export interface FamilyMember {
   can_manage_medications: boolean
   can_manage_documents: boolean
   joined_at: string | null
+  last_seen_at: string | null
 }
 
 export interface Elderly {
