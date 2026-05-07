@@ -4,7 +4,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Planos e Preços — pieta.care',
-  description: 'Planos pieta.care a partir de €35/mês + IVA. 30 dias grátis. Cancela quando quiseres.',
+  description: 'Planos pieta.care a partir de €35/mês + IVA. 14 dias grátis. Cancela quando quiseres.',
 }
 
 const PLANS = [
@@ -64,7 +64,7 @@ const PLANS = [
 const FAQ = [
   {
     q: 'Como funciona o período gratuito?',
-    a: 'Tens 30 dias para experimentar qualquer plano sem cobrança. Não pedimos cartão à partida — só quando decidires subscrever.',
+    a: 'Tens 14 dias para experimentar qualquer plano sem cobrança. Não pedimos cartão à partida — só quando decidires subscrever.',
   },
   {
     q: 'Posso mudar de plano a qualquer momento?',
@@ -117,7 +117,7 @@ export default function PlanosPage() {
           fontSize: 12, fontWeight: 800, padding: '5px 14px', borderRadius: 99,
           letterSpacing: '0.04em', textTransform: 'uppercase', marginBottom: 18,
         }}>
-          30 dias grátis · Cancela quando quiseres
+          14 dias grátis · Cancela quando quiseres
         </div>
         <h1 style={{
           fontSize: 'clamp(32px, 5vw, 52px)', fontWeight: 900,
@@ -129,7 +129,7 @@ export default function PlanosPage() {
           fontSize: 'clamp(15px, 1.7vw, 18px)', color: '#57534E',
           lineHeight: 1.5, maxWidth: 600, margin: '0 auto',
         }}>
-          Escolhe o plano que melhor se adapta à tua família. Todos incluem 30 dias de uso gratuito —
+          Escolhe o plano que melhor se adapta à tua família. Todos incluem 14 dias de uso gratuito —
           sem cartão de crédito.
         </p>
       </section>
@@ -197,7 +197,7 @@ export default function PlanosPage() {
                     fontSize: 11,
                     color: p.highlight ? 'rgba(255,255,255,0.5)' : '#9CA3AF',
                     marginTop: 4, fontWeight: 600,
-                  }}>+ IVA · 30 dias grátis</div>
+                  }}>+ IVA · 14 dias grátis</div>
                 </div>
 
                 <ul style={{
@@ -231,7 +231,7 @@ export default function PlanosPage() {
                   color: p.highlight && !p.ai ? '#0D2B1E' : '#fff',
                   transition: 'transform 0.15s, box-shadow 0.15s',
                 }}>
-                  Começar 30 dias grátis →
+                  Começar 14 dias grátis →
                 </Link>
               </div>
             </div>
@@ -314,7 +314,7 @@ export default function PlanosPage() {
           fontSize: 15, color: 'rgba(255,255,255,0.65)',
           marginBottom: 28, maxWidth: 460, margin: '0 auto 28px',
         }}>
-          30 dias grátis. Sem cartão. Sem compromissos.
+          14 dias grátis. Sem cartão. Sem compromissos.
         </p>
         <Link href="/register" style={{
           display: 'inline-block', fontSize: 16, fontWeight: 800,

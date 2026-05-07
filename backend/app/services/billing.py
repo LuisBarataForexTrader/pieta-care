@@ -60,7 +60,7 @@ def create_subscription(
     sub = stripe.Subscription.create(
         customer=customer_id,
         items=[{"price": price_id}],
-        trial_period_days=30,
+        trial_period_days=14,
         payment_behavior="default_incomplete",
         expand=["latest_invoice.payment_intent"],
         metadata={"user_id": str(user.id), "plan": plan},
@@ -203,7 +203,7 @@ def create_checkout_session(db: Session, user: User, plan: str) -> str:
         "metadata": {"user_id": str(user.id), "plan": plan},
     }
     if not has_subscribed_before:
-        subscription_data["trial_period_days"] = 30
+        subscription_data["trial_period_days"] = 14
 
     try:
         session = stripe.checkout.Session.create(

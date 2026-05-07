@@ -336,7 +336,7 @@ export default function LandingPage() {
                     <div style={{ marginBottom: 28 }}>
                       <span style={{ fontSize: 52, fontWeight: 900, color: p.highlight ? '#fff' : '#1C1917', letterSpacing: '-0.04em', lineHeight: 1 }}>€{p.price}</span>
                       <span style={{ fontSize: 15, color: p.highlight ? 'rgba(255,255,255,0.45)' : '#9CA3AF' }}>/mês</span>
-                      <div style={{ fontSize: 11, color: p.highlight ? 'rgba(255,255,255,0.5)' : '#9CA3AF', marginTop: 4, fontWeight: 600, letterSpacing: '0.02em' }}>+ IVA · 30 dias grátis</div>
+                      <div style={{ fontSize: 11, color: p.highlight ? 'rgba(255,255,255,0.5)' : '#9CA3AF', marginTop: 4, fontWeight: 600, letterSpacing: '0.02em' }}>+ IVA · 14 dias grátis</div>
                     </div>
                     <ul style={{ listStyle: 'none', display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 28 }}>
                       {p.features.map(f => (
