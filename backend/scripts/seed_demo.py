@@ -18,7 +18,7 @@ Default 60.
 
 Credentials printed at the end. Default:
     email:     demo@pietas.care
-    password:  Demo2026Pietas!
+    password:  pietas2026
 """
 from __future__ import annotations
 
@@ -52,7 +52,7 @@ from app.models.document import Document  # noqa: E402
 # ─────────────────────────────────────────────────────────────────────────────
 
 DEMO_OWNER_EMAIL = os.environ.get("DEMO_OWNER_EMAIL", "demo@pietas.care")
-DEMO_OWNER_PASSWORD = os.environ.get("DEMO_OWNER_PASSWORD", "Demo2026Pietas!")
+DEMO_OWNER_PASSWORD = os.environ.get("DEMO_OWNER_PASSWORD", "pietas2026")
 DEMO_DAYS = int(os.environ.get("DEMO_DAYS", sys.argv[1] if len(sys.argv) > 1 else "60"))
 
 random.seed(20260508)  # deterministic-ish demo
@@ -147,7 +147,7 @@ def main() -> None:
             if u is None:
                 u = User(
                     email=email,
-                    hashed_password=hash_password("Demo2026Pietas!"),
+                    hashed_password=hash_password("pietas2026"),
                     full_name=name,
                     phone=phone,
                     is_active=True,
