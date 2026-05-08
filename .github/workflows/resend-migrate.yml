@@ -73,6 +73,24 @@ jobs:
                 echo "Done"
                 ;;
 
+              4)
+                echo "→ Current backend/.env (URLs only):"
+                grep -E '^(FRONTEND_URL|FRONTEND_URL_VERCEL|BACKEND_PUBLIC_URL|EMAIL_FROM)=' backend/.env || echo "(none of those keys set)"
+                echo
+                echo "→ Setting FRONTEND_URL=https://pietas.care and BACKEND_PUBLIC_URL=https://api.pietas.care"
+                for kv in 'FRONTEND_URL=https://pietas.care' 'BACKEND_PUBLIC_URL=https://api.pietas.care'; do
+                  k=$(echo "$kv" | cut -d= -f1)
+                  if grep -q "^${k}=" backend/.env; then
+                    sed -i "s|^${k}=.*|${kv}|" backend/.env
+                  else
+                    echo "$kv" >> backend/.env
+                  fi
+                done
+                grep -E '^(FRONTEND_URL|BACKEND_PUBLIC_URL)=' backend/.env
+                docker compose restart api
+                echo "✅ Restarted"
+                ;;
+
               *)
                 echo "Unknown step: $STEP"; exit 1
                 ;;
