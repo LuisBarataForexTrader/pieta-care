@@ -18,7 +18,57 @@ class AuthError(Exception):
 
 
 def register_user(db: Session, data: RegisterRequest) -> User:
-    if db.query(User).filter(User.email == data.email).first():
+    existing = db.query(User).filter(User.email == data.email).first()
+
+    # If a record exists but the user never confirmed their email (or the
+    # confirmation send failed silently — e.g. Resend rejected the FROM
+    # domain), let them re-register to refresh the credentials and trigger
+    # a new verification email. This avoids "Email já registado" dead-ends
+    # for users who mistyped or whose first email never arrived.
+    if existing and not existing.is_verified and existing.deleted_at is None:
+        token = secrets.token_urlsafe(32)
+        existing.hashed_password = hash_password(data.password)
+        existing.full_name = data.full_name
+        existing.phone = data.phone
+        existing.subscription_status = "trial"
+        existing.trial_ends_at = datetime.utcnow() + timedelta(days=14)
+        existing.email_verification_token = token
+
+        # Make sure they have an elderly profile + ownership row if they
+        # provided an elderly_name now (or didn't last time).
+        if data.elderly_name:
+            owns_any = db.query(FamilyMember).filter(
+                FamilyMember.user_id == existing.id,
+                FamilyMember.role == "owner",
+            ).first()
+            if not owns_any:
+                elderly = ElderlyProfile(
+                    full_name=data.elderly_name,
+                    created_by=existing.id,
+                )
+                db.add(elderly)
+                db.flush()
+                db.add(FamilyMember(
+                    elderly_id=elderly.id,
+                    user_id=existing.id,
+                    invited_email=existing.email,
+                    role="owner",
+                    is_accepted=True,
+                ))
+
+        db.commit()
+        db.refresh(existing)
+
+        verify_url = f"{settings.FRONTEND_URL}/verificar-email?token={token}"
+        send_email(
+            to=existing.email,
+            subject="Confirme o seu email - pietas.care",
+            html=verification_email_html(existing.full_name, verify_url),
+        )
+        return existing
+
+    # Email belongs to an already-verified (real) account → genuine conflict.
+    if existing:
         raise AuthError("Email já registado", 409)
 
     token = secrets.token_urlsafe(32)
