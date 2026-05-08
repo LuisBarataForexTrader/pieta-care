@@ -36,12 +36,21 @@ PRODUCTS = [
     },
     {
         "plan_key": "cuidador_pro",
-        "name": "pietas.care Família AI",
-        "description": "Plano Família AI — até 4 perfis, familiares ilimitados, IA.",
+        "name": "pietas.care Família Plus",
+        "description": "Plano Família Plus — até 4 perfis, familiares ilimitados, assistente IA + chat interno.",
         "amount_eur": 88,
         "secret_name": "STRIPE_PRICE_CUIDADOR_PRO",
     },
 ]
+
+
+def _plan_key(p) -> str | None:
+    """Safely extract metadata.pieta_plan even on legacy products
+    where metadata may not behave as a dict."""
+    try:
+        return p.metadata.pieta_plan
+    except (KeyError, AttributeError, TypeError):
+        return None
 
 
 def find_or_create_product(spec: dict):
@@ -49,7 +58,7 @@ def find_or_create_product(spec: dict):
     plan_key = spec["plan_key"]
     products = stripe.Product.list(limit=100, active=True).data
     existing = next(
-        (p for p in products if p.metadata.get("pieta_plan") == plan_key),
+        (p for p in products if _plan_key(p) == plan_key),
         None,
     )
 
@@ -74,6 +83,13 @@ def find_or_create_product(spec: dict):
     return p
 
 
+def _interval(pr) -> str | None:
+    try:
+        return pr.recurring.interval if pr.recurring else None
+    except (KeyError, AttributeError, TypeError):
+        return None
+
+
 def find_or_create_price(product, spec: dict) -> str:
     """Find an active recurring monthly EUR price matching amount, or create one."""
     amount_cents = spec["amount_eur"] * 100
@@ -83,8 +99,7 @@ def find_or_create_price(product, spec: dict) -> str:
             pr for pr in prices
             if pr.unit_amount == amount_cents
             and pr.currency == "eur"
-            and pr.recurring
-            and pr.recurring.get("interval") == "month"
+            and _interval(pr) == "month"
         ),
         None,
     )
@@ -95,7 +110,7 @@ def find_or_create_price(product, spec: dict) -> str:
 
     # Deactivate any other recurring monthly EUR prices on this product
     for pr in prices:
-        if pr.currency == "eur" and pr.recurring and pr.recurring.get("interval") == "month":
+        if pr.currency == "eur" and _interval(pr) == "month":
             stripe.Price.modify(pr.id, active=False)
             print(f"  - deactivated stale price {pr.id} (€{pr.unit_amount/100})")
 
