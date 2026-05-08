@@ -50,6 +50,15 @@ class InviteAcceptRequest(BaseModel):
     full_name: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    password: str
+
+
 class ExportResponse(BaseModel):
     exported_at: str
     user: dict[str, Any]

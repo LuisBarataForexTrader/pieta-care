@@ -75,6 +75,18 @@ export const api = {
   verifyEmail: (token: string) =>
     request<{ access_token: string; user: import('./types').User }>(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`),
 
+  forgotPassword: (email: string) =>
+    request<{ message: string }>('/api/v1/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email }),
+    }),
+
+  resetPassword: (token: string, password: string) =>
+    request<{ access_token: string; user: import('./types').User }>('/api/v1/auth/reset-password', {
+      method: 'POST',
+      body: JSON.stringify({ token, password }),
+    }),
+
   deleteAccount: () =>
     request<{ message: string }>('/api/v1/auth/account', { method: 'DELETE' }),
 

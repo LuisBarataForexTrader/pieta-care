@@ -103,6 +103,58 @@ def verification_email_html(name: str, verify_url: str) -> str:
 </html>"""
 
 
+def password_reset_html(name: str, reset_url: str) -> str:
+    return f"""<!DOCTYPE html>
+<html lang="pt">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#f3f7f5;font-family:'Helvetica Neue',Arial,sans-serif;color:#1a2b22;">
+<table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+  <tr><td align="center">
+    <table width="100%" style="max-width:520px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 2px 16px rgba(0,0,0,.09);">
+      <tr>
+        <td style="background:#2A6049;padding:32px 40px;text-align:center;">
+          <div style="font-size:30px;margin-bottom:6px;">🌿</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pietas.care</div>
+          <div style="color:#a8c9bc;font-size:13px;margin-top:4px;">Cuidar com confiança</div>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:40px;">
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">Olá, <strong>{name}</strong>,</p>
+          <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">
+            Recebemos um pedido para repor a password da sua conta no <strong>pietas.care</strong>.
+            Clique no botão abaixo para definir uma nova password.
+          </p>
+          <div style="text-align:center;margin:32px 0;">
+            <a href="{reset_url}"
+               style="display:inline-block;background:#2A6049;color:#fff;font-size:16px;font-weight:700;
+                      text-decoration:none;padding:16px 44px;border-radius:10px;">
+              Repor password →
+            </a>
+          </div>
+          <p style="font-size:13px;color:#94a89a;margin:0 0 8px;line-height:1.6;">
+            Se não fez este pedido, ignore este email — a sua password não será alterada.
+          </p>
+          <p style="font-size:13px;color:#94a89a;margin:0 0 24px;line-height:1.6;">
+            Por segurança, este link expira em 1 hora.
+          </p>
+          <p style="font-size:12px;color:#b0bbb6;word-break:break-all;">
+            Ou copie este endereço para o seu browser: {reset_url}
+          </p>
+          <hr style="border:none;border-top:1px solid #e6eeea;margin:24px 0 16px;">
+          <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
+            © pietas.care &nbsp;·&nbsp;
+            <a href="https://pietas.care" style="color:#2A6049;text-decoration:none;">pietas.care</a>
+          </p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+</table>
+</body>
+</html>"""
+
+
 def deletion_confirmation_html(name: str, deletion_date: str) -> str:
     return f"""<!DOCTYPE html>
 <html lang="pt">

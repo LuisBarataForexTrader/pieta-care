@@ -20,6 +20,8 @@ class User(Base):
     trial_ends_at: Mapped[datetime | None] = mapped_column(DateTime)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     email_verification_token: Mapped[str | None] = mapped_column(String(100))
+    password_reset_token: Mapped[str | None] = mapped_column(String(100))
+    password_reset_expires_at: Mapped[datetime | None] = mapped_column(DateTime)
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime)
     last_seen_at: Mapped[datetime | None] = mapped_column(DateTime)
     trial_emails_sent: Mapped[str | None] = mapped_column(Text)  # JSON list e.g. '["day_2","day_7"]'

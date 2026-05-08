@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 
 const PUBLIC = [
   '/', '/login', '/register', '/invite',
-  '/verificar-email', '/privacidade', '/termos', '/planos',
+  '/verificar-email', '/esqueci-password', '/reset-password',
+  '/privacidade', '/termos', '/planos',
 ]
 
 // File extensions of static assets that must NEVER hit the auth gate —

@@ -12,6 +12,8 @@ from app.schemas.auth import (
     AuthResponse,
     UserResponse,
     InviteAcceptRequest,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
 )
 from app.services.auth import (
     register_user,
@@ -20,6 +22,8 @@ from app.services.auth import (
     delete_account,
     export_user_data,
     accept_invite,
+    request_password_reset,
+    reset_password,
     AuthError,
 )
 
@@ -76,6 +80,26 @@ def delete_my_account(current_user: User = Depends(get_current_user), db: Sessio
 def export_my_data(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     data = export_user_data(db, current_user)
     return JSONResponse(content=data)
+
+
+@router.post("/forgot-password", status_code=202)
+def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
+    """Always responds 202 — we don't reveal whether the email exists.
+    If it does, an email is sent (best-effort)."""
+    request_password_reset(db, data.email)
+    return {"message": "Se a conta existe, enviámos um email com instruções para repor a password."}
+
+
+@router.post("/reset-password", response_model=AuthResponse)
+def reset_password_endpoint(data: ResetPasswordRequest, db: Session = Depends(get_db)):
+    try:
+        user = reset_password(db, data.token, data.password)
+        # Issue a fresh access token so the user is logged in straight away
+        from app.core.auth import create_access_token
+        token = create_access_token(user.id)
+        return AuthResponse(access_token=token, user=UserResponse.model_validate(user))
+    except AuthError as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
 @router.post("/invite/accept")

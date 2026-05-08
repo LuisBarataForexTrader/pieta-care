@@ -59,7 +59,12 @@ export default function Login() {
                 placeholder="o_seu@email.com" required autoComplete="email" />
             </div>
             <div>
-              <label className="field-label">Password</label>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 4 }}>
+                <label className="field-label" style={{ marginBottom: 0 }}>Password</label>
+                <Link href="/esqueci-password" style={{ fontSize: 12, color: 'var(--text-3)', textDecoration: 'none', fontWeight: 600 }}>
+                  Esqueci-me
+                </Link>
+              </div>
               <input className="field-input" type="password" value={password} onChange={e => setPassword(e.target.value)}
                 placeholder="••••••••" required autoComplete="current-password" />
             </div>

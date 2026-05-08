@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.core.auth import hash_password, verify_password, create_access_token, decode_invite_token
-from app.core.email import send_email, verification_email_html, deletion_confirmation_html
+from app.core.email import send_email, verification_email_html, deletion_confirmation_html, password_reset_html
 from app.core.config import settings
 from app.models.user import User
 from app.models.family import FamilyMember
@@ -112,6 +112,61 @@ def register_user(db: Session, data: RegisterRequest) -> User:
         html=verification_email_html(user.full_name, verify_url),
     )
 
+    return user
+
+
+def request_password_reset(db: Session, email: str) -> None:
+    """Generate a reset token + send email. Always returns None (we never
+    leak whether the email exists or not — the API responds the same way
+    in both cases)."""
+    user = db.query(User).filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+    if not user:
+        return  # silent no-op for unknown emails
+
+    token = secrets.token_urlsafe(32)
+    user.password_reset_token = token
+    user.password_reset_expires_at = datetime.utcnow() + timedelta(hours=1)
+    db.commit()
+
+    reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
+    send_email(
+        to=user.email,
+        subject="Repor password — pietas.care",
+        html=password_reset_html(user.full_name, reset_url),
+    )
+
+
+def reset_password(db: Session, token: str, new_password: str) -> User:
+    if len(new_password) < 8:
+        raise AuthError("A password tem de ter pelo menos 8 caracteres", 400)
+
+    user = db.query(User).filter(
+        User.password_reset_token == token,
+        User.deleted_at.is_(None),
+    ).first()
+    if not user:
+        raise AuthError("Link inválido ou já utilizado", 400)
+
+    if user.password_reset_expires_at and user.password_reset_expires_at < datetime.utcnow():
+        # Clear the stale token so it can't be retried
+        user.password_reset_token = None
+        user.password_reset_expires_at = None
+        db.commit()
+        raise AuthError("Link expirado. Solicite um novo email de reposição.", 400)
+
+    user.hashed_password = hash_password(new_password)
+    user.password_reset_token = None
+    user.password_reset_expires_at = None
+    # If the user is finally setting a password via reset link, treat it
+    # as proof of email ownership (handy for accounts stuck unverified).
+    if not user.is_verified:
+        user.is_verified = True
+        user.email_verification_token = None
+    db.commit()
+    db.refresh(user)
     return user
 
 
