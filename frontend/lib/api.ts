@@ -75,6 +75,11 @@ export const api = {
   verifyEmail: (token: string) =>
     request<{ access_token: string; user: import('./types').User }>(`/api/v1/auth/verify-email?token=${encodeURIComponent(token)}`),
 
+  /** Lightweight poll used by the register/verify screen so the
+   *  desktop tab auto-detects when the user clicks the link on mobile. */
+  checkVerification: (email: string) =>
+    request<{ verified: boolean }>(`/api/v1/auth/verification-status?email=${encodeURIComponent(email)}`),
+
   forgotPassword: (email: string) =>
     request<{ message: string }>('/api/v1/auth/forgot-password', {
       method: 'POST',

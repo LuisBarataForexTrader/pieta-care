@@ -1,17 +1,75 @@
 'use client'
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Leaf, Mail, Lock, ArrowRight, ArrowLeft } from 'lucide-react'
+import { Leaf, Mail, Lock, ArrowRight, ArrowLeft, CheckCircle2 } from 'lucide-react'
 import { api, setToken, setElderlyId } from '@/lib/api'
 
 export default function Register() {
+  const router = useRouter()
   const [form, setForm] = useState({ email: '', password: '', full_name: '', elderly_name: '' })
   const [step, setStep] = useState<'account' | 'elderly' | 'verify'>('account')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [verifyEmail, setVerifyEmail] = useState('')
+  const [autoLoggingIn, setAutoLoggingIn] = useState(false)
+  const passwordRef = useRef('')
 
   function set(k: string, v: string) { setForm(f => ({ ...f, [k]: v })) }
+
+  // Poll for cross-device email verification. The desktop tab keeps
+  // hitting verification-status; once Gmail/iPhone clicks the link in
+  // the email and the backend flips is_verified=true, we auto-login
+  // here and redirect to /dashboard.
+  useEffect(() => {
+    if (step !== 'verify' || !verifyEmail) return
+    let alive = true
+    let timer: ReturnType<typeof setTimeout> | null = null
+
+    const tick = async () => {
+      if (!alive) return
+      try {
+        const res = await api.checkVerification(verifyEmail)
+        if (res.verified && alive && passwordRef.current) {
+          setAutoLoggingIn(true)
+          try {
+            const auth = await api.login(verifyEmail, passwordRef.current)
+            setToken(auth.access_token)
+            try {
+              const list = await api.listElderly()
+              if (list.length > 0) setElderlyId(list[0].id)
+            } catch {}
+            router.replace('/dashboard')
+            return  // don't reschedule
+          } catch {
+            // Login failed for some reason — fall through to /login so
+            // the user can enter the password manually.
+            router.replace('/login')
+            return
+          }
+        }
+      } catch {
+        // Network blip — try again next tick.
+      }
+      if (alive) timer = setTimeout(tick, 3000)
+    }
+
+    tick()
+
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && alive) {
+        if (timer) clearTimeout(timer)
+        tick()
+      }
+    }
+    document.addEventListener('visibilitychange', onVisible)
+
+    return () => {
+      alive = false
+      if (timer) clearTimeout(timer)
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [step, verifyEmail, router])
 
   function submitAccount(e: React.FormEvent) {
     e.preventDefault()
@@ -27,6 +85,7 @@ export default function Register() {
     try {
       const res = await api.register(form.email, form.password, form.full_name, form.elderly_name.trim() || undefined)
       setVerifyEmail(res.email)
+      passwordRef.current = form.password   // remember for auto-login after verification
       setStep('verify')
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Erro ao criar conta')
@@ -64,6 +123,33 @@ export default function Register() {
             <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.6 }}>
               Clique no link no email para activar a sua conta. O link expira em 24 horas.
             </p>
+
+            {/* Live polling indicator — turns into an "entrando" state once verification is detected */}
+            <div style={{
+              marginTop: 20, padding: '12px 14px', borderRadius: 12,
+              background: autoLoggingIn ? 'var(--success-light)' : 'var(--brand-light)',
+              border: `1px solid ${autoLoggingIn ? 'var(--success)' : 'rgba(42,96,73,0.18)'}`,
+              display: 'flex', alignItems: 'center', gap: 10, fontSize: 13,
+              color: autoLoggingIn ? 'var(--on-tinted-success)' : 'var(--brand)', fontWeight: 600,
+              textAlign: 'left',
+            }}>
+              {autoLoggingIn ? (
+                <>
+                  <CheckCircle2 size={18} strokeWidth={2.25} />
+                  <span>Email confirmado — a entrar…</span>
+                </>
+              ) : (
+                <>
+                  <span aria-hidden="true" style={{
+                    width: 14, height: 14, borderRadius: '50%',
+                    border: '2px solid currentColor', borderTopColor: 'transparent',
+                    animation: 'spin 1s linear infinite', flexShrink: 0,
+                  }} />
+                  <span>À espera de confirmação… esta página atualiza-se automaticamente.</span>
+                </>
+              )}
+            </div>
+            <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
             {/* Tipo de email errado? Permite voltar a editar. */}
             <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)', textAlign: 'center' }}>

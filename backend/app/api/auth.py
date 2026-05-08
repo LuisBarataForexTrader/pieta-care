@@ -48,6 +48,18 @@ def verify_email_endpoint(token: str = Query(...), db: Session = Depends(get_db)
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
+@router.get("/verification-status")
+def verification_status(email: str = Query(...), db: Session = Depends(get_db)):
+    """Public lightweight check used by the register/verify screen to
+    poll for cross-device email verification. Returns `verified: false`
+    for unknown emails too, so it can't be used for email enumeration."""
+    user = db.query(User).filter(
+        User.email == email,
+        User.deleted_at.is_(None),
+    ).first()
+    return {"verified": bool(user and user.is_verified)}
+
+
 @router.post("/login", response_model=AuthResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     try:
