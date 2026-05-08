@@ -1,6 +1,6 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check, Sparkles } from 'lucide-react'
+import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check, Sparkles, MessageCircle } from 'lucide-react'
 import ZoomImage from '@/components/ZoomImage'
 
 export const metadata: Metadata = {
@@ -334,14 +334,69 @@ export default function LandingPage() {
               />
             </div>
           </div>
+          {/* Second exclusive — Chat interno (mirrored asymmetric row) */}
+          <div className="lp-ai-grid lp-ai-grid--reverse" style={{ maxWidth: 1180, margin: 'clamp(80px, 10vw, 130px) auto 0' }}>
+            <div className="lp-ai-frame">
+              <div className="lp-ai-chat-glow" aria-hidden="true" />
+              <ZoomImage
+                src="/showcase/chat-dark.webp"
+                alt="Chat interno entre familiares no pietas.care: histórico organizado por dia com bolhas verdes e respostas dos restantes membros"
+                width={2400}
+                height={1500}
+                sizes="(max-width: 900px) 100vw, 600px"
+                chrome
+                chromeUrl="Chat familiar · privado"
+                caption="Chat interno · histórico privado partilhado entre os membros da família autorizados pelo titular."
+              />
+            </div>
+            <div className="lp-ai-text">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #166534, #22C55E)', padding: '6px 14px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 22 }}>
+                <MessageCircle size={13} strokeWidth={2.5} />
+                Exclusivo Família Plus
+              </span>
+              <h2 style={{ fontSize: 'clamp(28px,4.2vw,46px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', lineHeight: 1.1, marginBottom: 22 }}>
+                Chat interno —<br />
+                <span style={{ color: '#166534' }}>menos telefonemas, mais coordenação.</span>
+              </h2>
+              <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: '#4B5563', lineHeight: 1.75, marginBottom: 28 }}>
+                Cada família tem o seu canal privado dentro da app — só os familiares autorizados pelo titular têm acesso. Sem grupos paralelos no WhatsApp, sem perder informação clínica entre conversas pessoais.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {[
+                  ['Privado por defeito', 'Apenas familiares aceites pelo titular vêem as mensagens.'],
+                  ['Notificações em tempo real', 'Som e vibração quando alguém escreve — não passa em branco.'],
+                  ['Histórico permanente', 'Coordenação de tomas, consultas e visitas, sem se perder.'],
+                  ['Presença online', 'Vê em qualquer página quem está na app neste momento.'],
+                ].map(([t, b]) => (
+                  <li key={t} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                    <span style={{ width: 24, height: 24, borderRadius: 7, background: 'rgba(22,101,52,0.1)', color: '#166534', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                      <Check size={14} strokeWidth={2.5} />
+                    </span>
+                    <div>
+                      <strong style={{ fontSize: 15, color: '#0A0A0C', fontWeight: 800 }}>{t}.</strong>
+                      <span style={{ fontSize: 15, color: '#4B5563', marginLeft: 6 }}>{b}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Link href="/register?plan=cuidador_pro" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #166534, #22C55E)', padding: '13px 26px', borderRadius: 12, textDecoration: 'none' }}>
+                  <Sparkles size={15} strokeWidth={2.5} /> Começar Família Plus
+                </Link>
+              </div>
+            </div>
+          </div>
+
           <style>{`
             .lp-ai-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(40px, 5vw, 72px); align-items: center; }
+            .lp-ai-grid--reverse { grid-template-columns: 1.05fr 1fr; }
             .lp-ai-frame { position: relative; }
             .lp-ai-frame-glow { position: absolute; inset: -24px; background: radial-gradient(ellipse at center, rgba(124,58,237,0.22) 0%, transparent 65%); filter: blur(24px); pointer-events: none; }
-            .lp-ai-frame-inner { position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(124,58,237,0.18), 0 0 0 1px rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.12); background: #050507; }
-            .lp-ai-frame-chrome { background: #050507; padding: 9px 14px; display: flex; gap: 6px; align-items: center; }
+            .lp-ai-chat-glow  { position: absolute; inset: -24px; background: radial-gradient(ellipse at center, rgba(34,197,94,0.18) 0%, transparent 65%); filter: blur(24px); pointer-events: none; }
             @media (max-width: 900px) {
-              .lp-ai-grid { grid-template-columns: 1fr; }
+              .lp-ai-grid, .lp-ai-grid--reverse { grid-template-columns: 1fr; }
+              .lp-ai-grid--reverse > .lp-ai-frame { order: 2; }
+              .lp-ai-grid--reverse > .lp-ai-text  { order: 1; }
             }
           `}</style>
         </section>
@@ -460,7 +515,7 @@ export default function LandingPage() {
               {[
                 { id: 'familia', name: 'Família', price: '35', sub: 'Para um familiar', features: ['1 perfil de familiar','Até 2 familiares','Medicação, agenda e sinais vitais','Incidentes e documentos','Notas de turno'], highlight: false, cta: 'Começar' },
                 { id: 'familia_plus', name: 'Família+', price: '59', sub: 'Para mais de um familiar', features: ['Até 2 perfis de familiar','Até 5 familiares','Tudo do plano Família','Relatório médico completo','Dados clínicos avançados','Plano de cuidados detalhado'], highlight: true, cta: 'Começar' },
-                { id: 'cuidador_pro', name: 'Família Plus', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA — informação clínica','Resumos automáticos e alertas inteligentes'], highlight: false, cta: 'Começar' },
+                { id: 'cuidador_pro', name: 'Família Plus', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA — análise clínica em 5 segundos','Chat interno entre familiares','Presença online em tempo real'], highlight: false, cta: 'Começar' },
               ].map(p => (
                 <div key={p.id} style={{ position: 'relative' }}>
                   <div style={{
