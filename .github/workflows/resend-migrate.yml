@@ -73,6 +73,62 @@ jobs:
                 echo "Done"
                 ;;
 
+              6)
+                # One-shot: wipe a single user account by email so it can
+                # be re-registered cleanly. Email hard-coded; this branch
+                # is meant for ad-hoc cleanup, not regular use.
+                EMAIL_TO_WIPE='central7.pt@gmail.com'
+                echo "==== Wiping user $EMAIL_TO_WIPE ===="
+                docker compose exec -T -e EMAIL_TO_WIPE="$EMAIL_TO_WIPE" -w /app api python -c "
+import os
+from sqlalchemy import select, delete
+from app.core.database import SessionLocal
+from app.models.user import User
+from app.models.elderly import ElderlyProfile
+from app.models.family import FamilyMember
+from app.models.medication import Medication, MedicationLog
+from app.models.health import VitalSign, WellbeingLog, Incident, DailyNote, ClinicalDiagnosis, Vaccination, CarePlanItem
+from app.models.calendar import CalendarEvent, Task
+from app.models.chat import ChatMessage, ChatRead
+from app.models.document import Document
+from app.models.support import SupportThread, SupportMessage
+
+email = os.environ['EMAIL_TO_WIPE']
+db = SessionLocal()
+try:
+    u = db.scalar(select(User).where(User.email == email))
+    if not u:
+        print(f'No user with email {email}'); raise SystemExit(0)
+    print(f'Found user id={u.id} email={u.email} verified={u.is_verified}')
+    eids = [e.id for e in db.scalars(select(ElderlyProfile).where(ElderlyProfile.created_by == u.id)).all()]
+    print(f'  cascading {len(eids)} elderly profile(s)…')
+    if eids:
+        med_ids = [m.id for m in db.scalars(select(Medication).where(Medication.elderly_id.in_(eids))).all()]
+        if med_ids:
+            db.execute(delete(MedicationLog).where(MedicationLog.medication_id.in_(med_ids)))
+        db.execute(delete(Medication).where(Medication.elderly_id.in_(eids)))
+        for tbl in (VitalSign, WellbeingLog, Incident, DailyNote, ClinicalDiagnosis, Vaccination, CarePlanItem, CalendarEvent, Task, Document, ChatMessage, ChatRead):
+            db.execute(delete(tbl).where(tbl.elderly_id.in_(eids)))
+        db.execute(delete(FamilyMember).where(FamilyMember.elderly_id.in_(eids)))
+        db.execute(delete(ElderlyProfile).where(ElderlyProfile.id.in_(eids)))
+    db.execute(delete(FamilyMember).where(FamilyMember.user_id == u.id))
+    db.execute(delete(SupportMessage).where(SupportMessage.sender_id == u.id))
+    thr_ids = [t.id for t in db.scalars(select(SupportThread).where(SupportThread.user_id == u.id)).all()]
+    if thr_ids:
+        db.execute(delete(SupportMessage).where(SupportMessage.thread_id.in_(thr_ids)))
+    db.execute(delete(SupportThread).where(SupportThread.user_id == u.id))
+    db.execute(delete(ChatMessage).where(ChatMessage.sender_id == u.id))
+    db.execute(delete(ChatRead).where(ChatRead.user_id == u.id))
+    db.delete(u)
+    db.commit()
+    print(f'✅ wiped user {email} and all related rows')
+except Exception as e:
+    db.rollback(); print(f'❌ {e}'); raise
+finally:
+    db.close()
+"
+                ;;
+
               5)
                 echo "==== Diagnose email setup ===="
                 echo "→ backend/.env (email-related):"
