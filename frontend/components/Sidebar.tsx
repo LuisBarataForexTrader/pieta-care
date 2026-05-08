@@ -6,12 +6,13 @@ import {
   Home, Pill, Calendar, Users, HeartPulse, AlertTriangle,
   FileText, User as UserIcon, NotebookPen, ClipboardList,
   BarChart3, Stethoscope, FileBarChart, Settings, ChevronDown,
-  Plus, Check, LogOut, Leaf, LifeBuoy, MessagesSquare,
+  Plus, Check, LogOut, Leaf, LifeBuoy, MessagesSquare, Lock,
 } from 'lucide-react'
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import { notifyNewChatMessage } from '@/lib/notify'
-import type { Elderly, User } from '@/lib/types'
+import type { Elderly, User, BillingStatus } from '@/lib/types'
 import ThemeToggle from '@/components/ThemeToggle'
+import { canAccess, requiredPlanFor, PLAN_LABEL, type PlanKey } from '@/lib/access'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -47,6 +48,7 @@ export default function Sidebar() {
   const [chatUnread, setChatUnread] = useState(0)
   const [supportUnread, setSupportUnread] = useState(0)
   const [adminSupportUnread, setAdminSupportUnread] = useState(0)
+  const [billing, setBilling] = useState<BillingStatus | null>(null)
   const switcherRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -57,9 +59,27 @@ export default function Sidebar() {
       const active = list.find(e => e.id === id) ?? list[0] ?? null
       if (active && !id) setElderlyId(active.id)
       setElderly(active)
-      // Pass identity to Crisp so the agent sees who's writing
     }).catch(() => {})
   }, [])
+
+  // Fetch billing status (effective plan) once + on visibility for fresh
+  // tier after upgrade/downgrade. Re-poll when navigating back from /conta.
+  useEffect(() => {
+    let alive = true
+    const fetchBilling = () =>
+      api.billingStatus()
+        .then(s => { if (alive) setBilling(s) })
+        .catch(() => { if (alive) setBilling(null) })
+    fetchBilling()
+    const onVisible = () => { if (document.visibilityState === 'visible') fetchBilling() }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => {
+      alive = false
+      document.removeEventListener('visibilitychange', onVisible)
+    }
+  }, [pathname])
+
+  const effectivePlan = (billing?.effective_plan ?? null) as PlanKey | null
 
   // Close switcher on outside click
   useEffect(() => {
@@ -270,19 +290,33 @@ export default function Sidebar() {
       {/* Nav */}
       <nav className="sidebar-nav">
         <div className="nav-section-label">Navegação</div>
-        {NAV.map(item => (
-          <Link
-            key={item.href}
-            href={item.href}
-            className={`nav-link${pathname.startsWith(item.href) ? ' active' : ''}`}
-          >
-            {item.icon}
-            <span style={{ flex: 1 }}>{item.label}</span>
-            {item.href === '/chat' && chatUnread > 0 && (
-              <span className="nav-badge">{chatUnread > 99 ? '99+' : chatUnread}</span>
-            )}
-          </Link>
-        ))}
+        {NAV.map(item => {
+          const allowed = canAccess(effectivePlan, item.href)
+          const required = requiredPlanFor(item.href)
+          const isActive = pathname.startsWith(item.href)
+          // If billing hasn't loaded yet (effectivePlan is null AND billing is null),
+          // optimistically render as allowed to avoid flashing a lock.
+          const billingLoaded = billing !== null
+          const locked = billingLoaded && !allowed && required !== null
+          return (
+            <Link
+              key={item.href}
+              href={locked ? '/conta' : item.href}
+              className={`nav-link${isActive ? ' active' : ''}${locked ? ' locked' : ''}`}
+              title={locked && required ? `Disponível no plano ${PLAN_LABEL[required]}` : undefined}
+              aria-disabled={locked || undefined}
+            >
+              {item.icon}
+              <span style={{ flex: 1 }}>{item.label}</span>
+              {item.href === '/chat' && !locked && chatUnread > 0 && (
+                <span className="nav-badge">{chatUnread > 99 ? '99+' : chatUnread}</span>
+              )}
+              {locked && (
+                <Lock size={13} strokeWidth={2.25} style={{ flexShrink: 0, color: 'var(--text-3)', opacity: 0.7 }} />
+              )}
+            </Link>
+          )
+        })}
       </nav>
 
       {/* User footer */}

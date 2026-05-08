@@ -155,6 +155,54 @@ def list_plans() -> list[PlanInfo]:
     ]
 
 
+_PLAN_RANK = {"familia": 1, "familia_plus": 2, "cuidador_pro": 3}
+
+
+def _user_plan_now(u: User | None) -> str | None:
+    """The plan tier this single user has access to via their OWN row.
+    Trial → cuidador_pro (full access). Active/trialing → their stored plan.
+    Anything else (member, expired, canceled) → None at this layer."""
+    if not u:
+        return None
+    if u.subscription_status == "trial":
+        return "cuidador_pro"
+    if u.subscription_status in ("active", "trialing"):
+        return u.subscription_plan
+    return None
+
+
+def _resolve_effective_plan(db: Session, user: User) -> str | None:
+    """Highest plan tier the user has access to right now — considering
+    their own subscription PLUS every household where they're an accepted
+    member (invited members inherit the titular's plan)."""
+    # Lazy import to keep module import graph clean
+    from app.models.family import FamilyMember
+
+    best: str | None = _user_plan_now(user)
+
+    memberships = db.query(FamilyMember).filter(
+        FamilyMember.user_id == user.id,
+        FamilyMember.is_accepted == True,  # noqa: E712
+    ).all()
+    seen_owner_ids: set[int] = {user.id}
+    for m in memberships:
+        owner_m = db.query(FamilyMember).filter(
+            FamilyMember.elderly_id == m.elderly_id,
+            FamilyMember.role == "owner",
+            FamilyMember.is_accepted == True,  # noqa: E712
+        ).first()
+        if not owner_m or not owner_m.user_id or owner_m.user_id in seen_owner_ids:
+            continue
+        seen_owner_ids.add(owner_m.user_id)
+        owner = db.query(User).filter(User.id == owner_m.user_id).first()
+        candidate = _user_plan_now(owner)
+        if not candidate:
+            continue
+        if best is None or _PLAN_RANK.get(candidate, 0) > _PLAN_RANK.get(best, 0):
+            best = candidate
+    return best
+
+
 def billing_status(db: Session, user: User) -> BillingStatusResponse:
     sub = None
     if user.stripe_customer_id and settings.STRIPE_SECRET_KEY:
@@ -166,6 +214,8 @@ def billing_status(db: Session, user: User) -> BillingStatusResponse:
         except Exception:
             sub = None
 
+    effective = _resolve_effective_plan(db, user)
+
     if sub:
         return BillingStatusResponse(
             status=sub.status,
@@ -175,6 +225,7 @@ def billing_status(db: Session, user: User) -> BillingStatusResponse:
             current_period_end=_ts(getattr(sub, "current_period_end", None)),
             cancel_at_period_end=getattr(sub, "cancel_at_period_end", False),
             has_subscription=True,
+            effective_plan=effective,
         )
 
     # No active Stripe subscription — fall back to local trial state
@@ -186,6 +237,7 @@ def billing_status(db: Session, user: User) -> BillingStatusResponse:
         current_period_end=None,
         cancel_at_period_end=False,
         has_subscription=False,
+        effective_plan=effective,
     )
 
 

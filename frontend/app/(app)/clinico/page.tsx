@@ -6,6 +6,7 @@ import {
 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { ClinicalDiagnosis, Vaccination } from '@/lib/types'
+import PlanGate from '@/components/PlanGate'
 
 const SOURCE_LABEL: Record<string, string> = { sns: 'SNS', manual: 'Manual', medico: 'Médico' }
 const SOURCE_COLOR: Record<string, string> = { sns: '#2B6CB0', manual: '#4A5568', medico: '#276749' }
@@ -22,6 +23,18 @@ function daysUntil(d: string | null) {
 }
 
 export default function ClinicoPage() {
+  return (
+    <PlanGate
+      requires="familia_plus"
+      pageName="Dados Clínicos"
+      pitch="Diagnósticos com código ICD, vacinas com lote e próximos reforços, histórico clínico estruturado. Tudo acessível em segundos para qualquer consulta."
+    >
+      <ClinicoInner />
+    </PlanGate>
+  )
+}
+
+function ClinicoInner() {
   const elderlyId = getElderlyId()
   const [tab, setTab] = useState<'diagnoses' | 'vaccinations'>('diagnoses')
   const [loading, setLoading] = useState(true)

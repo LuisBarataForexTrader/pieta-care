@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { ClipboardList, Droplets, UtensilsCrossed, Activity, Users, Pill, Trash2 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { CarePlanItem } from '@/lib/types'
+import PlanGate from '@/components/PlanGate'
 
 const CAT_LABEL: Record<string, string> = {
   higiene: 'Higiene e Conforto',
@@ -34,6 +35,18 @@ const FREQ_LABEL: Record<string, string> = {
 const CATEGORIES = Object.keys(CAT_LABEL)
 
 export default function PlanoPage() {
+  return (
+    <PlanGate
+      requires="familia_plus"
+      pageName="Plano de Cuidados"
+      pitch="Higiene, nutrição, mobilidade e estimulação cognitiva organizadas por rotina. Toda a equipa de cuidados sabe o que fazer e quando."
+    >
+      <PlanoInner />
+    </PlanGate>
+  )
+}
+
+function PlanoInner() {
   const [items, setItems] = useState<CarePlanItem[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)

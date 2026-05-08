@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { Pill, Smile, AlertTriangle, Lightbulb } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { MedicationLog, WellbeingLog, Incident } from '@/lib/types'
+import PlanGate from '@/components/PlanGate'
 
 const R = 72
 const CIRC = 2 * Math.PI * R
@@ -80,6 +81,18 @@ function weekScore(medLogs: MedicationLog[], wellbeing: WellbeingLog[], daysBack
 }
 
 export default function QualidadePage() {
+  return (
+    <PlanGate
+      requires="familia_plus"
+      pageName="Qualidade"
+      pitch="Métricas mensais de adesão à medicação, evolução do bem-estar e incidência. Vê tendências e identifica padrões antes que se tornem problema."
+    >
+      <QualidadeInner />
+    </PlanGate>
+  )
+}
+
+function QualidadeInner() {
   const elderlyId = getElderlyId()
   const [loading, setLoading] = useState(true)
   const [medLogs, setMedLogs] = useState<MedicationLog[]>([])

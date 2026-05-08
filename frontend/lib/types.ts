@@ -26,6 +26,10 @@ export interface BillingStatus {
   current_period_end: string | null
   cancel_at_period_end: boolean
   has_subscription: boolean
+  /** Highest tier the user has access to RIGHT NOW. Considers own
+   *  subscription + any household where they're an accepted member.
+   *  null = no access (paywall everywhere except /conta + /suporte). */
+  effective_plan: 'familia' | 'familia_plus' | 'cuidador_pro' | null
 }
 
 export interface Invoice {

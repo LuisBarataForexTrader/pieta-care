@@ -4,6 +4,7 @@ import Link from 'next/link'
 import { FileBarChart, Printer, Leaf, AlertTriangle, Pill, Calendar as CalendarIcon, Clock, MapPin, User as UserIcon, Siren, Droplet, Hospital, Stethoscope, Mail, BarChart3 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, Medication, CalendarEvent, MedicationLog } from '@/lib/types'
+import PlanGate from '@/components/PlanGate'
 
 function age(dob: string) {
   return Math.floor((Date.now() - new Date(dob).getTime()) / (365.25 * 24 * 3600 * 1000))
@@ -22,6 +23,18 @@ const STATUS_PT: Record<string, string> = { taken: 'Tomado', skipped: 'Saltado',
 const STATUS_COLOR: Record<string, string> = { taken: 'var(--success)', skipped: 'var(--text-3)', missed: 'var(--danger)' }
 
 export default function RelatorioPage() {
+  return (
+    <PlanGate
+      requires="familia_plus"
+      pageName="Relatório Médico"
+      pitch="O dossier clínico imprimível — identificação, condições, alergias, medicação, adesão e contactos. Gerado em segundos para entregar ao médico ou enviar por email."
+    >
+      <RelatorioInner />
+    </PlanGate>
+  )
+}
+
+function RelatorioInner() {
   const [elderly, setElderly] = useState<Elderly | null>(null)
   const [medications, setMedications] = useState<Medication[]>([])
   const [events, setEvents] = useState<CalendarEvent[]>([])

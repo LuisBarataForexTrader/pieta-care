@@ -5,6 +5,7 @@ import { MessageCircle, Send, Sparkles, ArrowRight } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import { notifyNewChatMessage, requestNotificationPermission } from '@/lib/notify'
 import type { ChatMessage } from '@/lib/types'
+import PlanGate from '@/components/PlanGate'
 
 const POLL_MS = 3000
 const POLL_MS_HIDDEN = 30000
@@ -27,6 +28,18 @@ function initials(name: string) {
 }
 
 export default function ChatPage() {
+  return (
+    <PlanGate
+      requires="cuidador_pro"
+      pageName="Chat familiar"
+      pitch="Canal privado entre os familiares aceites — coordenação em tempo real sem WhatsApp paralelo, com histórico permanente, notificações e presença online."
+    >
+      <ChatInner />
+    </PlanGate>
+  )
+}
+
+function ChatInner() {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [meId, setMeId] = useState<number | null>(null)
   const [input, setInput] = useState('')

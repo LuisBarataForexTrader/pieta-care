@@ -315,6 +315,9 @@ button { font-family: inherit; }
 }
 .nav-link svg { width: 18px; height: 18px; flex-shrink: 0; opacity: 0.85; }
 .nav-link.active svg { opacity: 1; }
+.nav-link.locked { color: rgba(255,255,255,0.38); }
+.nav-link.locked svg { opacity: 0.5; }
+.nav-link.locked:hover { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.55); }
 .nav-section-label {
   font-size: 10px;
   font-weight: 700;
