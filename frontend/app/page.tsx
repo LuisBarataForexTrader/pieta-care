@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
-import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Home, Droplet, Smile, Users, Stethoscope, ClipboardList, MapPin, Check } from 'lucide-react'
+import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
@@ -142,56 +143,21 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* App mockup - hidden on mobile */}
-          <div className="lp-mockup" style={{ maxWidth: 860, margin: '72px auto 0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
+          {/* Real app screenshot — hero showcase */}
+          <div className="lp-mockup" style={{ maxWidth: 980, margin: '72px auto 0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(74,222,128,0.08)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ background: '#050507', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 7 }}>
               {['','',''].map((_, i) => <span key={i} style={{ width: 11, height: 11, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'inline-block' }} />)}
-              <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>pietas.care/dashboard</span>
+              <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>pietas.care/dashboard</span>
             </div>
-            <div className="lp-mockup-inner" style={{ background: '#FAF8F5' }}>
-              <div style={{ width: 190, background: '#0A1A12', padding: '20px 14px', flexShrink: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Leaf size={13} strokeWidth={2.25} /> pietas.care</div>
-                <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>Cuidar com confiança</div>
-                {([
-                  [<Home size={12} strokeWidth={2} key="h" />,'Hoje',true],
-                  [<Pill size={12} strokeWidth={2} key="p" />,'Medicação',false],
-                  [<Calendar size={12} strokeWidth={2} key="c" />,'Agenda',false],
-                  [<HeartPulse size={12} strokeWidth={2} key="hp" />,'Saúde',false],
-                  [<AlertTriangle size={12} strokeWidth={2} key="a" />,'Incidentes',false],
-                  [<FileText size={12} strokeWidth={2} key="f" />,'Documentos',false],
-                ] as const).map(([icon,label,active]) => (
-                  <div key={String(label)} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', borderRadius: 8, marginBottom: 2, background: active ? 'rgba(255,255,255,0.15)' : 'transparent', fontSize: 12, color: active ? '#fff' : 'rgba(255,255,255,0.55)', fontWeight: active ? 700 : 400 }}>
-                    {icon}<span>{String(label)}</span>
-                  </div>
-                ))}
-              </div>
-              <div style={{ flex: 1, padding: 20, display: 'flex', flexDirection: 'column', gap: 12 }}>
-                <div style={{ background: '#fff', borderRadius: 12, padding: '14px 16px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                  <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Medicação de hoje</div>
-                  {[['Metformina 500mg','08:00',true],['Ramipril 5mg','13:00',true],['Atorvastatina 20mg','22:00',false]].map(([m,h,done]) => (
-                    <div key={String(m)} style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 7 }}>
-                      <div style={{ width: 17, height: 17, borderRadius: 5, background: done ? '#22C55E' : '#E8EFE9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, color: '#fff', fontWeight: 900, flexShrink: 0 }}>{done ? '✓' : ''}</div>
-                      <div style={{ flex: 1, fontSize: 13, color: done ? '#9CA3AF' : '#0A0A0C', textDecoration: done ? 'line-through' : 'none' }}>{String(m)}</div>
-                      <div style={{ fontSize: 11, color: '#9CA3AF' }}>{String(h)}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 10 }}>
-                  {([
-                    [<HeartPulse size={14} strokeWidth={2} key="t" style={{ color: '#E53E3E' }} />,'Tensão','128/82','mmHg'],
-                    [<Droplet size={14} strokeWidth={2} key="g" style={{ color: '#C53030' }} />,'Glicemia','98','mg/dL'],
-                    [<Smile size={14} strokeWidth={2} key="h" style={{ color: '#22C55E' }} />,'Humor','4/5','hoje'],
-                  ] as const).map(([icon,label,val,unit]) => (
-                    <div key={String(label)} style={{ background: '#fff', borderRadius: 10, padding: '11px 12px', boxShadow: '0 1px 4px rgba(0,0,0,0.06)' }}>
-                      <div style={{ marginBottom: 6 }}>{icon}</div>
-                      <div style={{ fontSize: 10, color: '#9CA3AF', fontWeight: 700, textTransform: 'uppercase', marginBottom: 2 }}>{String(label)}</div>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: '#22C55E' }}>{String(val)}</div>
-                      <div style={{ fontSize: 10, color: '#9CA3AF' }}>{String(unit)}</div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <Image
+              src="/showcase/dashboard-dark.webp"
+              alt="Dashboard pietas.care: panorama do dia com adesão à medicação, tensão arterial, bem-estar e próxima consulta"
+              width={2400}
+              height={1500}
+              priority
+              sizes="(max-width: 1024px) 100vw, 980px"
+              style={{ width: '100%', height: 'auto', display: 'block' }}
+            />
           </div>
         </section>
 
@@ -221,6 +187,100 @@ export default function LandingPage() {
               </article>
             ))}
           </div>
+        </section>
+
+        {/* SHOWCASE — real app screenshots */}
+        <section aria-labelledby="showcase-heading" style={{ background: '#0D2B1E', padding: 'clamp(72px,9vw,128px) 24px', position: 'relative', overflow: 'hidden' }}>
+          <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(74,222,128,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
+          <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative' }}>
+            <div style={{ textAlign: 'center', marginBottom: 56, maxWidth: 720, marginLeft: 'auto', marginRight: 'auto' }}>
+              <p style={{ fontSize: 13, fontWeight: 700, color: '#4ADE80', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 16 }}>
+                Veja por dentro
+              </p>
+              <h2 id="showcase-heading" style={{ fontSize: 'clamp(28px,4.5vw,48px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#fff', lineHeight: 1.12, marginBottom: 18 }}>
+                Não é mais uma checklist.
+                <br /><span style={{ color: '#4ADE80', fontStyle: 'italic', fontWeight: 800 }}>É um histórico clínico vivo.</span>
+              </h2>
+              <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: 'rgba(255,255,255,0.62)', lineHeight: 1.7 }}>
+                Tudo o que vê abaixo são ecrãs reais, povoados com dados típicos de um cuidado familiar — gráficos longitudinais, dossier para o médico, dados clínicos completos.
+              </p>
+            </div>
+
+            <div className="lp-showcase-grid">
+              {([
+                {
+                  src: '/showcase/saude-dark.webp',
+                  alt: 'Saúde: tensão arterial, frequência cardíaca, saturação O₂, temperatura, peso e glicemia com tendências de 60 dias',
+                  eyebrow: 'Saúde',
+                  title: 'Tendências, não fotografias.',
+                  body: 'Tensão arterial, frequência cardíaca, glicemia e peso ao longo de 60 dias — em vez de números soltos num caderno.',
+                },
+                {
+                  src: '/showcase/relatorio.webp',
+                  alt: 'Relatório clínico imprimível com identificação, condições médicas, alergias, medicação atual e adesão',
+                  eyebrow: 'Relatório clínico',
+                  title: 'O dossier que o médico\nrecebe em segundos.',
+                  body: 'Um clique gera o resumo completo: identificação, alergias, medicação atual, adesão dos últimos 30 dias e contactos de emergência.',
+                },
+                {
+                  src: '/showcase/clinico-dark.webp',
+                  alt: 'Dados clínicos com diagnósticos crónicos, códigos ICD e historial de vacinas',
+                  eyebrow: 'Dados clínicos',
+                  title: 'Diagnósticos e vacinas\nsempre acessíveis.',
+                  body: 'Histórico estruturado por código ICD, datas e fonte (SNS ou manual). Próximos reforços com lote e data calculados automaticamente.',
+                },
+                {
+                  src: '/showcase/medicacao-dark.webp',
+                  alt: 'Medicação diária com horários, tomas confirmadas e informação clínica de cada fármaco',
+                  eyebrow: 'Medicação',
+                  title: 'Cada toma confirmada.\nCada falha registada.',
+                  body: 'Horários personalizáveis, percentagem de adesão, e descrição clínica de cada fármaco gerada por assistente IA — para qualquer familiar perceber.',
+                },
+              ] as const).map((s) => (
+                <article key={s.src} className="lp-showcase-card">
+                  <div className="lp-showcase-frame">
+                    <div className="lp-showcase-chrome">
+                      {[0,1,2].map(i => <span key={i} className="lp-showcase-dot" />)}
+                    </div>
+                    <Image
+                      src={s.src}
+                      alt={s.alt}
+                      width={2400}
+                      height={1500}
+                      sizes="(max-width: 900px) 100vw, 560px"
+                      style={{ width: '100%', height: 'auto', display: 'block' }}
+                    />
+                  </div>
+                  <div className="lp-showcase-text">
+                    <p style={{ fontSize: 12, fontWeight: 700, color: '#4ADE80', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>{s.eyebrow}</p>
+                    <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 12, whiteSpace: 'pre-line' }}>{s.title}</h3>
+                    <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.62)', lineHeight: 1.7 }}>{s.body}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+
+            <div style={{ textAlign: 'center', marginTop: 56 }}>
+              <Link href="/register" style={{ display: 'inline-block', fontSize: 16, fontWeight: 800, color: '#0A0A0C', background: '#4ADE80', textDecoration: 'none', padding: '14px 32px', borderRadius: 12, letterSpacing: '-0.01em' }}>
+                Experimentar 14 dias grátis
+              </Link>
+              <p style={{ marginTop: 14, fontSize: 13, color: 'rgba(255,255,255,0.32)' }}>
+                Sem cartão de crédito · Cancele quando quiser
+              </p>
+            </div>
+          </div>
+          <style>{`
+            .lp-showcase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(28px, 4vw, 56px) clamp(24px, 3vw, 40px); }
+            .lp-showcase-card { display: flex; flex-direction: column; gap: 22px; }
+            .lp-showcase-frame { border-radius: 14px; overflow: hidden; box-shadow: 0 24px 60px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); transform: translateZ(0); transition: transform 0.4s cubic-bezier(0.2,0.8,0.2,1); }
+            .lp-showcase-card:hover .lp-showcase-frame { transform: translateY(-3px); }
+            .lp-showcase-chrome { background: #050507; padding: 8px 12px; display: flex; gap: 6px; align-items: center; }
+            .lp-showcase-dot { width: 9px; height: 9px; border-radius: 50%; background: rgba(255,255,255,0.14); display: inline-block; }
+            .lp-showcase-text { padding: 0 4px; }
+            @media (max-width: 900px) {
+              .lp-showcase-grid { grid-template-columns: 1fr; }
+            }
+          `}</style>
         </section>
 
         {/* HOW IT WORKS */}
