@@ -73,6 +73,21 @@ jobs:
                 echo "Done"
                 ;;
 
+              5)
+                echo "==== Diagnose email setup ===="
+                echo "→ backend/.env (email-related):"
+                grep -E '^(EMAIL_FROM|RESEND_API_KEY|FRONTEND_URL|BACKEND_PUBLIC_URL|SMTP_)' backend/.env | sed 's/\(RESEND_API_KEY=\).\{12\}.*/\1<redacted>/' || true
+                echo
+                echo "→ Resend domain status:"
+                R https://api.resend.com/domains | jq '.data[] | {name, status, region}'
+                echo
+                echo "→ Last 5 emails sent in the past 24h (if any):"
+                R "https://api.resend.com/emails?limit=5" | jq '.data[] | {to, subject, created_at, last_event}' 2>/dev/null || echo "(API may not expose this)"
+                echo
+                echo "→ Last 30 lines of API logs that mention 'email' or 'resend':"
+                docker compose logs --tail 500 api 2>&1 | grep -iE "email|resend|mail" | tail -30 || echo "(none)"
+                ;;
+
               4)
                 echo "→ Current backend/.env (URLs only):"
                 grep -E '^(FRONTEND_URL|FRONTEND_URL_VERCEL|BACKEND_PUBLIC_URL|EMAIL_FROM)=' backend/.env || echo "(none of those keys set)"
