@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check } from 'lucide-react'
+import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check, Sparkles } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
@@ -279,6 +279,78 @@ export default function LandingPage() {
             .lp-showcase-text { padding: 0 4px; }
             @media (max-width: 900px) {
               .lp-showcase-grid { grid-template-columns: 1fr; }
+            }
+          `}</style>
+        </section>
+
+        {/* AI SPOTLIGHT — Família Plus */}
+        <section aria-labelledby="ai-spotlight-heading" style={{ background: '#fff', padding: 'clamp(72px,9vw,128px) 24px', borderTop: '1px solid #E7E5E4' }}>
+          <div className="lp-ai-grid" style={{ maxWidth: 1180, margin: '0 auto' }}>
+            <div className="lp-ai-text">
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', padding: '6px 14px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 22 }}>
+                <Sparkles size={13} strokeWidth={2.5} />
+                Exclusivo Família Plus
+              </span>
+              <h2 id="ai-spotlight-heading" style={{ fontSize: 'clamp(28px,4.2vw,46px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', lineHeight: 1.1, marginBottom: 22 }}>
+                Cinco segundos.<br />
+                <span style={{ color: '#7C3AED' }}>Uma análise clínica completa.</span>
+              </h2>
+              <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: '#4B5563', lineHeight: 1.75, marginBottom: 28 }}>
+                Em vez de cruzar 30 dias de tomas, sinais vitais, incidentes e queixas à mão, a assistente IA do plano <strong style={{ color: '#0A0A0C' }}>Família Plus</strong> faz-lhe um resumo executivo — em português claro, com prioridades.
+              </p>
+              <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
+                {[
+                  ['Estado geral', 'Síntese do bem-estar e estabilidade clínica.'],
+                  ['Pontos a vigiar', 'Variabilidade de glicemia, doses falhadas, novos sintomas.'],
+                  ['Recomendações práticas', 'Ações concretas — alarmes, contactos, alternativas terapêuticas.'],
+                  ['Sempre informativa', 'Nunca substitui o médico assistente. Apenas organiza o que existe.'],
+                ].map(([t, b]) => (
+                  <li key={t} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
+                    <span style={{ width: 24, height: 24, borderRadius: 7, background: 'rgba(124,58,237,0.1)', color: '#7C3AED', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2 }}>
+                      <Check size={14} strokeWidth={2.5} />
+                    </span>
+                    <div>
+                      <strong style={{ fontSize: 15, color: '#0A0A0C', fontWeight: 800 }}>{t}.</strong>
+                      <span style={{ fontSize: 15, color: '#4B5563', marginLeft: 6 }}>{b}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Link href="/register?plan=cuidador_pro" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', padding: '13px 26px', borderRadius: 12, textDecoration: 'none' }}>
+                  <Sparkles size={15} strokeWidth={2.5} /> Experimentar Família Plus
+                </Link>
+                <Link href="/planos" style={{ fontSize: 14, fontWeight: 700, color: '#7C3AED', textDecoration: 'none', padding: '13px 18px' }}>
+                  Comparar planos →
+                </Link>
+              </div>
+            </div>
+            <div className="lp-ai-frame">
+              <div className="lp-ai-frame-glow" aria-hidden="true" />
+              <div className="lp-ai-frame-inner">
+                <div className="lp-ai-frame-chrome">
+                  {[0,1,2].map(i => <span key={i} className="lp-showcase-dot" />)}
+                  <span style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>Análise IA · 5s</span>
+                </div>
+                <Image
+                  src="/showcase/ai-insight-dark.webp"
+                  alt="Relatório de IA gerado pelo pietas.care: estado geral, pontos positivos, pontos a vigiar e recomendações práticas"
+                  width={2400}
+                  height={1500}
+                  sizes="(max-width: 900px) 100vw, 600px"
+                  style={{ width: '100%', height: 'auto', display: 'block' }}
+                />
+              </div>
+            </div>
+          </div>
+          <style>{`
+            .lp-ai-grid { display: grid; grid-template-columns: 1fr 1.05fr; gap: clamp(40px, 5vw, 72px); align-items: center; }
+            .lp-ai-frame { position: relative; }
+            .lp-ai-frame-glow { position: absolute; inset: -24px; background: radial-gradient(ellipse at center, rgba(124,58,237,0.22) 0%, transparent 65%); filter: blur(24px); pointer-events: none; }
+            .lp-ai-frame-inner { position: relative; border-radius: 16px; overflow: hidden; box-shadow: 0 30px 80px rgba(124,58,237,0.18), 0 0 0 1px rgba(124,58,237,0.08); border: 1px solid rgba(124,58,237,0.12); background: #050507; }
+            .lp-ai-frame-chrome { background: #050507; padding: 9px 14px; display: flex; gap: 6px; align-items: center; }
+            @media (max-width: 900px) {
+              .lp-ai-grid { grid-template-columns: 1fr; }
             }
           `}</style>
         </section>
