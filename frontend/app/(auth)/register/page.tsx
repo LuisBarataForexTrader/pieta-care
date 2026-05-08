@@ -38,6 +38,9 @@ export default function Register() {
   if (step === 'verify') {
     return (
       <div className="auth-shell">
+        <Link href="/" className="auth-back" aria-label="Voltar ao site">
+          <ArrowLeft size={15} strokeWidth={2.25} /> Voltar ao site
+        </Link>
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
@@ -61,7 +64,27 @@ export default function Register() {
             <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.6 }}>
               Clique no link no email para activar a sua conta. O link expira em 24 horas.
             </p>
-            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)' }}>
+
+            {/* Tipo de email errado? Permite voltar a editar. */}
+            <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid var(--border)', textAlign: 'center' }}>
+              <p style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 10 }}>
+                Não é este o email?
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setError('')
+                  setVerifyEmail('')
+                  setStep('account')
+                }}
+                className="btn-secondary"
+                style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 8 }}
+              >
+                <ArrowLeft size={14} strokeWidth={2.25} /> Corrigir e enviar de novo
+              </button>
+            </div>
+
+            <div style={{ marginTop: 16 }}>
               <p style={{ fontSize: 13, color: 'var(--text-3)' }}>
                 Já tem conta?{' '}
                 <Link href="/login" style={{ color: 'var(--brand)', fontWeight: 700 }}>Entrar</Link>
