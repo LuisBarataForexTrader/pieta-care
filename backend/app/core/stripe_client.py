@@ -43,12 +43,12 @@ PLANS = {
     },
     "cuidador_pro": {
         # Tier de topo — internamente "cuidador_pro" para não partir env vars
-        # já criadas no Stripe; mostrado como "Família AI" na UI.
-        "name": "Família AI",
+        # já criadas no Stripe; mostrado como "Família Plus" + badge IA na UI.
+        "name": "Família Plus",
         "price_env": "STRIPE_PRICE_CUIDADOR_PRO",
         "amount_excl_vat": 88.00,       # €88 + IVA
-        "item_code": "PIETA-FAM-AI-M",
-        "description": "pieta.care — Plano Família AI (mensal)",
+        "item_code": "PIETA-FAM-PLUS-IA-M",
+        "description": "pieta.care — Plano Família Plus com IA (mensal)",
         "max_elderly": 4,
         "max_family_members": None,     # ilimitado
         "has_ai": True,

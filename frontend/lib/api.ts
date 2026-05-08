@@ -214,6 +214,13 @@ export const api = {
       { method: 'POST' }
     ),
 
+  aiInsights: (elderlyId: number) =>
+    request<{
+      elderly_id: number; elderly_name: string;
+      generated_at: string; period_days: number;
+      markdown: string; context_summary: Record<string, unknown>;
+    }>(`/api/v1/elderly/${elderlyId}/ai/insights`, { method: 'POST' }),
+
   dailySchedule: (elderlyId: number, date?: string) =>
     request<import('./types').DailyScheduleItem[]>(
       `/api/v1/elderly/${elderlyId}/medications/schedule/today${date ? `?for_date=${date}` : ''}`

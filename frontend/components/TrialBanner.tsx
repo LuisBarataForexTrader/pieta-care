@@ -46,9 +46,9 @@ export default function TrialBanner() {
         {expired ? (
           <>O seu trial terminou — escolha um plano em <strong>A minha conta</strong> para continuar →</>
         ) : daysLeft === 1 ? (
-          <>Amanhã termina o seu trial <strong>Família AI</strong>. Subscreva em <strong>A minha conta</strong> para manter os dados →</>
+          <>Amanhã termina o seu trial <strong>Família Plus</strong>. Subscreva em <strong>A minha conta</strong> para manter os dados →</>
         ) : (
-          <>A experimentar <strong>Família AI</strong> · faltam <strong>{daysLeft} dia{daysLeft !== 1 ? 's' : ''}</strong> · gerir em <strong>A minha conta</strong> →</>
+          <>A experimentar <strong>Família Plus</strong> · faltam <strong>{daysLeft} dia{daysLeft !== 1 ? 's' : ''}</strong> · gerir em <strong>A minha conta</strong> →</>
         )}
       </span>
       {tone === 'info' && (

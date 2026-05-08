@@ -34,7 +34,7 @@ const jsonLd = {
   offers: [
     { '@type': 'Offer', name: 'Família', price: '35', priceCurrency: 'EUR', billingDuration: 'P1M' },
     { '@type': 'Offer', name: 'Família+', price: '59', priceCurrency: 'EUR', billingDuration: 'P1M' },
-    { '@type': 'Offer', name: 'Família AI', price: '88', priceCurrency: 'EUR', billingDuration: 'P1M' },
+    { '@type': 'Offer', name: 'Família Plus', price: '88', priceCurrency: 'EUR', billingDuration: 'P1M' },
   ],
 }
 
@@ -314,7 +314,7 @@ export default function LandingPage() {
               {[
                 { id: 'familia', name: 'Família', price: '35', sub: 'Para um familiar', features: ['1 perfil de familiar','Até 2 familiares','Medicação, agenda e sinais vitais','Incidentes e documentos','Notas de turno'], highlight: false, cta: 'Começar' },
                 { id: 'familia_plus', name: 'Família+', price: '59', sub: 'Para mais de um familiar', features: ['Até 2 perfis de familiar','Até 5 familiares','Tudo do plano Família','Relatório médico completo','Dados clínicos avançados','Plano de cuidados detalhado'], highlight: true, cta: 'Começar' },
-                { id: 'cuidador_pro', name: 'Família AI', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA — informação clínica','Resumos automáticos e alertas inteligentes'], highlight: false, cta: 'Começar' },
+                { id: 'cuidador_pro', name: 'Família Plus', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA — informação clínica','Resumos automáticos e alertas inteligentes'], highlight: false, cta: 'Começar' },
               ].map(p => (
                 <div key={p.id} style={{ position: 'relative' }}>
                   <div style={{

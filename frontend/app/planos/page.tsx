@@ -43,10 +43,10 @@ const PLANS = [
   },
   {
     key: 'cuidador_pro',
-    name: 'Família AI',
+    name: 'Família Plus',
     price: 88,
     sub: 'Múltiplos familiares + IA',
-    badge: 'Com IA',
+    badge: 'IA',
     highlight: false,
     ai: true,
     features: [

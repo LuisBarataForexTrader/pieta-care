@@ -173,12 +173,17 @@ function ContaPageInner() {
               <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
                 {isTrial ? (
                   <>
-                    <Sparkles size={20} strokeWidth={2} style={{ color: '#7C3AED' }} />
-                    Família AI
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 99, background: 'linear-gradient(135deg, #9F7AEA 0%, #7C3AED 100%)', color: '#fff', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trial</span>
+                    Família Plus
+                    <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: 'var(--ai-grad)', color: '#fff', letterSpacing: '0.04em' }}>IA</span>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 99, background: 'var(--accent-light)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trial</span>
                   </>
                 ) : (
-                  billing?.plan_name ?? 'Sem plano'
+                  <>
+                    {billing?.plan_name ?? 'Sem plano'}
+                    {billing?.plan === 'cuidador_pro' && (
+                      <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: 'var(--ai-grad)', color: '#fff', letterSpacing: '0.04em' }}>IA</span>
+                    )}
+                  </>
                 )}
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 6 }}>

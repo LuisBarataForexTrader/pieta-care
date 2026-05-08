@@ -6,12 +6,15 @@ import {
   Stethoscope, Phone, Siren, ArrowRight, Check, Clock, ChevronRight,
   AlertTriangle, User as UserIcon, Droplet, Plus, TrendingUp, TrendingDown,
   Minus, FileText, Smile, Frown, Meh, ShieldAlert, Syringe, NotebookPen,
+  PersonStanding,
 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type {
   DailyScheduleItem, CalendarEvent, Elderly, WellbeingLog, VitalSign,
   Incident, DailyNote, ClinicalDiagnosis, Vaccination,
 } from '@/lib/types'
+import AIInsightsPanel from '@/components/AIInsightsPanel'
+import { BODY_ZONES } from '@/components/BodyMap'
 
 const STATUS_LABEL: Record<string, string> = { taken: 'Tomado', pending: 'Pendente', skipped: 'Saltado', missed: 'Perdido' }
 const STATUS_PILL: Record<string, string>  = { taken: 'pill-taken', pending: 'pill-pending', skipped: 'pill-skipped', missed: 'pill-missed' }
@@ -372,6 +375,11 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* ── AI INSIGHTS (top-tier) ── */}
+            <div style={{ marginBottom: 20 }}>
+              <AIInsightsPanel />
+            </div>
+
             {/* ── MAIN GRID ── */}
             <div className="dash-grid">
 
@@ -545,6 +553,31 @@ export default function Dashboard() {
                     </div>
                   </div>
                 )}
+
+                {/* Body zones with recent incidents */}
+                {(() => {
+                  const recentZones = Array.from(new Set(
+                    incidents
+                      .filter(i => i.body_zone && (Date.now() - new Date(i.occurred_at).getTime()) / 86400000 < 30)
+                      .map(i => i.body_zone as string)
+                  ))
+                  if (recentZones.length === 0) return null
+                  return (
+                    <div className="card">
+                      <div className="section-header" style={{ marginBottom: 10 }}>
+                        <div className="section-title"><PersonStanding size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Zonas com queixas (30d)</div>
+                        <Link href="/incidentes" className="section-link">Ver <ArrowRight size={13} /></Link>
+                      </div>
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                        {recentZones.map(z => (
+                          <span key={z} className="dx-chip" style={{ background: '#FFF5F5', color: '#C53030', borderColor: 'rgba(197,48,48,0.18)' }}>
+                            {BODY_ZONES[z] ?? z}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )
+                })()}
 
                 {/* Diagnoses */}
                 {diagnoses.length > 0 && (
