@@ -285,4 +285,4 @@ function Section({ id, title, children }: { id: string; title: string; children:
 
 const ul: React.CSSProperties = { paddingLeft: 22, display: 'flex', flexDirection: 'column', gap: 6 }
 const subH: React.CSSProperties = { fontSize: 14, fontWeight: 800, color: '#1A2E25', marginTop: 6 }
-const note: React.CSSProperties = { background: '#FFF5F5', border: '1px solid #FED7D7', borderRadius: 8, padding: '12px 16px', fontSize: 14, color: '#744210' }
+const note: React.CSSProperties = { background: 'var(--danger-light)', border: '1px solid #FED7D7', borderRadius: 8, padding: '12px 16px', fontSize: 14, color: '#744210' }

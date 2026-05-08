@@ -199,7 +199,7 @@ export default function MedicacaoPage() {
               <label className="field-label">Instruções (opcional)</label>
               <input className="field-input" value={form.instructions} onChange={e => setForm(f => ({ ...f, instructions: e.target.value }))} placeholder="Ex: Tomar em jejum" />
             </div>
-            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 14px', background: form.is_prn ? '#FFFAF0' : 'var(--surface-2)', border: `1.5px solid ${form.is_prn ? '#D69E2E' : 'var(--border)'}`, borderRadius: 10, transition: 'all 0.15s' }}>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', padding: '10px 14px', background: form.is_prn ? 'var(--warning-light)' : 'var(--surface-2)', border: `1.5px solid ${form.is_prn ? '#D69E2E' : 'var(--border)'}`, borderRadius: 10, transition: 'all 0.15s' }}>
               <input type="checkbox" checked={form.is_prn} onChange={e => setForm(f => ({ ...f, is_prn: e.target.checked }))} style={{ width: 18, height: 18, accentColor: '#D69E2E' }} />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: form.is_prn ? '#B7791F' : 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Zap size={15} strokeWidth={2.25} /> Medicamento SOS / PRN</div>
@@ -268,8 +268,8 @@ export default function MedicacaoPage() {
                       <div style={{ flex: 1, minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4, flexWrap: 'wrap' }}>
                           <div className="med-name">{med.name}</div>
-                          <span style={{ background: '#FFFAF0', color: '#B7791F', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>{med.dosage}</span>
-                          <span style={{ background: '#FFFAF0', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>PRN</span>
+                          <span style={{ background: 'var(--warning-light)', color: '#B7791F', fontSize: 12, fontWeight: 700, padding: '2px 10px', borderRadius: 99 }}>{med.dosage}</span>
+                          <span style={{ background: 'var(--warning-light)', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>PRN</span>
                         </div>
                         {med.instructions && (
                           <div style={{ fontSize: 13, color: 'var(--text-3)', marginBottom: 6, fontStyle: 'italic' }}>{med.instructions}</div>
@@ -280,7 +280,7 @@ export default function MedicacaoPage() {
                         <button
                           onClick={() => takePrn(med.id)}
                           disabled={prnLogging === med.id}
-                          style={{ background: '#FFFAF0', color: '#B7791F', border: '1.5px solid #D69E2E', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
+                          style={{ background: 'var(--warning-light)', color: '#B7791F', border: '1.5px solid #D69E2E', borderRadius: 8, padding: '7px 14px', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}
                         >
                           {prnLogging === med.id ? '…' : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={13} strokeWidth={2.25} /> Tomar agora</span>}
                         </button>

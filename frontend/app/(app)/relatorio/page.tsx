@@ -157,26 +157,26 @@ export default function RelatorioPage() {
 
       <div className="page-body" id="report-content">
         {/* Report header */}
-        <div style={{ background: 'var(--brand)', borderRadius: 18, padding: '28px 32px', marginBottom: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="report-header">
           <div>
-            <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: 13, fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>Relatório Clínico</div>
-            <div style={{ color: 'white', fontSize: 26, fontWeight: 800, marginTop: 4 }}>{elderly.full_name}</div>
+            <div className="report-header-eyebrow">Relatório Clínico</div>
+            <div className="report-header-name">{elderly.full_name}</div>
             {elderly.date_of_birth && (
-              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: 14, marginTop: 4 }}>
+              <div className="report-header-meta">
                 {age(elderly.date_of_birth)} anos · {fmtDate(elderly.date_of_birth)}
               </div>
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div style={{ fontSize: 28, fontWeight: 800, color: 'white', display: 'inline-flex', alignItems: 'center', gap: 8 }}><Leaf size={26} strokeWidth={2.25} /> pieta.care</div>
-            <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.5)', marginTop: 4 }}>{generatedAt}</div>
+            <div className="report-header-brand"><Leaf size={26} strokeWidth={2.25} /> pieta.care</div>
+            <div className="report-header-date">{generatedAt}</div>
           </div>
         </div>
 
         {/* Quick info badges */}
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
           {elderly.blood_type && (
-            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 20 }}>🩸</span>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Grupo sanguíneo</div>
@@ -194,7 +194,7 @@ export default function RelatorioPage() {
             </div>
           )}
           {compliance !== null && (
-            <div style={{ background: compliance >= 80 ? 'var(--success-light)' : compliance >= 50 ? 'var(--warning-light)' : '#FFF5F5', border: `1px solid ${compliance >= 80 ? '#9AE6B4' : compliance >= 50 ? '#FBD38D' : '#FEB2B2'}`, borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: compliance >= 80 ? 'var(--success-light)' : compliance >= 50 ? 'var(--warning-light)' : 'var(--danger-light)', border: `1px solid ${compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)'}`, borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 20 }}>💊</span>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Adesão {days}d</div>
@@ -203,7 +203,7 @@ export default function RelatorioPage() {
             </div>
           )}
           {elderly.emergency_contact_phone && (
-            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontSize: 20 }}>🚨</span>
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Emergência</div>
@@ -225,7 +225,7 @@ export default function RelatorioPage() {
           </div>
 
           {/* Allergies */}
-          <div className="card card-lg" style={{ border: elderly.allergies ? '1px solid #FEB2B2' : '1px solid var(--border)', background: elderly.allergies ? '#FFF5F5' : 'var(--surface)' }}>
+          <div className="card card-lg" style={{ border: elderly.allergies ? '1px solid #FEB2B2' : '1px solid var(--border)', background: elderly.allergies ? 'var(--danger-light)' : 'var(--surface)' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: elderly.allergies ? '#C53030' : 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={13} strokeWidth={2.25} /> Alergias conhecidas</div>
             {elderly.allergies ? (
               <div style={{ fontSize: 14, color: '#C53030', lineHeight: 1.7, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{elderly.allergies}</div>
@@ -425,7 +425,7 @@ export default function RelatorioPage() {
             ))}
           </div>
 
-          <div className="card card-lg" style={{ background: '#FFF5F5', border: '1px solid #FEB2B2' }}>
+          <div className="card card-lg" style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2' }}>
             <div style={{ fontSize: 13, fontWeight: 700, color: '#C53030', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Siren size={13} strokeWidth={2.25} /> Contacto de emergência</div>
             {elderly.emergency_contact_name ? (
               <>

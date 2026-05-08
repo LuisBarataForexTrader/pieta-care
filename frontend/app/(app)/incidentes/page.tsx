@@ -26,7 +26,7 @@ const SEV_COLOR: Record<string, string> = {
   baixa: '#276749', media: '#D69E2E', alta: '#C05621', critica: '#C53030',
 }
 const SEV_BG: Record<string, string> = {
-  baixa: 'var(--success-light)', media: '#FFFAF0', alta: 'var(--warning-light)', critica: '#FFF5F5',
+  baixa: 'var(--success-light)', media: 'var(--warning-light)', alta: 'var(--warning-light)', critica: 'var(--danger-light)',
 }
 const SEV_LABEL: Record<string, string> = { baixa: 'Baixa', media: 'Média', alta: 'Alta', critica: 'Crítica' }
 
@@ -209,7 +209,7 @@ export default function IncidentesPage() {
                               <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
                                 <span style={{ fontWeight: 700, fontSize: 15 }}>{TYPE_LABEL[inc.type]}</span>
                                 <span style={{ background: SEV_BG[inc.severity], color: SEV_COLOR[inc.severity], fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>{SEV_LABEL[inc.severity]}</span>
-                                {inc.follow_up_required && <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Stethoscope size={11} strokeWidth={2.25} /> Acompanhamento</span>}
+                                {inc.follow_up_required && <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, display: 'inline-flex', alignItems: 'center', gap: 4 }}><Stethoscope size={11} strokeWidth={2.25} /> Acompanhamento</span>}
                               </div>
                               <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 8 }}>
                                 <CalendarIcon size={11} strokeWidth={2} style={{ display: 'inline', verticalAlign: 'middle', marginRight: 4 }} />{fmtDT(inc.occurred_at)} · por {inc.reported_by_name}

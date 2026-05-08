@@ -25,7 +25,7 @@ const CAT_COLOR: Record<string, string> = {
   higiene: '#2B6CB0', nutricao: '#276749', mobilidade: '#C05621', social: '#553C9A', medico: '#C53030', outro: '#4A5568',
 }
 const CAT_BG: Record<string, string> = {
-  higiene: '#EBF8FF', nutricao: 'var(--success-light)', mobilidade: 'var(--warning-light)', social: '#F5F3FF', medico: '#FFF5F5', outro: 'var(--surface-2)',
+  higiene: '#EBF8FF', nutricao: 'var(--success-light)', mobilidade: 'var(--warning-light)', social: '#F5F3FF', medico: 'var(--danger-light)', outro: 'var(--surface-2)',
 }
 const FREQ_LABEL: Record<string, string> = {
   diario: 'Diário', semanal: 'Semanal', mensal: 'Mensal', conforme_necessario: 'Conforme necessário',

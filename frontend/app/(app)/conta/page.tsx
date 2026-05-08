@@ -358,7 +358,7 @@ function ContaPageInner() {
           </p>
 
           {deleteConfirm && !deletePending && (
-            <div style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '14px 16px', marginBottom: 16, fontSize: 14, color: '#744210', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+            <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '14px 16px', marginBottom: 16, fontSize: 14, color: '#744210', lineHeight: 1.6, display: 'flex', alignItems: 'flex-start', gap: 10 }}>
               <AlertTriangle size={18} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
               <span>Tem a certeza? Clique novamente em &ldquo;Confirmar eliminação&rdquo; para prosseguir.</span>
             </div>

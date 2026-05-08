@@ -219,7 +219,7 @@ export default function SaudePage() {
                   <div className="grid-2" style={{ marginBottom: 20 }}>
                     {latest.blood_pressure_sys && latest.blood_pressure_dia && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#FFF5F5' }}>🫀</div>
+                        <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>🫀</div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Tensão arterial</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: bpColor(latest.blood_pressure_sys, latest.blood_pressure_dia) }}>
@@ -232,7 +232,7 @@ export default function SaudePage() {
                     )}
                     {latest.heart_rate && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#FFF5F5' }}>💓</div>
+                        <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>💓</div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Frequência cardíaca</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: hrColor(latest.heart_rate) }}>{latest.heart_rate}</div>
@@ -254,7 +254,7 @@ export default function SaudePage() {
                     )}
                     {latest.temperature && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#FFFAF0' }}>🌡️</div>
+                        <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>🌡️</div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Temperatura</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: tempColor(latest.temperature) }}>{Number(latest.temperature).toFixed(1)}°C</div>
@@ -275,7 +275,7 @@ export default function SaudePage() {
                     )}
                     {latest.blood_glucose && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#FFFAF0' }}>🩸</div>
+                        <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>🩸</div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Glicemia</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: glucoseColor(latest.blood_glucose) }}>{Number(latest.blood_glucose).toFixed(0)}</div>

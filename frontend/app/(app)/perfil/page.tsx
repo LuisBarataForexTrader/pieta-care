@@ -193,7 +193,7 @@ export default function PerfilPage() {
               )}
               <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap' }}>
                 {elderly.blood_type && (
-                  <span className="pill" style={{ background: '#FFF5F5', color: '#C53030', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Droplet size={12} strokeWidth={2.25} /> {elderly.blood_type}</span>
+                  <span className="pill" style={{ background: 'var(--danger-light)', color: '#C53030', display: 'inline-flex', alignItems: 'center', gap: 4 }}><Droplet size={12} strokeWidth={2.25} /> {elderly.blood_type}</span>
                 )}
                 {elderly.health_number && (
                   <span className="pill" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}>SNS {elderly.health_number}</span>

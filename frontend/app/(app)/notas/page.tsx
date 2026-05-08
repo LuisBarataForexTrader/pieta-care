@@ -12,7 +12,7 @@ function ShiftIcon({ shift, size = 18 }: { shift: string; size?: number }) {
   return <Moon {...props} />
 }
 const SHIFT_COLOR: Record<string, string> = { manha: '#D69E2E', tarde: '#DD6B20', noite: '#553C9A' }
-const SHIFT_BG: Record<string, string> = { manha: '#FFFAF0', tarde: '#FFF5F0', noite: '#F5F3FF' }
+const SHIFT_BG: Record<string, string> = { manha: 'var(--warning-light)', tarde: '#FFF5F0', noite: '#F5F3FF' }
 
 const MOOD_LABEL: Record<string, string> = {
   alegre: '😄 Alegre', calmo: '😊 Calmo', ansioso: '😟 Ansioso',

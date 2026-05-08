@@ -570,7 +570,7 @@ export default function Dashboard() {
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {recentZones.map(z => (
-                          <span key={z} className="dx-chip" style={{ background: '#FFF5F5', color: '#C53030', borderColor: 'rgba(197,48,48,0.18)' }}>
+                          <span key={z} className="dx-chip" style={{ background: 'var(--danger-light)', color: '#C53030', borderColor: 'rgba(197,48,48,0.18)' }}>
                             {BODY_ZONES[z] ?? z}
                           </span>
                         ))}
@@ -603,7 +603,7 @@ export default function Dashboard() {
                   <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={15} strokeWidth={2} style={{ color: '#C53030' }} /> Emergência</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: elderly?.emergency_contact_phone ? 10 : 0 }}>
                     <a href="tel:112" style={{ textDecoration: 'none' }}>
-                      <div className="emergency-btn" style={{ background: '#FFF5F5', borderColor: '#FEB2B2' }}>
+                      <div className="emergency-btn" style={{ background: 'var(--danger-light)', borderColor: 'var(--danger)' }}>
                         <Siren size={20} strokeWidth={1.75} style={{ color: '#C53030' }} />
                         <div style={{ fontSize: 14, fontWeight: 800, color: '#C53030' }}>112</div>
                         <div style={{ fontSize: 10, color: 'var(--text-3)' }}>Emergência</div>

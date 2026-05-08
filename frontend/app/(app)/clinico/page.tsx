@@ -138,12 +138,12 @@ export default function ClinicoPage() {
         {(overdueVac.length > 0 || soonVac.length > 0) && (
           <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {overdueVac.map(v => (
-              <div key={v.id} style={{ background: '#FFF5F5', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#C53030' }}>
+              <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#C53030' }}>
                 ⚠️ <strong>{v.vaccine_name}</strong> — reforço em atraso ({fmtDate(v.next_due_date)})
               </div>
             ))}
             {soonVac.map(v => (
-              <div key={v.id} style={{ background: '#FFFAF0', border: '1px solid #F6E05E', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#B7791F' }}>
+              <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid #F6E05E', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#B7791F' }}>
                 📅 <strong>{v.vaccine_name}</strong> — reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})
               </div>
             ))}
@@ -285,8 +285,8 @@ export default function ClinicoPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                               <span style={{ fontWeight: 700, fontSize: 15 }}>{dx.description}</span>
-                              {dx.icd_code && <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, fontFamily: 'monospace' }}>{dx.icd_code}</span>}
-                              <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Crónica</span>
+                              {dx.icd_code && <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, fontFamily: 'monospace' }}>{dx.icd_code}</span>}
+                              <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Crónica</span>
                               {dx.source && <span style={{ background: 'var(--surface-2)', color: SOURCE_COLOR[dx.source] ?? 'var(--text-3)', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99 }}>{SOURCE_LABEL[dx.source] ?? dx.source}</span>}
                             </div>
                             {dx.diagnosed_date && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Desde {fmtDate(dx.diagnosed_date)}</div>}
@@ -353,8 +353,8 @@ export default function ClinicoPage() {
                           <span style={{ fontSize: 16 }}>💉</span>
                           <span style={{ fontWeight: 700, fontSize: 15 }}>{vac.vaccine_name}</span>
                           {vac.source && <span style={{ background: 'var(--surface-2)', color: SOURCE_COLOR[vac.source] ?? 'var(--text-3)', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99 }}>{SOURCE_LABEL[vac.source] ?? vac.source}</span>}
-                          {overdue && <span style={{ background: '#FFF5F5', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
-                          {soon && <span style={{ background: '#FFFAF0', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
+                          {overdue && <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
+                          {soon && <span style={{ background: 'var(--warning-light)', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                           {vac.administered_date && <span>📅 Administrada: {fmtDate(vac.administered_date)}</span>}
