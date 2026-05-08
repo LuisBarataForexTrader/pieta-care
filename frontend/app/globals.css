@@ -46,6 +46,12 @@
   --chart-3:      #E53E3E;
   --chart-4:      #D69E2E;
   --chart-5:      #7C3AED;
+
+  /* Body anatomy figure */
+  --body-skin-1:  #F2D7C2;
+  --body-skin-2:  #E5C2A8;
+  --body-stroke:  #B89479;
+  --body-detail:  #8C6F58;
 }
 
 [data-theme="dark"] {
@@ -79,6 +85,12 @@
   --ai-grad:      linear-gradient(135deg, #A78BFA 0%, #8B5CF6 100%);
   --ai-light:     rgba(167,139,250,0.10);
   --ai-text:      #C4B5FD;
+
+  /* Body anatomy figure (warmer, sepia-toned for dark) */
+  --body-skin-1:  #6B5448;
+  --body-skin-2:  #816554;
+  --body-stroke:  #4A3A30;
+  --body-detail:  #B89479;
 }
 
 /* Smooth theme transition on body and surface elements */
@@ -1523,6 +1535,96 @@ textarea.field-input { resize: vertical; min-height: 80px; }
   min-width: 18px;
   text-align: center;
   letter-spacing: -0.02em;
+}
+
+/* ── HEALTH CHART ─────────────────────────────────── */
+
+.health-chart-wrap {
+  display: flex;
+  flex-direction: column;
+}
+.health-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.health-chart-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-3);
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--surface-2);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+}
+.health-chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--text-3);
+  font-weight: 600;
+  margin-top: 6px;
+  min-height: 18px;
+}
+.health-chart-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.health-chart-legend-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+.health-chart-tooltip {
+  margin-left: auto;
+  padding: 3px 9px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 11px;
+  font-feature-settings: 'tnum';
+}
+
+.health-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+@media (max-width: 900px) { .health-charts-grid { grid-template-columns: 1fr; } }
+
+.health-chart-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px 18px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+}
+.health-chart-card-head {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+.health-chart-card-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; font-weight: 700; color: var(--text);
+  letter-spacing: -0.01em;
+}
+.health-chart-card-latest {
+  font-size: 12px; color: var(--text-3); font-weight: 600;
+  font-feature-settings: 'tnum';
+}
+.health-chart-card-latest strong {
+  color: var(--text);
+  font-weight: 800;
+  font-size: 14px;
+  margin-right: 3px;
 }
 
 /* ── REPORT HEADER (relatorio page hero) ─────────────── */

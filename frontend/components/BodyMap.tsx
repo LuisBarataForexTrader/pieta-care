@@ -40,40 +40,75 @@ interface BodyMapProps {
 
 type Gender = 'female' | 'male'
 
-// ── Pelvis ────────────────────────────────────────────
-const BACIA_F = 'M 60,246 C 54,260 48,274 48,294 Q 48,312 100,316 Q 152,312 152,294 C 152,274 146,260 140,246 Z'
-const BACIA_M = 'M 56,246 C 52,260 50,274 52,292 Q 52,308 100,312 Q 148,308 148,292 C 150,274 148,260 144,246 Z'
+/* ────────────────────────────────────────────────────────
+   Anatomically-proportioned body silhouette.
+   Coordinate system 0..200 wide, 0..540 tall.
+   Each path is a clickable zone; subtle decorative paths
+   layer on top to suggest muscle definition without
+   adding interactivity (pointerEvents: none).
+   ─────────────────────────────────────────────────────── */
 
-// ── Thighs ────────────────────────────────────────────
-const COXA_ESQ_F = 'M 48,304 L 52,390 Q 52,408 78,410 Q 100,408 100,390 L 100,304 Z'
-const COXA_ESQ_M = 'M 52,300 L 56,388 Q 56,406 78,408 Q 100,406 100,388 L 100,300 Z'
-const COXA_DIR_F = 'M 152,304 L 148,390 Q 148,408 122,410 Q 100,408 100,390 L 100,304 Z'
-const COXA_DIR_M = 'M 148,300 L 144,388 Q 144,406 122,408 Q 100,406 100,388 L 100,300 Z'
+// Head (anatomical oval, slightly tapered jaw)
+const HEAD = 'M 100,12 C 84,12 73,22 72,40 C 71,52 76,60 78,64 C 80,68 84,72 100,72 C 116,72 120,68 122,64 C 124,60 129,52 128,40 C 127,22 116,12 100,12 Z'
 
-// ── Lower legs ────────────────────────────────────────
-const PERNA_ESQ_F = 'M 52,410 L 48,474 Q 48,490 76,492 Q 98,490 97,474 L 95,410 Z'
-const PERNA_ESQ_M = 'M 56,408 L 52,472 Q 52,488 76,490 Q 98,488 97,472 L 95,408 Z'
-const PERNA_DIR_F = 'M 148,410 L 152,474 Q 152,490 124,492 Q 102,490 103,474 L 105,410 Z'
-const PERNA_DIR_M = 'M 144,408 L 148,472 Q 148,488 124,490 Q 102,488 103,472 L 105,408 Z'
+// Neck — short trapezoidal with subtle clavicle hint
+const NECK = 'M 90,72 L 88,84 Q 88,88 100,90 Q 112,88 112,84 L 110,72 Z'
 
-// ── Torso ─────────────────────────────────────────────
-const TORAX_F = 'M 90,78 L 48,86 C 40,92 38,110 38,132 C 38,152 50,168 66,178 Q 83,186 100,188 Q 117,186 134,178 C 150,168 162,152 162,132 C 162,110 160,92 152,86 L 110,78 Z'
-const TORAX_M = 'M 90,78 L 48,86 C 40,92 38,110 38,132 C 38,156 40,172 46,186 L 154,186 C 160,172 162,156 162,132 C 162,110 160,92 152,86 L 110,78 Z'
+// Trapezius / clavicle area (decorative, top of torso)
+const TRAP_DEC = 'M 60,84 Q 80,76 100,82 Q 120,76 140,84 Q 145,90 142,98 L 58,98 Q 55,90 60,84 Z'
 
-// ── Abdomen ───────────────────────────────────────────
-const ABDOMEM_F = 'M 66,178 Q 83,186 100,188 Q 117,186 134,178 C 136,196 138,220 140,246 L 60,246 C 62,220 64,196 66,178 Z'
-const ABDOMEM_M = 'M 46,186 C 50,202 54,222 56,246 L 144,246 C 146,222 150,202 154,186 Z'
+// Female torso — narrow waist, soft chest curve
+const TORAX_F = 'M 60,84 Q 78,76 100,82 Q 122,76 140,84 C 144,88 152,98 156,118 C 158,140 156,160 152,180 Q 148,196 132,200 L 68,200 Q 52,196 48,180 C 44,160 42,140 44,118 C 48,98 56,88 60,84 Z'
+const ABD_F   = 'M 68,200 Q 100,206 132,200 C 134,218 134,236 132,250 L 68,250 C 66,236 66,218 68,200 Z'
+const BACIA_F = 'M 68,250 L 68,260 C 60,272 54,290 54,302 Q 56,318 100,322 Q 144,318 146,302 C 146,290 140,272 132,260 L 132,250 Z'
 
-// ── Arms (same shape for both genders) ───────────────
-const ARM_ESQ = 'M 62,84 C 56,112 48,156 44,190 C 42,216 36,252 32,274 L 18,272 C 22,250 28,214 30,188 C 34,154 40,110 42,84 Z'
-const ARM_DIR = 'M 138,84 C 144,112 152,156 156,190 C 158,216 164,252 168,274 L 182,272 C 178,250 172,214 170,188 C 166,154 160,110 158,84 Z'
+// Male torso — broader shoulders, V-taper
+const TORAX_M = 'M 56,82 Q 78,72 100,80 Q 122,72 144,82 C 152,90 158,108 160,128 C 158,150 152,170 146,184 L 54,184 C 48,170 42,150 40,128 C 42,108 48,90 56,82 Z'
+const ABD_M   = 'M 54,184 Q 100,194 146,184 C 146,200 144,222 140,250 L 60,250 C 56,222 54,200 54,184 Z'
+const BACIA_M = 'M 60,250 L 60,260 C 56,272 52,290 54,302 Q 60,318 100,322 Q 140,318 146,302 C 148,290 144,272 140,260 L 140,250 Z'
 
-// ── Feet (front view) ─────────────────────────────────
-const PE_ESQ = 'M 52,490 L 40,506 Q 36,522 66,526 Q 84,524 84,512 L 82,492 Z'
-const PE_DIR = 'M 148,490 L 160,506 Q 164,522 134,526 Q 116,524 116,512 L 118,492 Z'
+// Arms — deltoid bulge, biceps narrow, forearm wider towards wrist
+const ARM_ESQ = 'M 56,82 C 44,86 36,96 32,110 C 26,138 22,170 20,200 C 18,230 16,260 22,288 L 36,290 C 38,260 42,230 44,200 C 48,170 52,140 58,112 C 60,98 60,90 58,84 Z'
+const ARM_DIR = 'M 144,82 C 156,86 164,96 168,110 C 174,138 178,170 180,200 C 182,230 184,260 178,288 L 164,290 C 162,260 158,230 156,200 C 152,170 148,140 142,112 C 140,98 140,90 142,84 Z'
 
-const SKIN   = 'rgba(240,217,200,0.60)'
-const SKIN_S = '#C4A57A'
+// Decorative muscle hints on arms (deltoid + biceps lines)
+const DELT_L = 'M 50,92 Q 38,108 36,130'
+const DELT_R = 'M 150,92 Q 162,108 164,130'
+
+// Hands
+const HAND_L = 'M 22,290 C 14,290 10,300 12,316 C 14,330 22,336 30,332 L 36,326 L 36,294 Z'
+const HAND_R = 'M 178,290 C 186,290 190,300 188,316 C 186,330 178,336 170,332 L 164,326 L 164,294 Z'
+
+// Thighs — quad bulge inside
+const COXA_ESQ_F = 'M 68,322 L 60,398 Q 60,420 80,422 Q 100,420 100,398 L 100,322 Z'
+const COXA_ESQ_M = 'M 60,322 L 56,398 Q 56,420 80,422 Q 100,420 100,398 L 100,322 Z'
+const COXA_DIR_F = 'M 132,322 L 140,398 Q 140,420 120,422 Q 100,420 100,398 L 100,322 Z'
+const COXA_DIR_M = 'M 140,322 L 144,398 Q 144,420 120,422 Q 100,420 100,398 L 100,322 Z'
+
+// Knee crease
+const KNEE_L = 'M 64,422 Q 80,426 96,422'
+const KNEE_R = 'M 104,422 Q 120,426 136,422'
+
+// Lower legs (calves narrowing to ankle)
+const PERNA_ESQ_F = 'M 64,422 L 60,490 Q 60,506 80,508 Q 98,506 98,490 L 96,422 Z'
+const PERNA_ESQ_M = 'M 60,422 L 56,490 Q 56,506 80,508 Q 98,506 98,490 L 96,422 Z'
+const PERNA_DIR_F = 'M 136,422 L 140,490 Q 140,506 120,508 Q 102,506 102,490 L 104,422 Z'
+const PERNA_DIR_M = 'M 140,422 L 144,490 Q 144,506 120,508 Q 102,506 102,490 L 104,422 Z'
+
+// Feet (front view — ovalish)
+const PE_ESQ = 'M 64,506 L 56,520 Q 52,532 80,534 Q 96,532 96,524 L 96,508 Z'
+const PE_DIR = 'M 136,506 L 144,520 Q 148,532 120,534 Q 104,532 104,524 L 104,508 Z'
+
+/* ── Decorative "anatomy" hints (non-interactive) ───── */
+// Pectoral sketch line for male front
+const PECTORAL_M = 'M 60,108 Q 100,124 140,108'
+// Sternum / linea alba
+const STERNUM = 'M 100,108 L 100,250'
+// Abs cross lines
+const ABS_LINE_1 = 'M 80,200 L 120,200'
+const ABS_LINE_2 = 'M 80,222 L 120,222'
+// Female bust
+const BUST = 'M 72,128 Q 84,148 100,150 Q 116,148 128,128'
 
 export default function BodyMap({ value = [], onChange, readOnly = false }: BodyMapProps) {
   const [gender, setGender] = useState<Gender>('female')
@@ -96,9 +131,9 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
     const on  = selected.has(key)
     const hov = hovered === id
     return {
-      fill:            on ? 'rgba(220,38,38,0.28)' : hov ? 'rgba(220,38,38,0.09)' : SKIN,
-      stroke:          on ? '#DC2626' : SKIN_S,
-      strokeWidth:     on ? 1.6 : 0.8,
+      fill:            on ? 'rgba(220,38,38,0.32)' : hov ? 'rgba(220,38,38,0.10)' : 'url(#bodySkin)',
+      stroke:          on ? '#DC2626' : 'var(--body-stroke)',
+      strokeWidth:     on ? 1.6 : 0.85,
       strokeLinejoin:  'round' as const,
       style:           { cursor: readOnly ? 'default' : 'pointer', transition: 'fill 0.12s, stroke 0.12s' },
       onClick:         readOnly ? undefined : () => toggle(id),
@@ -109,7 +144,7 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
 
   const isF        = gender === 'female'
   const toraxPath  = isF ? TORAX_F  : TORAX_M
-  const abdPath    = isF ? ABDOMEM_F : ABDOMEM_M
+  const abdPath    = isF ? ABD_F    : ABD_M
   const baciaPath  = isF ? BACIA_F  : BACIA_M
   const coxaE      = isF ? COXA_ESQ_F : COXA_ESQ_M
   const coxaD      = isF ? COXA_DIR_F : COXA_DIR_M
@@ -119,7 +154,7 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
   const selectedKeys = Array.from(selected)
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+    <div className="body-map" style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
 
       {!readOnly && (
         <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap' }}>
@@ -151,50 +186,79 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
       )}
 
       <div style={{ display: 'flex', justifyContent: 'center' }}>
-        <svg viewBox="0 0 200 540" width={150} height={405} style={{ display: 'block', overflow: 'visible' }}>
+        <svg viewBox="0 0 200 545" width={170} height={462} style={{ display: 'block', overflow: 'visible' }}>
+          <defs>
+            {/* Subtle dimensional skin gradient */}
+            <linearGradient id="bodySkin" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0" stopColor="var(--body-skin-1)" />
+              <stop offset="0.5" stopColor="var(--body-skin-2)" />
+              <stop offset="1" stopColor="var(--body-skin-1)" />
+            </linearGradient>
+            {/* Soft shadow under figure */}
+            <radialGradient id="bodyShadow" cx="0.5" cy="0.5" r="0.5">
+              <stop offset="0" stopColor="#000" stopOpacity="0.15" />
+              <stop offset="1" stopColor="#000" stopOpacity="0" />
+            </radialGradient>
+          </defs>
 
-          {/* ── Arms ── */}
+          {/* Foot shadow */}
+          <ellipse cx={100} cy={538} rx={68} ry={6} fill="url(#bodyShadow)" />
+
+          {/* Arms (drawn first, head on top later) */}
           <path d={ARM_ESQ} {...zp('braco_esq')} />
           <path d={ARM_DIR} {...zp('braco_dir')} />
+          {/* Deltoid hint */}
+          <path d={DELT_L} fill="none" stroke="var(--body-detail)" strokeWidth={0.6} opacity={0.55} style={{ pointerEvents: 'none' }} />
+          <path d={DELT_R} fill="none" stroke="var(--body-detail)" strokeWidth={0.6} opacity={0.55} style={{ pointerEvents: 'none' }} />
 
-          {/* ── Torso ── */}
-          <path d={toraxPath}  {...zp('torax')} />
-          <path d={abdPath}    {...zp('abdomem')} />
-          <path d={baciaPath}  {...zp('bacia')} />
+          {/* Trapezius (decorative behind torso) */}
+          <path d={TRAP_DEC} fill="url(#bodySkin)" stroke="var(--body-stroke)" strokeWidth={0.6} style={{ pointerEvents: 'none' }} />
 
-          {/* ── Legs ── */}
+          {/* Torso */}
+          <path d={toraxPath} {...zp('torax')} />
+          <path d={abdPath}   {...zp('abdomem')} />
+          <path d={baciaPath} {...zp('bacia')} />
+
+          {/* Anatomy hints on torso (front view only) */}
+          {view === 'front' && (
+            <g style={{ pointerEvents: 'none' }}>
+              {/* Sternum / abs midline */}
+              <path d={STERNUM} fill="none" stroke="var(--body-detail)" strokeWidth={0.55} opacity={0.4} />
+              <path d={ABS_LINE_1} fill="none" stroke="var(--body-detail)" strokeWidth={0.5} opacity={0.35} />
+              <path d={ABS_LINE_2} fill="none" stroke="var(--body-detail)" strokeWidth={0.5} opacity={0.35} />
+              {!isF && <path d={PECTORAL_M} fill="none" stroke="var(--body-detail)" strokeWidth={0.6} opacity={0.45} />}
+              {isF && <path d={BUST} fill="none" stroke="var(--body-detail)" strokeWidth={0.6} opacity={0.4} />}
+            </g>
+          )}
+
+          {/* Legs */}
           <path d={coxaE}  {...zp('coxa_esq')} />
           <path d={coxaD}  {...zp('coxa_dir')} />
+          {/* Knee crease hint */}
+          <path d={KNEE_L} fill="none" stroke="var(--body-detail)" strokeWidth={0.55} opacity={0.4} style={{ pointerEvents: 'none' }} />
+          <path d={KNEE_R} fill="none" stroke="var(--body-detail)" strokeWidth={0.55} opacity={0.4} style={{ pointerEvents: 'none' }} />
           <path d={pernaE} {...zp('perna_esq')} />
           <path d={pernaD} {...zp('perna_dir')} />
 
-          {/* ── Feet ── */}
+          {/* Feet */}
           <path d={PE_ESQ} {...zp('pe_esq')} />
           <path d={PE_DIR} {...zp('pe_dir')} />
 
-          {/* ── Hands ── */}
-          <ellipse cx={25}  cy={288} rx={11} ry={17} {...zp('mao_esq')} />
-          <ellipse cx={175} cy={288} rx={11} ry={17} {...zp('mao_dir')} />
+          {/* Hands */}
+          <path d={HAND_L} {...zp('mao_esq')} />
+          <path d={HAND_R} {...zp('mao_dir')} />
 
-          {/* ── Neck (decorative, non-interactive) ── */}
-          <rect x={90} y={58} width={20} height={22} rx={5}
-            fill={SKIN} stroke={SKIN_S} strokeWidth={0.8}
-            style={{ pointerEvents: 'none' }} />
+          {/* Neck (decorative) */}
+          <path d={NECK} fill="url(#bodySkin)" stroke="var(--body-stroke)" strokeWidth={0.6} style={{ pointerEvents: 'none' }} />
 
-          {/* ── Head (rendered last so it's on top of arms) ── */}
-          <ellipse cx={100} cy={31} rx={24} ry={27} {...zp('cabeca')} />
+          {/* Head — drawn last so on top */}
+          <path d={HEAD} {...zp('cabeca')} />
 
-          {/* ── Female bust suggestion (decorative) ── */}
-          {isF && view === 'front' && (
-            <path d="M 72,132 Q 82,148 100,150 Q 118,148 128,132"
-              fill="none" stroke="#C4A088" strokeWidth={0.7} opacity={0.5}
-              style={{ pointerEvents: 'none' }} />
-          )}
-
-          {/* ── View label ── */}
-          <text x={100} y={536} textAnchor="middle" fontSize={8} fill="#9CA3AF"
+          {/* View label */}
+          <text x={100} y={538} textAnchor="middle" fontSize={9} fontWeight={700}
+            fill="var(--text-3)" letterSpacing="0.08em"
             style={{ pointerEvents: 'none', userSelect: 'none' }}>
-            {view === 'front' ? '▲ FRENTE' : '▼ COSTAS'}
+            {view === 'front' ? 'FRENTE' : 'COSTAS'}
           </text>
         </svg>
       </div>
@@ -204,7 +268,7 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
           {selectedKeys.map(key => (
             <span key={key} style={{
               display: 'flex', alignItems: 'center', gap: 4,
-              background: 'rgba(220,38,38,0.08)', color: '#DC2626',
+              background: 'rgba(220,38,38,0.10)', color: '#DC2626',
               border: '1px solid rgba(220,38,38,0.25)',
               borderRadius: 99, padding: '3px 10px', fontSize: 12, fontWeight: 600,
             }}>

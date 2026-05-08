@@ -2,7 +2,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
-  Pill, Calendar as CalendarIcon, HeartPulse, Activity,
+  Pill, CalendarDays as CalendarIcon, HeartPulse, Activity,
   Stethoscope, Phone, Siren, ArrowRight, Check, Clock, ChevronRight,
   AlertTriangle, User as UserIcon, Droplet, Plus, TrendingUp, TrendingDown,
   Minus, FileText, Smile, Frown, Meh, ShieldAlert, Syringe, NotebookPen,
@@ -15,6 +15,7 @@ import type {
 } from '@/lib/types'
 import AIInsightsPanel from '@/components/AIInsightsPanel'
 import { BODY_ZONES } from '@/components/BodyMap'
+import HealthChartsPanel from '@/components/HealthChartsPanel'
 
 const STATUS_LABEL: Record<string, string> = { taken: 'Tomado', pending: 'Pendente', skipped: 'Saltado', missed: 'Perdido' }
 const STATUS_PILL: Record<string, string>  = { taken: 'pill-taken', pending: 'pill-pending', skipped: 'pill-skipped', missed: 'pill-missed' }
@@ -108,7 +109,7 @@ export default function Dashboard() {
       api.listEvents(elderlyId),
       api.listElderly(),
       api.todayWellbeing(elderlyId),
-      api.listVitals(elderlyId, 14).catch(() => []),
+      api.listVitals(elderlyId, 30).catch(() => []),
       api.listWellbeing(elderlyId, 14).catch(() => []),
       api.listIncidents(elderlyId, false).catch(() => []),
       api.listNotes(elderlyId, 7).catch(() => []),
@@ -379,6 +380,9 @@ export default function Dashboard() {
             <div style={{ marginBottom: 20 }}>
               <AIInsightsPanel />
             </div>
+
+            {/* ── HEALTH CHARTS (vitals over time) ── */}
+            <HealthChartsPanel vitals={vitals} days={30} />
 
             {/* ── MAIN GRID ── */}
             <div className="dash-grid">
