@@ -946,6 +946,32 @@ textarea.field-input { resize: vertical; min-height: 80px; }
   align-items: center;
   justify-content: center;
   padding: 24px;
+  position: relative;
+}
+.auth-back {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-2);
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.auth-back:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  transform: translateX(-1px);
+}
+@media (max-width: 480px) {
+  .auth-back { top: 12px; left: 12px; padding: 7px 10px; font-size: 12px; }
 }
 .auth-card {
   background: var(--surface);

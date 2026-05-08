@@ -2,7 +2,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Leaf, Lock } from 'lucide-react'
+import { Leaf, Lock, ArrowLeft } from 'lucide-react'
 import { api, setToken, setElderlyId } from '@/lib/api'
 
 export default function Login() {
@@ -31,6 +31,9 @@ export default function Login() {
 
   return (
     <div className="auth-shell">
+      <Link href="/" className="auth-back" aria-label="Voltar ao site">
+        <ArrowLeft size={15} strokeWidth={2.25} /> Voltar ao site
+      </Link>
       <div style={{ width: '100%', maxWidth: 420 }}>
         {/* Brand */}
         <div style={{ textAlign: 'center', marginBottom: 32 }}>

@@ -75,6 +75,9 @@ export default function Register() {
 
   return (
     <div className="auth-shell">
+      <Link href="/" className="auth-back" aria-label="Voltar ao site">
+        <ArrowLeft size={15} strokeWidth={2.25} /> Voltar ao site
+      </Link>
       <div style={{ width: '100%', maxWidth: 420 }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
           <div style={{

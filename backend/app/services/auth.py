@@ -116,8 +116,10 @@ def delete_account(db: Session, user: User) -> None:
 def export_user_data(db: Session, user: User) -> dict:
     from app.models.elderly import ElderlyProfile
     from app.models.health import VitalSign, WellbeingLog, Incident, DailyNote, ClinicalDiagnosis, Vaccination, CarePlanItem
-    from app.models.medication import Medication
-    from app.models.event import Event
+    from app.models.medication import Medication, MedicationLog
+    # Calendar events live in app.models.calendar (not "event"). The
+    # original import was wrong and crashed the whole export endpoint.
+    from app.models.calendar import CalendarEvent
 
     memberships = db.query(FamilyMember).filter(FamilyMember.user_id == user.id).all()
     elderly_ids = [m.elderly_id for m in memberships]
@@ -154,9 +156,17 @@ def export_user_data(db: Session, user: User) -> dict:
         except Exception:
             profile_data["medications"] = []
         try:
-            profile_data["events"] = [to_dict(v) for v in db.query(Event).filter(Event.elderly_id == p.id).all()]
+            profile_data["events"] = [to_dict(v) for v in db.query(CalendarEvent).filter(CalendarEvent.elderly_id == p.id).all()]
         except Exception:
             profile_data["events"] = []
+        try:
+            med_ids = [m.id for m in db.query(Medication).filter(Medication.elderly_id == p.id).all()]
+            profile_data["medication_logs"] = (
+                [to_dict(v) for v in db.query(MedicationLog).filter(MedicationLog.medication_id.in_(med_ids)).all()]
+                if med_ids else []
+            )
+        except Exception:
+            profile_data["medication_logs"] = []
         result["elderly_profiles"].append(profile_data)
 
     return result
