@@ -68,6 +68,13 @@ export default function HealthChartsPanel({ vitals, days = 14 }: Props) {
           let series: ChartSeries[] = []
           let latest: string | null = null
 
+          // Coerce numeric strings (Pydantic Decimals) to numbers; null → NaN
+          const num = (v: unknown): number => {
+            if (v === null || v === undefined) return NaN
+            const n = typeof v === 'number' ? v : parseFloat(String(v))
+            return Number.isFinite(n) ? n : NaN
+          }
+
           if (spec.key === 'bp') {
             // Two-series: sys + dia
             data = sorted
@@ -75,8 +82,8 @@ export default function HealthChartsPanel({ vitals, days = 14 }: Props) {
               .map(v => ({
                 t: v.measured_at,
                 v: {
-                  sys: v.blood_pressure_sys ?? NaN,
-                  dia: v.blood_pressure_dia ?? NaN,
+                  sys: num(v.blood_pressure_sys),
+                  dia: num(v.blood_pressure_dia),
                 },
               }))
             series = [
@@ -88,13 +95,16 @@ export default function HealthChartsPanel({ vitals, days = 14 }: Props) {
           } else {
             const k = spec.key as keyof VitalSign
             data = sorted
-              .filter(v => v[k] !== null)
-              .map(v => ({ t: v.measured_at, v: (v[k] as number) }))
+              .filter(v => v[k] !== null && v[k] !== undefined)
+              .map(v => ({ t: v.measured_at, v: num(v[k]) }))
+              .filter(p => Number.isFinite(p.v as number))
             series = [{ key: 'v', label: spec.title, color: spec.color }]
-            const last = sorted.filter(v => v[k] !== null).slice(-1)[0]
+            const last = sorted.filter(v => v[k] !== null && v[k] !== undefined).slice(-1)[0]
             if (last) {
-              const val = last[k] as number
-              latest = (spec.format ? spec.format(val) : String(val))
+              const val = num(last[k])
+              if (Number.isFinite(val)) {
+                latest = spec.format ? spec.format(val) : (Number.isInteger(val) ? String(val) : val.toFixed(1))
+              }
             }
           }
 

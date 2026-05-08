@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { FileBarChart, Printer, Leaf, AlertTriangle, Pill, Calendar as CalendarIcon, Clock, MapPin, User as UserIcon, Siren } from 'lucide-react'
+import { FileBarChart, Printer, Leaf, AlertTriangle, Pill, Calendar as CalendarIcon, Clock, MapPin, User as UserIcon, Siren, Droplet, Hospital, Stethoscope, Mail, BarChart3 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, Medication, CalendarEvent, MedicationLog } from '@/lib/types'
 
@@ -146,8 +146,8 @@ export default function RelatorioPage() {
               <option value={90}>90 dias</option>
             </select>
           </div>
-          <button onClick={sendByEmail} className="btn-secondary" style={{ width: 'auto', padding: '10px 18px', fontSize: 13 }}>
-            📧 Enviar por email
+          <button onClick={sendByEmail} className="btn-secondary" style={{ width: 'auto', padding: '10px 18px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Mail size={15} strokeWidth={2} /> Enviar por email
           </button>
           <button onClick={() => window.print()} className="btn-primary" style={{ width: 'auto', padding: '10px 18px', fontSize: 13 }}>
 <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Printer size={15} strokeWidth={2} /> Imprimir / PDF</span>
@@ -177,7 +177,7 @@ export default function RelatorioPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
           {elderly.blood_type && (
             <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>🩸</span>
+              <Droplet size={20} strokeWidth={2.25} style={{ color: '#C53030' }} fill="#C53030" fillOpacity={0.15} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Grupo sanguíneo</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: '#C53030' }}>{elderly.blood_type}</div>
@@ -186,7 +186,7 @@ export default function RelatorioPage() {
           )}
           {elderly.health_number && (
             <div style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>🏥</span>
+              <Hospital size={20} strokeWidth={2.25} style={{ color: 'var(--brand)' }} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Nº SNS</div>
                 <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--brand)' }}>{elderly.health_number}</div>
@@ -195,7 +195,7 @@ export default function RelatorioPage() {
           )}
           {compliance !== null && (
             <div style={{ background: compliance >= 80 ? 'var(--success-light)' : compliance >= 50 ? 'var(--warning-light)' : 'var(--danger-light)', border: `1px solid ${compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)'}`, borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>💊</span>
+              <Pill size={20} strokeWidth={2.25} style={{ color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Adesão {days}d</div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{compliance}%</div>
@@ -204,7 +204,7 @@ export default function RelatorioPage() {
           )}
           {elderly.emergency_contact_phone && (
             <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontSize: 20 }}>🚨</span>
+              <Siren size={20} strokeWidth={2.25} style={{ color: '#C53030' }} />
               <div>
                 <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Emergência</div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: '#C53030' }}>{elderly.emergency_contact_phone}</div>
@@ -216,7 +216,7 @@ export default function RelatorioPage() {
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 20 }}>
           {/* Medical conditions */}
           <div className="card card-lg">
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12 }}>🩺 Condições médicas</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Stethoscope size={13} strokeWidth={2.25} /> Condições médicas</div>
             {elderly.medical_conditions ? (
               <div style={{ fontSize: 14, color: 'var(--text)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{elderly.medical_conditions}</div>
             ) : (
@@ -291,7 +291,7 @@ export default function RelatorioPage() {
         {/* Medication history / compliance */}
         <div className="card card-lg" style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em' }}>📊 Adesão à medicação — últimos {days} dias</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'inline-flex', alignItems: 'center', gap: 6 }}><BarChart3 size={13} strokeWidth={2.25} /> Adesão à medicação — últimos {days} dias</div>
             {compliance !== null && (
               <span style={{ fontSize: 22, fontWeight: 800, color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }}>
                 {compliance}%

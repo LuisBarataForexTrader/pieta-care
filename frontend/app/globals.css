@@ -1855,6 +1855,27 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
 }
 .ai-panel-refresh:disabled { opacity: 0.5; cursor: wait; }
 
+/* ── INFO BANNER (clinical / SNS / system info) ────── */
+
+.info-banner {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+[data-theme="light"] .info-banner,
+:root .info-banner {
+  background: #EBF8FF;
+  border-color: #90CDF4;
+}
+[data-theme="dark"] .info-banner {
+  background: rgba(43,108,176,0.10);
+  border-color: rgba(43,108,176,0.30);
+}
+
 /* ── BILLING / PLANS ─────────────────────────────────── */
 
 .plans-grid {

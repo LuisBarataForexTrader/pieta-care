@@ -1,0 +1,30 @@
+name: Seed demo account
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "How many days of history to populate"
+        required: true
+        default: "60"
+
+jobs:
+  seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run seed via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          DEMO_DAYS: ${{ inputs.days }}
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          envs: DEMO_DAYS
+          script: |
+            set -eu
+            cd /opt/pieta-care
+            git fetch origin main
+            git reset --hard origin/main
+
+            docker compose exec -T -e DEMO_DAYS="$DEMO_DAYS" api python scripts/seed_demo.py

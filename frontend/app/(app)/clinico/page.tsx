@@ -1,6 +1,9 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { Stethoscope, Hospital, Syringe, Calendar as CalendarIcon, AlertTriangle } from 'lucide-react'
+import {
+  Stethoscope, Hospital, Syringe, Calendar as CalendarIcon, AlertTriangle,
+  Trash2, X, Plus, ExternalLink, FlaskConical, CalendarDays, RotateCcw, FileBadge,
+} from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { ClinicalDiagnosis, Vaccination } from '@/lib/types'
 
@@ -111,23 +114,23 @@ export default function ClinicoPage() {
         </div>
         <div style={{ display: 'flex', gap: 10 }}>
           <a href="https://www.sns.gov.pt/apps/mysns-carteira/" target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
-            <button className="btn-ghost" style={{ width: 'auto', padding: '10px 16px', fontSize: 13 }}>
-              🔗 Portal SNS
+            <button className="btn-ghost" style={{ width: 'auto', padding: '10px 16px', fontSize: 13, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              <ExternalLink size={14} strokeWidth={2} /> Portal SNS
             </button>
           </a>
-          <button onClick={() => { setShowForm(v => !v); setError('') }} className={showForm ? 'btn-ghost' : 'btn-primary'} style={{ width: 'auto', padding: '10px 20px' }}>
-            {showForm ? '✕ Cancelar' : '+ Adicionar'}
+          <button onClick={() => { setShowForm(v => !v); setError('') }} className={showForm ? 'btn-ghost' : 'btn-primary'} style={{ width: 'auto', padding: '10px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {showForm ? <><X size={14} strokeWidth={2.5} /> Cancelar</> : <><Plus size={14} strokeWidth={2.5} /> Adicionar</>}
           </button>
         </div>
       </div>
 
       <div className="page-body">
         {/* SNS integration status */}
-        <div style={{ background: '#EBF8FF', border: '1px solid #90CDF4', borderRadius: 12, padding: '12px 16px', marginBottom: 20, display: 'flex', alignItems: 'center', gap: 12 }}>
-          <span style={{ fontSize: 20 }}>🔬</span>
+        <div className="info-banner" style={{ marginBottom: 20 }}>
+          <FlaskConical size={18} strokeWidth={1.85} style={{ color: '#2B6CB0', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#2B6CB0' }}>Integração SNS FHIR — Em desenvolvimento</div>
-            <div style={{ fontSize: 12, color: '#4A5568', lineHeight: 1.5 }}>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#2B6CB0' }}>Integração SNS FHIR — em desenvolvimento</div>
+            <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5 }}>
               A SPMS está a desenvolver a API pública SNS/FHIR. Quando disponível, os dados serão importados automaticamente.
               Por agora, pode consultar o seu histórico no <strong>Portal SNS</strong> e registar manualmente.
             </div>
@@ -138,13 +141,15 @@ export default function ClinicoPage() {
         {(overdueVac.length > 0 || soonVac.length > 0) && (
           <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {overdueVac.map(v => (
-              <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#C53030' }}>
-                ⚠️ <strong>{v.vaccine_name}</strong> — reforço em atraso ({fmtDate(v.next_due_date)})
+              <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <AlertTriangle size={14} strokeWidth={2.25} />
+                <span><strong>{v.vaccine_name}</strong> — reforço em atraso ({fmtDate(v.next_due_date)})</span>
               </div>
             ))}
             {soonVac.map(v => (
-              <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid #F6E05E', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: '#B7791F' }}>
-                📅 <strong>{v.vaccine_name}</strong> — reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})
+              <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <CalendarDays size={14} strokeWidth={2.25} />
+                <span><strong>{v.vaccine_name}</strong> — reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})</span>
               </div>
             ))}
           </div>
@@ -292,7 +297,7 @@ export default function ClinicoPage() {
                             {dx.diagnosed_date && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Desde {fmtDate(dx.diagnosed_date)}</div>}
                             {dx.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, fontStyle: 'italic' }}>{dx.notes}</div>}
                           </div>
-                          <button onClick={() => delDx(dx.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }}>🗑</button>
+                          <button onClick={() => delDx(dx.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }} title="Apagar"><Trash2 size={14} strokeWidth={2} /></button>
                         </div>
                       </div>
                     ))}
@@ -316,7 +321,7 @@ export default function ClinicoPage() {
                             {dx.diagnosed_date && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Diagnosticado em {fmtDate(dx.diagnosed_date)}</div>}
                             {dx.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, fontStyle: 'italic' }}>{dx.notes}</div>}
                           </div>
-                          <button onClick={() => delDx(dx.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }}>🗑</button>
+                          <button onClick={() => delDx(dx.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }} title="Apagar"><Trash2 size={14} strokeWidth={2} /></button>
                         </div>
                       </div>
                     ))}
@@ -350,20 +355,20 @@ export default function ClinicoPage() {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 6 }}>
-                          <span style={{ fontSize: 16 }}>💉</span>
+                          <Syringe size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} />
                           <span style={{ fontWeight: 700, fontSize: 15 }}>{vac.vaccine_name}</span>
                           {vac.source && <span style={{ background: 'var(--surface-2)', color: SOURCE_COLOR[vac.source] ?? 'var(--text-3)', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99 }}>{SOURCE_LABEL[vac.source] ?? vac.source}</span>}
-                          {overdue && <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
-                          {soon && <span style={{ background: 'var(--warning-light)', color: '#B7791F', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
+                          {overdue && <span style={{ background: 'var(--danger-light)', color: 'var(--danger)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
+                          {soon && <span style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                          {vac.administered_date && <span>📅 Administrada: {fmtDate(vac.administered_date)}</span>}
-                          {vac.next_due_date && <span>🔄 Próximo reforço: {fmtDate(vac.next_due_date)}{days !== null ? ` (${days < 0 ? `${Math.abs(days)} dias atrás` : `em ${days} dias`})` : ''}</span>}
-                          {vac.lot_number && <span>Lote: {vac.lot_number}</span>}
+                          {vac.administered_date && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><CalendarDays size={11} strokeWidth={2.25} /> Administrada: {fmtDate(vac.administered_date)}</span>}
+                          {vac.next_due_date && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><RotateCcw size={11} strokeWidth={2.25} /> Próximo reforço: {fmtDate(vac.next_due_date)}{days !== null ? ` (${days < 0 ? `${Math.abs(days)} dias atrás` : `em ${days} dias`})` : ''}</span>}
+                          {vac.lot_number && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><FileBadge size={11} strokeWidth={2.25} /> Lote: {vac.lot_number}</span>}
                         </div>
                         {vac.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, fontStyle: 'italic' }}>{vac.notes}</div>}
                       </div>
-                      <button onClick={() => delVac(vac.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }}>🗑</button>
+                      <button onClick={() => delVac(vac.id)} className="btn-danger-ghost" style={{ marginLeft: 8 }} title="Apagar"><Trash2 size={14} strokeWidth={2} /></button>
                     </div>
                   </div>
                 )

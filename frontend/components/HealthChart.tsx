@@ -43,12 +43,21 @@ export default function HealthChart({
   const chart = useMemo(() => {
     if (data.length < 1) return null
 
+    // Coerce numeric strings (Pydantic Decimals) to numbers; null/NaN → null
+    const toNum = (v: unknown): number | null => {
+      if (v === null || v === undefined) return null
+      const n = typeof v === 'number' ? v : parseFloat(String(v))
+      return Number.isFinite(n) ? n : null
+    }
+
     // Collect numeric points per series
     const points = data.map((p) => {
       const obj: Record<string, number | null> = { __t: new Date(p.t).getTime() }
       for (const s of series) {
-        const val = typeof p.v === 'number' ? p.v : (p.v as Record<string, number>)[s.key]
-        obj[s.key] = (typeof val === 'number' && !Number.isNaN(val)) ? val : null
+        const raw = typeof p.v === 'number' || typeof p.v === 'string'
+          ? p.v
+          : (p.v as Record<string, number | string | null>)[s.key]
+        obj[s.key] = toNum(raw)
       }
       return obj
     })

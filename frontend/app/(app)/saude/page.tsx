@@ -1,8 +1,12 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { HeartPulse, Smile, Zap } from 'lucide-react'
+import {
+  HeartPulse, Smile, Zap, Stethoscope, Heart, Wind, Thermometer,
+  Scale, Droplet, Frown, Meh, Trash2, X, Plus, Utensils, Bandage,
+} from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { VitalSign, WellbeingLog } from '@/lib/types'
+import HealthChartsPanel from '@/components/HealthChartsPanel'
 
 // ── Reference ranges ────────────────────────────────────
 function bpColor(sys: number | null, dia: number | null) {
@@ -29,9 +33,14 @@ function glucoseColor(v: number | null) {
   return v >= 70 && v <= 140 ? 'var(--success)' : v < 70 || v > 200 ? 'var(--danger)' : '#D69E2E'
 }
 
-const MOOD_EMOJI = ['', '😞', '😟', '😐', '🙂', '😄']
 const MOOD_LABEL = ['', 'Muito mal', 'Mal', 'Regular', 'Bem', 'Muito bem']
 const MOOD_COLOR = ['', 'var(--danger)', '#D69E2E', '#64748B', 'var(--success)', 'var(--brand)']
+
+function MoodIcon({ mood, size = 22 }: { mood: number; size?: number }) {
+  if (mood <= 2) return <Frown size={size} strokeWidth={1.85} />
+  if (mood === 3) return <Meh size={size} strokeWidth={1.85} />
+  return <Smile size={size} strokeWidth={1.85} />
+}
 
 function fmtDT(iso: string) {
   const d = new Date(iso)
@@ -139,15 +148,21 @@ export default function SaudePage() {
     <div>
       <div className="page-top">
         <div>
-          <div className="page-title">🩺 Saúde</div>
+          <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
+            <Stethoscope size={20} strokeWidth={2} /> Saúde
+          </div>
           <div className="page-subtitle">Sinais vitais e bem-estar diário</div>
         </div>
         <button
           onClick={() => { tab === 'vitais' ? setShowVitalForm(v => !v) : setShowMoodForm(v => !v); setError('') }}
           className={showVitalForm || showMoodForm ? 'btn-ghost' : 'btn-primary'}
-          style={{ width: 'auto', padding: '10px 20px' }}
+          style={{ width: 'auto', padding: '10px 20px', display: 'inline-flex', alignItems: 'center', gap: 6 }}
         >
-          {showVitalForm || showMoodForm ? '✕ Cancelar' : tab === 'vitais' ? '+ Registar sinais vitais' : '+ Registar bem-estar'}
+          {showVitalForm || showMoodForm
+            ? <><X size={15} strokeWidth={2.5} /> Cancelar</>
+            : tab === 'vitais'
+              ? <><Plus size={15} strokeWidth={2.5} /> Registar sinais vitais</>
+              : <><Plus size={15} strokeWidth={2.5} /> Registar bem-estar</>}
         </button>
       </div>
 
@@ -219,7 +234,7 @@ export default function SaudePage() {
                   <div className="grid-2" style={{ marginBottom: 20 }}>
                     {latest.blood_pressure_sys && latest.blood_pressure_dia && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>🫀</div>
+                        <div className="stat-icon" style={{ background: 'var(--danger-light)', color: '#E53E3E' }}><Heart size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Tensão arterial</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: bpColor(latest.blood_pressure_sys, latest.blood_pressure_dia) }}>
@@ -232,7 +247,7 @@ export default function SaudePage() {
                     )}
                     {latest.heart_rate && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: 'var(--danger-light)' }}>💓</div>
+                        <div className="stat-icon" style={{ background: '#FCE7F3', color: '#EC4899' }}><HeartPulse size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Frequência cardíaca</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: hrColor(latest.heart_rate) }}>{latest.heart_rate}</div>
@@ -243,7 +258,7 @@ export default function SaudePage() {
                     )}
                     {latest.oxygen_saturation && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: '#EEF2FF' }}>🫁</div>
+                        <div className="stat-icon" style={{ background: '#CFFAFE', color: '#06B6D4' }}><Wind size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Saturação O₂</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: spo2Color(latest.oxygen_saturation) }}>{latest.oxygen_saturation}%</div>
@@ -254,7 +269,7 @@ export default function SaudePage() {
                     )}
                     {latest.temperature && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>🌡️</div>
+                        <div className="stat-icon" style={{ background: 'var(--warning-light)', color: '#F59E0B' }}><Thermometer size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Temperatura</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: tempColor(latest.temperature) }}>{Number(latest.temperature).toFixed(1)}°C</div>
@@ -264,18 +279,18 @@ export default function SaudePage() {
                     )}
                     {latest.weight && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: 'var(--brand-light)' }}>⚖️</div>
+                        <div className="stat-icon" style={{ background: 'var(--ai-light)', color: 'var(--ai-text)' }}><Scale size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Peso</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: 'var(--text)' }}>{Number(latest.weight).toFixed(1)}</div>
                           <div className="stat-sub">kg · {fmtDT(latest.measured_at)}</div>
-                          <Sparkline values={weightSeries} color="var(--brand)" />
+                          <Sparkline values={weightSeries} color="var(--ai-text)" />
                         </div>
                       </div>
                     )}
                     {latest.blood_glucose && (
                       <div className="stat-card">
-                        <div className="stat-icon" style={{ background: 'var(--warning-light)' }}>🩸</div>
+                        <div className="stat-icon" style={{ background: 'var(--danger-light)', color: '#DC2626' }}><Droplet size={20} strokeWidth={1.9} /></div>
                         <div style={{ flex: 1 }}>
                           <div className="stat-label">Glicemia</div>
                           <div style={{ fontSize: 24, fontWeight: 800, color: glucoseColor(latest.blood_glucose) }}>{Number(latest.blood_glucose).toFixed(0)}</div>
@@ -285,6 +300,11 @@ export default function SaudePage() {
                     )}
                   </div>
                 )}
+
+                {/* 30-day charts panel */}
+                <div style={{ marginBottom: 20 }}>
+                  <HealthChartsPanel vitals={vitals} days={60} />
+                </div>
 
                 {/* History table */}
                 <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
@@ -315,7 +335,7 @@ export default function SaudePage() {
                             <td style={{ padding: '12px', color: glucoseColor(v.blood_glucose) }}>{v.blood_glucose ? `${Number(v.blood_glucose).toFixed(0)} mg/dL` : '—'}</td>
                             <td style={{ padding: '12px', color: 'var(--text-3)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.notes ?? '—'}</td>
                             <td style={{ padding: '12px' }}>
-                              <button onClick={() => { if (confirm('Apagar medição?')) { api.deleteVital(elderlyId!, v.id).then(load) } }} className="btn-danger-ghost">🗑</button>
+                              <button onClick={() => { if (confirm('Apagar medição?')) { api.deleteVital(elderlyId!, v.id).then(load) } }} className="btn-danger-ghost" title="Apagar"><Trash2 size={14} strokeWidth={2} /></button>
                             </td>
                           </tr>
                         ))}
@@ -340,9 +360,9 @@ export default function SaudePage() {
                   <label className="field-label">Humor geral</label>
                   <div style={{ display: 'flex', gap: 10, marginTop: 8 }}>
                     {[1, 2, 3, 4, 5].map(n => (
-                      <button key={n} type="button" onClick={() => setWForm(f => ({ ...f, mood: n }))} style={{ flex: 1, padding: '16px 8px', borderRadius: 12, border: `2px solid ${wForm.mood === n ? MOOD_COLOR[n] : 'var(--border)'}`, background: wForm.mood === n ? `${MOOD_COLOR[n]}18` : 'var(--surface)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, transition: 'all 0.15s' }}>
-                        <span style={{ fontSize: 28 }}>{MOOD_EMOJI[n]}</span>
-                        <span style={{ fontSize: 11, fontWeight: 700, color: wForm.mood === n ? MOOD_COLOR[n] : 'var(--text-3)' }}>{MOOD_LABEL[n]}</span>
+                      <button key={n} type="button" onClick={() => setWForm(f => ({ ...f, mood: n }))} style={{ flex: 1, padding: '16px 8px', borderRadius: 12, border: `2px solid ${wForm.mood === n ? MOOD_COLOR[n] : 'var(--border)'}`, background: wForm.mood === n ? `${MOOD_COLOR[n]}18` : 'var(--surface)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6, transition: 'all 0.15s', color: wForm.mood === n ? MOOD_COLOR[n] : 'var(--text-3)' }}>
+                        <MoodIcon mood={n} size={28} />
+                        <span style={{ fontSize: 11, fontWeight: 700 }}>{MOOD_LABEL[n]}</span>
                       </button>
                     ))}
                   </div>
@@ -397,16 +417,22 @@ export default function SaudePage() {
             {todayLog && !showMoodForm && (
               <div className="card" style={{ marginBottom: 20, background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                  <span style={{ fontSize: 48 }}>{MOOD_EMOJI[todayLog.mood]}</span>
+                  <div style={{
+                    width: 56, height: 56, borderRadius: 16, flexShrink: 0,
+                    background: MOOD_COLOR[todayLog.mood] + '20', color: MOOD_COLOR[todayLog.mood],
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  }}>
+                    <MoodIcon mood={todayLog.mood} size={32} />
+                  </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--brand)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4 }}>Check-in de hoje</div>
                     <div style={{ fontSize: 20, fontWeight: 800, color: MOOD_COLOR[todayLog.mood] }}>{MOOD_LABEL[todayLog.mood]}</div>
-                    <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 12 }}>
-                      {todayLog.energy && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={12} strokeWidth={2.25} /> Energia: {todayLog.energy}/5</span>}
-                      {todayLog.appetite && <span>🍽 Apetite: {todayLog.appetite}/5</span>}
-                      {todayLog.pain_level !== null && <span>🩹 Dor: {todayLog.pain_level}/10</span>}
+                    <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
+                      {todayLog.energy && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={12} strokeWidth={2.25} /> Energia {todayLog.energy}/5</span>}
+                      {todayLog.appetite && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Utensils size={12} strokeWidth={2.25} /> Apetite {todayLog.appetite}/5</span>}
+                      {todayLog.pain_level !== null && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Bandage size={12} strokeWidth={2.25} /> Dor {todayLog.pain_level}/10</span>}
                     </div>
-                    {todayLog.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 6, fontStyle: 'italic' }}>"{todayLog.notes}"</div>}
+                    {todayLog.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 6, fontStyle: 'italic' }}>&ldquo;{todayLog.notes}&rdquo;</div>}
                   </div>
                   <button onClick={() => setShowMoodForm(true)} className="btn-ghost" style={{ fontSize: 13 }}>Editar</button>
                 </div>
@@ -418,20 +444,30 @@ export default function SaudePage() {
             ) : (
               <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
                 {wellbeing.map((w, i) => (
-                  <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px', borderBottom: i < wellbeing.length - 1 ? '1px solid var(--border)' : 'none' }}>
-                    <span style={{ fontSize: 32, minWidth: 40, textAlign: 'center' }}>{MOOD_EMOJI[w.mood]}</span>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <div key={w.id} style={{ display: 'flex', alignItems: 'center', gap: 14, padding: '14px 20px', borderBottom: i < wellbeing.length - 1 ? '1px solid var(--border)' : 'none' }}>
+                    <div style={{
+                      width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                      background: MOOD_COLOR[w.mood] + '18', color: MOOD_COLOR[w.mood],
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <MoodIcon mood={w.mood} size={22} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                         <span style={{ fontWeight: 700, color: MOOD_COLOR[w.mood] }}>{MOOD_LABEL[w.mood]}</span>
                         <span style={{ fontSize: 12, color: 'var(--text-3)' }}>{new Date(w.logged_date).toLocaleDateString('pt-PT', { weekday: 'long', day: 'numeric', month: 'short' })}</span>
                       </div>
-                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 10 }}>
+                      <div style={{ fontSize: 12, color: 'var(--text-3)', marginTop: 4, display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                         {w.energy && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Zap size={11} strokeWidth={2.25} /> {w.energy}/5</span>}
-                        {w.appetite && <span>🍽 {w.appetite}/5</span>}
-                        {w.pain_level !== null && w.pain_level > 0 && <span style={{ color: w.pain_level > 6 ? 'var(--danger)' : w.pain_level > 3 ? 'var(--warning)' : 'var(--text-3)' }}>🩹 Dor {w.pain_level}/10</span>}
+                        {w.appetite && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><Utensils size={11} strokeWidth={2.25} /> {w.appetite}/5</span>}
+                        {w.pain_level !== null && w.pain_level > 0 && (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: w.pain_level > 6 ? 'var(--danger)' : w.pain_level > 3 ? 'var(--warning)' : 'var(--text-3)' }}>
+                            <Bandage size={11} strokeWidth={2.25} /> Dor {w.pain_level}/10
+                          </span>
+                        )}
                         <span>por {w.recorded_by_name}</span>
                       </div>
-                      {w.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, fontStyle: 'italic' }}>"{w.notes}"</div>}
+                      {w.notes && <div style={{ fontSize: 13, color: 'var(--text-2)', marginTop: 4, fontStyle: 'italic' }}>&ldquo;{w.notes}&rdquo;</div>}
                     </div>
                   </div>
                 ))}
