@@ -44,10 +44,9 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
-    # NOTE: Until Resend domain verification is set up for pietas.care,
-    # keep the working noreply@pieta.care address. Override via env
-    # EMAIL_FROM=noreply@pietas.care once pietas.care SPF/DKIM is verified.
-    EMAIL_FROM: str = "noreply@pieta.care"
+    # pietas.care is verified in Resend (eu-west-1). The old pieta.care
+    # domain has been removed and any noreply@pieta.care send is rejected.
+    EMAIL_FROM: str = "noreply@pietas.care"
 
     class Config:
         env_file = ".env"
