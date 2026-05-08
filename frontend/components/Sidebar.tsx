@@ -11,6 +11,7 @@ import {
 import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import { notifyNewChatMessage } from '@/lib/notify'
 import type { Elderly, User } from '@/lib/types'
+import ThemeToggle from '@/components/ThemeToggle'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -170,9 +171,12 @@ export default function Sidebar() {
     <aside className="sidebar">
       {/* Logo */}
       <div className="sidebar-logo">
-        <Link href="/dashboard" className="sidebar-logo-mark">
-          <Leaf size={20} strokeWidth={2.25} /> pieta.care
-        </Link>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+          <Link href="/dashboard" className="sidebar-logo-mark">
+            <Leaf size={20} strokeWidth={2.25} /> pieta.care
+          </Link>
+          <ThemeToggle className="sidebar-theme-toggle" />
+        </div>
         <div className="sidebar-tagline">Cuidar com confiança</div>
       </div>
 

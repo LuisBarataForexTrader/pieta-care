@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
+import { ThemeProvider, themeBootScript } from '@/components/ThemeProvider'
 import './globals.css'
 
 const inter = Inter({
@@ -17,13 +18,22 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 1,
-  themeColor: '#2A6049',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#2A6049' },
+    { media: '(prefers-color-scheme: dark)', color: '#0B1116' },
+  ],
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt" className={inter.variable}>
-      <body>{children}</body>
+    <html lang="pt" className={inter.variable} suppressHydrationWarning>
+      <head>
+        {/* Apply theme before first paint to avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
+      </head>
+      <body>
+        <ThemeProvider>{children}</ThemeProvider>
+      </body>
     </html>
   )
 }
