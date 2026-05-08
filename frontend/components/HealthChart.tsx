@@ -62,16 +62,23 @@ export default function HealthChart({
       }
     }
     if (reference) { allValues.push(reference.min, reference.max) }
-    if (allValues.length < 2) return null
+    if (allValues.length < 1) return null
 
     let lo = yMin ?? Math.min(...allValues)
     let hi = yMax ?? Math.max(...allValues)
-    if (lo === hi) { lo -= 1; hi += 1 }
+    if (lo === hi) {
+      // Single value with no reference: pad ±5% (or ±1 absolute floor)
+      const span = Math.max(Math.abs(lo) * 0.05, 1)
+      lo -= span; hi += span
+    }
     const pad = (hi - lo) * 0.1
     lo -= pad; hi += pad
 
     const tMin = (points[0].__t as number)
-    const tMax = (points[points.length - 1].__t as number)
+    // For single-point case give a synthetic span so the dot can sit centred
+    const tMax = points.length > 1
+      ? (points[points.length - 1].__t as number)
+      : (points[0].__t as number) + 1
 
     return { points, lo, hi, tMin, tMax }
   }, [data, series, yMin, yMax, reference])
@@ -183,14 +190,16 @@ export default function HealthChart({
           if (pts.length === 0) return null
 
           if (pts.length === 1) {
-            const p = pts[0]
+            // Centre the lone dot horizontally — left edge looks like a glitch
+            const cx = PADDING.left + innerW / 2
+            const p = { ...pts[0], x: cx }
             return (
               <g key={s.key}>
                 {/* horizontal dashed reference at the value */}
                 <line x1={PADDING.left} x2={w - PADDING.right} y1={p.y} y2={p.y}
                   stroke={s.color} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
-                <circle cx={p.x} cy={p.y} r={4} fill={s.color} />
-                <circle cx={p.x} cy={p.y} r={8} fill={s.color} fillOpacity={0.18} />
+                <circle cx={p.x} cy={p.y} r={5} fill={s.color} />
+                <circle cx={p.x} cy={p.y} r={10} fill={s.color} fillOpacity={0.18} />
               </g>
             )
           }
