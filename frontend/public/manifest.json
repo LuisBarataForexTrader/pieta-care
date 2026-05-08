@@ -1,6 +1,6 @@
 {
-  "name": "pieta.care",
-  "short_name": "pieta.care",
+  "name": "pietas.care",
+  "short_name": "pietas.care",
   "description": "Cuidar de quem amamos, juntos.",
   "start_url": "/dashboard",
   "display": "standalone",

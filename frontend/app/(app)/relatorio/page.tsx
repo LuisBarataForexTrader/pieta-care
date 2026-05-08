@@ -57,7 +57,7 @@ export default function RelatorioPage() {
 
     const lines = [
       `RESUMO CLÍNICO — ${elderly.full_name}`,
-      `Gerado em ${new Date().toLocaleDateString('pt-PT')} via pieta.care`,
+      `Gerado em ${new Date().toLocaleDateString('pt-PT')} via pietas.care`,
       ``,
       `IDENTIFICAÇÃO`,
       `Nome: ${elderly.full_name}`,
@@ -89,7 +89,7 @@ export default function RelatorioPage() {
         : 'Não especificado',
       ``,
       `---`,
-      `Gerado via pieta.care — Sistema de gestão de cuidados de saúde`,
+      `Gerado via pietas.care — Sistema de gestão de cuidados de saúde`,
     ].filter(Boolean).join('\n')
 
     const subject = encodeURIComponent(`Resumo Clínico — ${elderly.full_name}`)
@@ -168,7 +168,7 @@ export default function RelatorioPage() {
             )}
           </div>
           <div style={{ textAlign: 'right' }}>
-            <div className="report-header-brand"><Leaf size={26} strokeWidth={2.25} /> pieta.care</div>
+            <div className="report-header-brand"><Leaf size={26} strokeWidth={2.25} /> pietas.care</div>
             <div className="report-header-date">{generatedAt}</div>
           </div>
         </div>
@@ -458,7 +458,7 @@ export default function RelatorioPage() {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', color: 'var(--text-3)', fontSize: 12, padding: '8px 0 24px', borderTop: '1px solid var(--border)', marginTop: 8 }}>
-          Relatório gerado em {generatedAt} · pieta.care — Sistema de gestão de cuidados de saúde
+          Relatório gerado em {generatedAt} · pietas.care — Sistema de gestão de cuidados de saúde
         </div>
       </div>
 

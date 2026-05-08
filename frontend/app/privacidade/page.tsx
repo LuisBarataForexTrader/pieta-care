@@ -3,9 +3,9 @@ import Link from 'next/link'
 import { Leaf, AlertTriangle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Política de Privacidade - pieta.care',
-  description: 'Saiba como o pieta.care recolhe, utiliza e protege os seus dados pessoais e dados de saúde, em conformidade com o RGPD e a legislação portuguesa e espanhola.',
-  alternates: { canonical: 'https://pieta.care/privacidade' },
+  title: 'Política de Privacidade - pietas.care',
+  description: 'Saiba como o pietas.care recolhe, utiliza e protege os seus dados pessoais e dados de saúde, em conformidade com o RGPD e a legislação portuguesa e espanhola.',
+  alternates: { canonical: 'https://pietas.care/privacidade' },
   robots: { index: true, follow: false },
 }
 
@@ -55,7 +55,7 @@ export default function PrivacidadePage() {
       {/* Nav */}
       <nav style={{ borderBottom: '1px solid #E8EFE9', padding: '0 clamp(16px,3vw,32px)', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between', position: 'sticky', top: 0, background: '#fff', zIndex: 40 }}>
         <Link href="/" style={{ fontWeight: 900, fontSize: 18, color: '#2A6049', textDecoration: 'none', letterSpacing: '-0.02em' }}>
-<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={18} strokeWidth={2.25} /> pieta.care</span>
+<span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={18} strokeWidth={2.25} /> pietas.care</span>
         </Link>
         <div style={{ display: 'flex', gap: 16, alignItems: 'center' }}>
           <Link href="/termos" style={{ fontSize: 13, color: '#7A9A8A', textDecoration: 'none', fontWeight: 500 }}>Termos</Link>
@@ -98,7 +98,7 @@ export default function PrivacidadePage() {
             </header>
 
             <div style={{ fontSize: 15, color: '#4A6458', lineHeight: 1.8, background: '#EAF4EE', border: '1px solid #C8D8D0', borderRadius: 12, padding: '18px 22px', marginBottom: 40 }}>
-              O <strong style={{ color: '#2A6049' }}>pieta.care</strong> trata dados pessoais, incluindo dados de saúde (categoria especial nos termos do artigo 9.º do RGPD), com o máximo rigor e em plena conformidade com o <strong>Regulamento (UE) 2016/679 (RGPD)</strong>, a <strong>Lei n.º 58/2019</strong> (lei de execução do RGPD em Portugal), a <strong>Lei Orgánica 3/2018 (LOPDGDD)</strong> (Espanha) e demais legislação aplicável.
+              O <strong style={{ color: '#2A6049' }}>pietas.care</strong> trata dados pessoais, incluindo dados de saúde (categoria especial nos termos do artigo 9.º do RGPD), com o máximo rigor e em plena conformidade com o <strong>Regulamento (UE) 2016/679 (RGPD)</strong>, a <strong>Lei n.º 58/2019</strong> (lei de execução do RGPD em Portugal), a <strong>Lei Orgánica 3/2018 (LOPDGDD)</strong> (Espanha) e demais legislação aplicável.
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 44 }}>
@@ -106,8 +106,8 @@ export default function PrivacidadePage() {
               <Section id="s1" title="1. Responsável pelo tratamento">
                 <div style={{ background: '#F8FAF9', border: '1px solid #E8EFE9', borderRadius: 10, padding: '18px 22px', fontSize: 15 }}>
                   <p><strong>FLOW 88 - Gestão de Ativos, Lda.</strong></p>
-                  <p style={{ marginTop: 8 }}>Email: <a href="mailto:privacidade@pieta.care" style={{ color: '#2A6049' }}>privacidade@pieta.care</a></p>
-                  <p>Website: <a href="https://pieta.care" style={{ color: '#2A6049' }}>pieta.care</a></p>
+                  <p style={{ marginTop: 8 }}>Email: <a href="mailto:privacidade@pietas.care" style={{ color: '#2A6049' }}>privacidade@pietas.care</a></p>
+                  <p>Website: <a href="https://pietas.care" style={{ color: '#2A6049' }}>pietas.care</a></p>
                 </div>
               </Section>
 
@@ -144,7 +144,7 @@ export default function PrivacidadePage() {
                     </thead>
                     <tbody>
                       {[
-                        ['Prestação do serviço pieta.care', 'Art. 6.º/1/b) - execução de contrato'],
+                        ['Prestação do serviço pietas.care', 'Art. 6.º/1/b) - execução de contrato'],
                         ['Tratamento de dados de saúde para fins de cuidados', 'Art. 9.º/2/c) e /h) - interesses vitais e prestação de cuidados; consentimento explícito'],
                         ['Envio de notificações e alertas configurados', 'Art. 6.º/1/b) - execução de contrato'],
                         ['Facturação e gestão de subscrições', 'Art. 6.º/1/b) e /c) - execução de contrato e obrigação legal'],
@@ -171,7 +171,7 @@ export default function PrivacidadePage() {
               </Section>
 
               <Section id="s5" title="5. Partilha de dados com terceiros">
-                <p>O pieta.care <strong>não vende dados pessoais a terceiros</strong>. Os dados podem ser partilhados nas seguintes circunstâncias:</p>
+                <p>O pietas.care <strong>não vende dados pessoais a terceiros</strong>. Os dados podem ser partilhados nas seguintes circunstâncias:</p>
                 <h3 style={subH}>5.1 Subcontratantes (processadores)</h3>
                 <ul style={ul}>
                   <li><strong>Vercel Inc.</strong> (alojamento do frontend) - Estados Unidos; coberto por Cláusulas Contratuais-Tipo CE</li>
@@ -191,7 +191,7 @@ export default function PrivacidadePage() {
                   <li>Cláusulas Contratuais-Tipo aprovadas pela Comissão Europeia (Decisão 2021/914/UE)</li>
                   <li>Certificações reconhecidas pelo RGPD (ex.: EU-US Data Privacy Framework, onde aplicável)</li>
                 </ul>
-                <p>Pode solicitar informação sobre os mecanismos específicos através de <a href="mailto:privacidade@pieta.care" style={{ color: '#2A6049' }}>privacidade@pieta.care</a>.</p>
+                <p>Pode solicitar informação sobre os mecanismos específicos através de <a href="mailto:privacidade@pietas.care" style={{ color: '#2A6049' }}>privacidade@pietas.care</a>.</p>
               </Section>
 
               <Section id="s7" title="7. Direitos dos titulares">
@@ -205,7 +205,7 @@ export default function PrivacidadePage() {
                   <li><strong>Direito de retirar o consentimento:</strong> sem prejuízo da licitude do tratamento anterior à retirada.</li>
                   <li><strong>Direito de não sujeição a decisões automatizadas (art. 22.º RGPD).</strong></li>
                 </ul>
-                <p>Para exercer qualquer um destes direitos, envie um pedido para <a href="mailto:privacidade@pieta.care" style={{ color: '#2A6049' }}>privacidade@pieta.care</a>. Responderemos no prazo de 30 dias. Em caso de reclamação, pode contactar:</p>
+                <p>Para exercer qualquer um destes direitos, envie um pedido para <a href="mailto:privacidade@pietas.care" style={{ color: '#2A6049' }}>privacidade@pietas.care</a>. Responderemos no prazo de 30 dias. Em caso de reclamação, pode contactar:</p>
                 <ul style={ul}>
                   <li><strong>Portugal - CNPD:</strong> <a href="https://www.cnpd.pt" style={{ color: '#2A6049' }} target="_blank" rel="noopener noreferrer">www.cnpd.pt</a></li>
                   <li><strong>Espanha - AEPD:</strong> <a href="https://www.aepd.es" style={{ color: '#2A6049' }} target="_blank" rel="noopener noreferrer">www.aepd.es</a></li>
@@ -225,7 +225,7 @@ export default function PrivacidadePage() {
               </Section>
 
               <Section id="s9" title="9. Cookies">
-                <p>O pieta.care utiliza apenas cookies estritamente necessários para o funcionamento da plataforma. Não utilizamos cookies de rastreamento ou publicitários de terceiros sem consentimento prévio.</p>
+                <p>O pietas.care utiliza apenas cookies estritamente necessários para o funcionamento da plataforma. Não utilizamos cookies de rastreamento ou publicitários de terceiros sem consentimento prévio.</p>
                 <div className="legal-table-wrap" style={{ marginTop: 14 }}>
                   <table className="legal-table">
                     <thead>
@@ -240,17 +240,17 @@ export default function PrivacidadePage() {
               </Section>
 
               <Section id="s10" title="10. Menores">
-                <p>O pieta.care não é dirigido a menores de 16 anos. Não recolhemos conscientemente dados pessoais de menores de 16 anos sem o consentimento do titular da responsabilidade parental, nos termos do artigo 8.º do RGPD e do artigo 16.º da Lei n.º 58/2019.</p>
+                <p>O pietas.care não é dirigido a menores de 16 anos. Não recolhemos conscientemente dados pessoais de menores de 16 anos sem o consentimento do titular da responsabilidade parental, nos termos do artigo 8.º do RGPD e do artigo 16.º da Lei n.º 58/2019.</p>
               </Section>
 
               <Section id="s11" title="11. Alterações a esta política">
-                <p>Esta política pode ser actualizada periodicamente para reflectir alterações legais, regulatórias ou de negócio. Em caso de alterações materiais, notificaremos os utilizadores por email com antecedência mínima de 15 dias. A versão actualizada ficará sempre disponível em <a href="https://pieta.care/privacidade" style={{ color: '#2A6049' }}>pieta.care/privacidade</a>.</p>
+                <p>Esta política pode ser actualizada periodicamente para reflectir alterações legais, regulatórias ou de negócio. Em caso de alterações materiais, notificaremos os utilizadores por email com antecedência mínima de 15 dias. A versão actualizada ficará sempre disponível em <a href="https://pietas.care/privacidade" style={{ color: '#2A6049' }}>pietas.care/privacidade</a>.</p>
               </Section>
 
               <Section id="s12" title="12. Contacto">
                 <div style={{ background: '#F8FAF9', border: '1px solid #E8EFE9', borderRadius: 10, padding: '18px 22px' }}>
-                  <p>📧 <a href="mailto:privacidade@pieta.care" style={{ color: '#2A6049', fontWeight: 600 }}>privacidade@pieta.care</a></p>
-                  <p style={{ marginTop: 6 }}>🌐 <a href="https://pieta.care" style={{ color: '#2A6049' }}>pieta.care</a></p>
+                  <p>📧 <a href="mailto:privacidade@pietas.care" style={{ color: '#2A6049', fontWeight: 600 }}>privacidade@pietas.care</a></p>
+                  <p style={{ marginTop: 6 }}>🌐 <a href="https://pietas.care" style={{ color: '#2A6049' }}>pietas.care</a></p>
                 </div>
               </Section>
 
@@ -265,7 +265,7 @@ export default function PrivacidadePage() {
       </main>
 
       <footer style={{ background: '#0D1A13', padding: '28px 32px', textAlign: 'center' }}>
-        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={16} strokeWidth={2.25} /> pieta.care</Link>
+        <Link href="/" style={{ fontWeight: 900, fontSize: 16, color: '#fff', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Leaf size={16} strokeWidth={2.25} /> pietas.care</Link>
         <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', marginTop: 8 }}>© 2026 FLOW 88 - Gestão de Ativos, Lda. · Feito em Portugal 🇵🇹</p>
       </footer>
     </div>

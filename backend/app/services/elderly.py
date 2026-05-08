@@ -140,13 +140,13 @@ def invite_family_member(
     db.add(new_member)
     db.commit()
 
-    invite_link = f"https://pieta.care/invite/{invite_token}"
+    invite_link = f"https://pietas.care/invite/{invite_token}"
 
     elderly_obj = db.query(ElderlyProfile).filter(ElderlyProfile.id == elderly_id).first()
     elderly_name = elderly_obj.full_name if elderly_obj else "um familiar"
 
     html = invite_email_html(elderly_name, user.full_name, invite_link, data.relation)
-    sent = send_email(data.email, f"Convite pieta.care — {elderly_name}", html)
+    sent = send_email(data.email, f"Convite pietas.care — {elderly_name}", html)
 
     msg = "Convite enviado" if sent else "Convite criado (email não configurado — partilha o link manualmente)"
     return {"message": msg, "invite_link": invite_link}

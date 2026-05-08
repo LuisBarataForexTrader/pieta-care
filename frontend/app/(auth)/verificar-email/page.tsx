@@ -92,7 +92,7 @@ export default function VerificarEmail() {
           }}>
             <Leaf size={30} strokeWidth={2} color="#fff" />
           </div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pieta.care</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pietas.care</h1>
         </div>
         <Suspense fallback={<div className="auth-card" style={{ textAlign: 'center' }}><div style={{ fontSize: 48 }}>⏳</div></div>}>
           <VerificarEmailInner />

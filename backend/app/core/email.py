@@ -63,7 +63,7 @@ def verification_email_html(name: str, verify_url: str) -> str:
       <tr>
         <td style="background:#2A6049;padding:32px 40px;text-align:center;">
           <div style="font-size:30px;margin-bottom:6px;">🌿</div>
-          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pieta.care</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pietas.care</div>
           <div style="color:#a8c9bc;font-size:13px;margin-top:4px;">Cuidar com confiança</div>
         </td>
       </tr>
@@ -71,7 +71,7 @@ def verification_email_html(name: str, verify_url: str) -> str:
         <td style="padding:40px;">
           <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">Olá, <strong>{name}</strong>,</p>
           <p style="font-size:16px;margin:0 0 16px;line-height:1.7;">
-            Obrigado por se registar no <strong>pieta.care</strong>. Para activar a sua conta, confirme o seu endereço de email clicando no botão abaixo.
+            Obrigado por se registar no <strong>pietas.care</strong>. Para activar a sua conta, confirme o seu endereço de email clicando no botão abaixo.
           </p>
           <div style="text-align:center;margin:32px 0;">
             <a href="{verify_url}"
@@ -81,7 +81,7 @@ def verification_email_html(name: str, verify_url: str) -> str:
             </a>
           </div>
           <p style="font-size:13px;color:#94a89a;margin:0 0 8px;line-height:1.6;">
-            Se não criou uma conta no pieta.care, pode ignorar este email com segurança.
+            Se não criou uma conta no pietas.care, pode ignorar este email com segurança.
           </p>
           <p style="font-size:13px;color:#94a89a;margin:0 0 24px;line-height:1.6;">
             Este link expira em 24 horas.
@@ -91,8 +91,8 @@ def verification_email_html(name: str, verify_url: str) -> str:
           </p>
           <hr style="border:none;border-top:1px solid #e6eeea;margin:24px 0 16px;">
           <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
-            © pieta.care &nbsp;·&nbsp;
-            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+            © pietas.care &nbsp;·&nbsp;
+            <a href="https://pietas.care" style="color:#2A6049;text-decoration:none;">pietas.care</a>
           </p>
         </td>
       </tr>
@@ -114,7 +114,7 @@ def deletion_confirmation_html(name: str, deletion_date: str) -> str:
       <tr>
         <td style="background:#2A6049;padding:32px 40px;text-align:center;">
           <div style="font-size:30px;margin-bottom:6px;">🌿</div>
-          <div style="color:#fff;font-size:22px;font-weight:700;">pieta.care</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;">pietas.care</div>
         </td>
       </tr>
       <tr>
@@ -126,16 +126,16 @@ def deletion_confirmation_html(name: str, deletion_date: str) -> str:
           <div style="background:#fff5f5;border:1px solid #fed7d7;border-radius:10px;padding:16px 20px;margin:24px 0;">
             <p style="font-size:14px;color:#744210;margin:0;line-height:1.6;">
               Se mudou de ideias ou eliminou a conta por engano, contacte-nos antes de <strong>{deletion_date}</strong> através de
-              <a href="mailto:suporte@pieta.care" style="color:#2A6049;">suporte@pieta.care</a>.
+              <a href="mailto:suporte@pietas.care" style="color:#2A6049;">suporte@pietas.care</a>.
             </p>
           </div>
           <p style="font-size:14px;color:#4a7060;margin:0 0 24px;line-height:1.7;">
-            Obrigado por ter utilizado o pieta.care.
+            Obrigado por ter utilizado o pietas.care.
           </p>
           <hr style="border:none;border-top:1px solid #e6eeea;margin:0 0 16px;">
           <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
-            © pieta.care &nbsp;·&nbsp;
-            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+            © pietas.care &nbsp;·&nbsp;
+            <a href="https://pietas.care" style="color:#2A6049;text-decoration:none;">pietas.care</a>
           </p>
         </td>
       </tr>
@@ -158,7 +158,7 @@ def invite_email_html(elderly_name: str, inviter_name: str, invite_link: str, re
       <tr>
         <td style="background:#2A6049;padding:32px 40px;text-align:center;">
           <div style="font-size:30px;margin-bottom:6px;">🌿</div>
-          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pieta.care</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pietas.care</div>
           <div style="color:#a8c9bc;font-size:13px;margin-top:4px;">Cuidar com confiança</div>
         </td>
       </tr>
@@ -167,10 +167,10 @@ def invite_email_html(elderly_name: str, inviter_name: str, invite_link: str, re
           <p style="font-size:16px;margin:0 0 18px;line-height:1.7;">Olá,</p>
           <p style="font-size:16px;margin:0 0 18px;line-height:1.7;">
             <strong>{inviter_name}</strong> convidou-o(a) para acompanhar os cuidados de
-            <strong>{elderly_name}</strong>{rel} na <strong>pieta.care</strong>.
+            <strong>{elderly_name}</strong>{rel} na <strong>pietas.care</strong>.
           </p>
           <p style="font-size:14px;margin:0 0 30px;line-height:1.7;color:#4a7060;">
-            A pieta.care é uma plataforma segura de gestão de cuidados para idosos —
+            A pietas.care é uma plataforma segura de gestão de cuidados para idosos —
             medicação, agenda, saúde e bem-estar, tudo num só lugar.
           </p>
           <div style="text-align:center;margin-bottom:32px;">
@@ -185,8 +185,8 @@ def invite_email_html(elderly_name: str, inviter_name: str, invite_link: str, re
           </p>
           <hr style="border:none;border-top:1px solid #e6eeea;margin:0 0 20px;">
           <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;">
-            © pieta.care &nbsp;·&nbsp;
-            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+            © pietas.care &nbsp;·&nbsp;
+            <a href="https://pietas.care" style="color:#2A6049;text-decoration:none;">pietas.care</a>
           </p>
         </td>
       </tr>
@@ -218,7 +218,7 @@ def _trial_email_shell(title: str, body_html: str, cta_label: str | None = None,
       <tr>
         <td style="background:#2A6049;padding:30px 40px;text-align:center;">
           <div style="font-size:30px;margin-bottom:6px;">🌿</div>
-          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pieta.care</div>
+          <div style="color:#fff;font-size:22px;font-weight:700;letter-spacing:-0.4px;">pietas.care</div>
           <div style="color:#a8c9bc;font-size:13px;margin-top:4px;">Cuidar com confiança</div>
         </td>
       </tr>
@@ -229,10 +229,10 @@ def _trial_email_shell(title: str, body_html: str, cta_label: str | None = None,
           {cta_block}
           <hr style="border:none;border-top:1px solid #e6eeea;margin:28px 0 14px;">
           <p style="font-size:12px;color:#b0c4b8;margin:0;text-align:center;line-height:1.6;">
-            © pieta.care &nbsp;·&nbsp;
-            <a href="https://pieta.care" style="color:#2A6049;text-decoration:none;">pieta.care</a>
+            © pietas.care &nbsp;·&nbsp;
+            <a href="https://pietas.care" style="color:#2A6049;text-decoration:none;">pietas.care</a>
             &nbsp;·&nbsp;
-            <a href="https://pieta.care/conta" style="color:#2A6049;text-decoration:none;">A minha conta</a>
+            <a href="https://pietas.care/conta" style="color:#2A6049;text-decoration:none;">A minha conta</a>
           </p>
         </td>
       </tr>
@@ -247,7 +247,7 @@ def trial_day2_html(name: str) -> str:
     body = f"""
     <p style="font-size:16px;margin:0 0 14px;line-height:1.7;">Olá <strong>{name}</strong>,</p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
-      Está a usar o pieta.care há um par de dias — espero que esteja a correr tudo bem.
+      Está a usar o pietas.care há um par de dias — espero que esteja a correr tudo bem.
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
       Está actualmente no plano <strong style="color:#2A6049;">Família AI</strong> (o mais completo,
@@ -265,7 +265,7 @@ def trial_day2_html(name: str) -> str:
         title="Tudo a correr bem? 🌿",
         body_html=body,
         cta_label="Abrir chat de suporte",
-        cta_url="https://pieta.care/dashboard?support=open",
+        cta_url="https://pietas.care/dashboard?support=open",
     )
 
 
@@ -273,7 +273,7 @@ def trial_day7_html(name: str) -> str:
     body = f"""
     <p style="font-size:16px;margin:0 0 14px;line-height:1.7;">Olá <strong>{name}</strong>,</p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
-      Já passou uma semana desde que começou a experimentar o pieta.care no plano
+      Já passou uma semana desde que começou a experimentar o pietas.care no plano
       <strong style="color:#2A6049;">Família AI</strong>. Estamos curiosos —
       <strong>como tem sido a experiência?</strong>
     </p>
@@ -289,7 +289,7 @@ def trial_day7_html(name: str) -> str:
         title="Como tem sido a experiência?",
         body_html=body,
         cta_label="Deixar avaliação",
-        cta_url="https://pieta.care/dashboard?feedback=open",
+        cta_url="https://pietas.care/dashboard?feedback=open",
     )
 
 
@@ -297,7 +297,7 @@ def trial_day13_html(name: str) -> str:
     body = f"""
     <p style="font-size:16px;margin:0 0 14px;line-height:1.7;">Olá <strong>{name}</strong>,</p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
-      <strong>Amanhã termina o seu período gratuito de 14 dias</strong> no pieta.care.
+      <strong>Amanhã termina o seu período gratuito de 14 dias</strong> no pietas.care.
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
       Para <strong>manter o acesso</strong> e <strong>preservar todos os dados</strong> que registou
@@ -319,5 +319,5 @@ def trial_day13_html(name: str) -> str:
         title="Faltam 24 horas no seu trial",
         body_html=body,
         cta_label="Subscrever na minha área",
-        cta_url="https://pieta.care/conta",
+        cta_url="https://pietas.care/conta",
     )

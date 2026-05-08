@@ -3,8 +3,8 @@ import { Check, Sparkles, ArrowLeft, Leaf } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Planos e Preços — pieta.care',
-  description: 'Planos pieta.care a partir de €35/mês + IVA. 14 dias grátis. Cancela quando quiseres.',
+  title: 'Planos e Preços — pietas.care',
+  description: 'Planos pietas.care a partir de €35/mês + IVA. 14 dias grátis. Cancela quando quiseres.',
 }
 
 const PLANS = [
@@ -97,7 +97,7 @@ export default function PlanosPage() {
           display: 'inline-flex', alignItems: 'center', gap: 8,
           fontSize: 18, fontWeight: 800, color: '#166534', textDecoration: 'none',
         }}>
-          <Leaf size={20} strokeWidth={2.25} /> pieta.care
+          <Leaf size={20} strokeWidth={2.25} /> pietas.care
         </Link>
         <Link href="/" style={{
           display: 'inline-flex', alignItems: 'center', gap: 6,

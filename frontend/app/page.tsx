@@ -3,33 +3,33 @@ import Link from 'next/link'
 import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Home, Droplet, Smile, Users, Stethoscope, ClipboardList, MapPin, Check } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'pieta.care - A tranquilidade de saber que está bem cuidado',
+  title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
   description: 'Plataforma portuguesa para famílias que cuidam de um familiar idoso ou dependente. Medicação, consultas, sinais vitais e coordenação familiar, tudo num só lugar.',
   keywords: ['cuidar de idosos', 'app cuidadores', 'gestão medicação idosos', 'plataforma cuidados familiares', 'cuidar familiar à distância', 'pieta care'],
   openGraph: {
-    title: 'pieta.care - A tranquilidade de saber que está bem cuidado',
-    description: 'Quando não consegue estar sempre presente, o pieta.care garante que nada passa em branco.',
-    url: 'https://pieta.care',
-    siteName: 'pieta.care',
+    title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
+    description: 'Quando não consegue estar sempre presente, o pietas.care garante que nada passa em branco.',
+    url: 'https://pietas.care',
+    siteName: 'pietas.care',
     locale: 'pt_PT',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'pieta.care - Cuidar de quem ama, mesmo à distância',
+    title: 'pietas.care - Cuidar de quem ama, mesmo à distância',
     description: 'Medicação, consultas, sinais vitais e coordenação familiar num só lugar.',
   },
-  alternates: { canonical: 'https://pieta.care' },
+  alternates: { canonical: 'https://pietas.care' },
 }
 
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
-  name: 'pieta.care',
+  name: 'pietas.care',
   applicationCategory: 'HealthApplication',
   operatingSystem: 'Web',
   description: 'Plataforma portuguesa de gestão de cuidados para famílias de idosos e pessoas dependentes.',
-  url: 'https://pieta.care',
+  url: 'https://pietas.care',
   inLanguage: 'pt-PT',
   offers: [
     { '@type': 'Offer', name: 'Família', price: '35', priceCurrency: 'EUR', billingDuration: 'P1M' },
@@ -100,8 +100,8 @@ export default function LandingPage() {
 
         {/* NAV */}
         <nav role="navigation" aria-label="Navegação principal" className="lp-nav">
-          <Link href="/" aria-label="pieta.care" style={{ fontWeight: 900, fontSize: 19, color: '#166534', textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            <Leaf size={20} strokeWidth={2.25} /> pieta.care
+          <Link href="/" aria-label="pietas.care" style={{ fontWeight: 900, fontSize: 19, color: '#166534', textDecoration: 'none', letterSpacing: '-0.02em', flexShrink: 0, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <Leaf size={20} strokeWidth={2.25} /> pietas.care
           </Link>
 
           <div className="lp-nav-links">
@@ -127,7 +127,7 @@ export default function LandingPage() {
               A tranquilidade de saber<br />que está <em style={{ fontStyle: 'normal', color: '#4ADE80' }}>bem cuidado.</em>
             </h1>
             <p style={{ fontSize: 'clamp(16px,2vw,20px)', color: 'rgba(255,255,255,0.62)', maxWidth: 580, margin: '0 auto 44px', lineHeight: 1.75 }}>
-              Quando não consegue estar sempre presente, o pieta.care garante que nada passa em branco. Medicação, consultas, incidentes e bem-estar, partilhados com toda a família.
+              Quando não consegue estar sempre presente, o pietas.care garante que nada passa em branco. Medicação, consultas, incidentes e bem-estar, partilhados com toda a família.
             </p>
             <div className="lp-hero-btns">
               <Link href="/register" style={{ fontSize: 16, fontWeight: 800, color: '#0A0A0C', background: '#4ADE80', textDecoration: 'none', padding: '15px 34px', borderRadius: 12, letterSpacing: '-0.01em' }}>
@@ -146,11 +146,11 @@ export default function LandingPage() {
           <div className="lp-mockup" style={{ maxWidth: 860, margin: '72px auto 0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.5)', border: '1px solid rgba(255,255,255,0.08)' }}>
             <div style={{ background: '#050507', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 7 }}>
               {['','',''].map((_, i) => <span key={i} style={{ width: 11, height: 11, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'inline-block' }} />)}
-              <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>pieta.care/dashboard</span>
+              <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace' }}>pietas.care/dashboard</span>
             </div>
             <div className="lp-mockup-inner" style={{ background: '#FAF8F5' }}>
               <div style={{ width: 190, background: '#0A1A12', padding: '20px 14px', flexShrink: 0 }}>
-                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Leaf size={13} strokeWidth={2.25} /> pieta.care</div>
+                <div style={{ fontSize: 13, fontWeight: 900, color: '#fff', marginBottom: 2, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 5 }}><Leaf size={13} strokeWidth={2.25} /> pietas.care</div>
                 <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.4)', marginBottom: 20 }}>Cuidar com confiança</div>
                 {([
                   [<Home size={12} strokeWidth={2} key="h" />,'Hoje',true],
@@ -203,7 +203,7 @@ export default function LandingPage() {
               <span style={{ color: '#9CA3AF', fontWeight: 400 }}>de memória e em papel.</span>
             </h2>
             <p style={{ fontSize: 'clamp(15px,1.5vw,18px)', color: '#4B5563', lineHeight: 1.8, maxWidth: 580, margin: '0 auto' }}>
-              Medicações, consultas, receitas, historial de quedas, notas entre turnos. Quando o cuidado é partilhado entre filhos, cônjuges e profissionais, a informação perde-se. O pieta.care existe para que isso nunca aconteça.
+              Medicações, consultas, receitas, historial de quedas, notas entre turnos. Quando o cuidado é partilhado entre filhos, cônjuges e profissionais, a informação perde-se. O pietas.care existe para que isso nunca aconteça.
             </p>
           </div>
 
@@ -235,7 +235,7 @@ export default function LandingPage() {
             </div>
             <ol className="lp-steps" style={{ listStyle: 'none' }}>
               {[
-                { n: '01', title: 'Crie o perfil do familiar', body: 'Introduza os dados de saúde, alergias, médicos responsáveis e contactos de emergência. O pieta.care organiza tudo numa ficha clínica completa.' },
+                { n: '01', title: 'Crie o perfil do familiar', body: 'Introduza os dados de saúde, alergias, médicos responsáveis e contactos de emergência. O pietas.care organiza tudo numa ficha clínica completa.' },
                 { n: '02', title: 'Registe o dia-a-dia', body: 'Medicação, sinais vitais, consultas e notas de turno ficam registados ao longo do dia por quem estiver presente, profissional ou familiar.' },
                 { n: '03', title: 'Toda a família a par', body: 'Qualquer pessoa autorizada vê o historial actualizado em tempo real. Nada se perde entre turnos, chamadas ou quilómetros de distância.' },
               ].map((s, idx) => (
@@ -259,7 +259,7 @@ export default function LandingPage() {
             </svg>
             <blockquote>
               <p style={{ fontSize: 'clamp(18px,2.5vw,26px)', fontWeight: 700, color: '#0A0A0C', lineHeight: 1.55, letterSpacing: '-0.02em', marginBottom: 24 }}>
-                "A minha mãe vive a 400 km. Antes do pieta.care, passava os fins-de-semana ao telefone a tentar perceber como tinha corrido a semana. Agora abro a aplicação e sei exactamente como ela está, e a cuidadora sabe que não está sozinha."
+                "A minha mãe vive a 400 km. Antes do pietas.care, passava os fins-de-semana ao telefone a tentar perceber como tinha corrido a semana. Agora abro a aplicação e sei exactamente como ela está, e a cuidadora sabe que não está sozinha."
               </p>
               <footer>
                 <cite style={{ fontStyle: 'normal', fontSize: 15, color: '#4B5563', fontWeight: 600 }}>
@@ -376,7 +376,7 @@ export default function LandingPage() {
         <footer role="contentinfo" style={{ background: '#1C1917', padding: 'clamp(36px,5vw,56px) clamp(20px,4vw,40px) clamp(24px,3vw,36px)' }}>
           <div className="lp-footer-inner">
             <div>
-              <div style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 6, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 7 }}><Leaf size={18} strokeWidth={2.25} /> pieta.care</div>
+              <div style={{ fontWeight: 900, fontSize: 18, color: '#fff', marginBottom: 6, letterSpacing: '-0.02em', display: 'inline-flex', alignItems: 'center', gap: 7 }}><Leaf size={18} strokeWidth={2.25} /> pietas.care</div>
               <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', maxWidth: 240, lineHeight: 1.7 }}>
                 Plataforma portuguesa de gestão de cuidados familiares.
               </p>
@@ -401,7 +401,7 @@ export default function LandingPage() {
             </nav>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>© 2026 pieta.care · FLOW 88 - Gestão de Ativos, Lda.</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>© 2026 pietas.care · FLOW 88 - Gestão de Ativos, Lda.</p>
             <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Feito em Portugal 🇵🇹</p>
           </div>
         </footer>

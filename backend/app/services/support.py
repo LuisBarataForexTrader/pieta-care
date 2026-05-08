@@ -1,4 +1,4 @@
-"""Support chat — bridge between customers and pieta.care admins.
+"""Support chat — bridge between customers and pietas.care admins.
 
 One thread per user. Admin users (User.is_admin = True) can read all
 threads and reply. Each user only sees their own thread.
@@ -141,7 +141,7 @@ def _notify_admins_async(db: Session, user: User, content: str) -> None:
             <p style="margin:0 0 12px;font-size:14px;"><strong>Plano:</strong> {user.subscription_status}{' / ' + user.subscription_plan if user.subscription_plan else ''}</p>
             <div style="background:#F8FAF9;border:1px solid #E2EBE5;border-radius:10px;padding:14px 16px;font-size:14px;line-height:1.6;white-space:pre-wrap;">{snippet}</div>
             <p style="margin:16px 0 0;font-size:13px;">
-              <a href="https://pieta.care/admin/suporte" style="color:#2A6049;font-weight:700;">Responder no painel →</a>
+              <a href="https://pietas.care/admin/suporte" style="color:#2A6049;font-weight:700;">Responder no painel →</a>
             </p>
         </body></html>"""
         for admin in admins:

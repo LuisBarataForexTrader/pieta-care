@@ -73,7 +73,7 @@ function ContaPageInner() {
 
   useEffect(() => {
     if (checkoutResult === 'success') {
-      setMsg({ type: 'success', text: 'Subscrição activada. Obrigado por escolher pieta.care!' })
+      setMsg({ type: 'success', text: 'Subscrição activada. Obrigado por escolher pietas.care!' })
     } else if (checkoutResult === 'cancel') {
       setMsg({ type: 'error', text: 'Checkout cancelado. Podes voltar a tentar quando quiseres.' })
     }

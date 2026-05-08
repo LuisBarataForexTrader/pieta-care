@@ -1,4 +1,4 @@
-const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pieta.care'
+const BASE = process.env.NEXT_PUBLIC_API_URL ?? 'https://api.pietas.care'
 let _redirecting = false
 
 function getToken(): string | null {

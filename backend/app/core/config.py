@@ -2,7 +2,7 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    APP_NAME: str = "pieta.care"
+    APP_NAME: str = "pietas.care"
     VERSION: str = "0.1.0"
     DEBUG: bool = False
 
@@ -23,9 +23,11 @@ class Settings(BaseSettings):
     HETZNER_STORAGE_BUCKET: str = "pieta-care"
     HETZNER_STORAGE_ENDPOINT: str = "https://fsn1.your-objectstorage.com"
 
-    FRONTEND_URL: str = "https://pieta.care"
+    FRONTEND_URL: str = "https://pietas.care"
+    # Vercel project URL (project still named "pieta-care" on Vercel — leave
+    # until renamed there). Used for CORS only.
     FRONTEND_URL_VERCEL: str = "https://pieta-care.vercel.app"
-    BACKEND_PUBLIC_URL: str = "https://api.pieta.care"
+    BACKEND_PUBLIC_URL: str = "https://api.pietas.care"
 
     # TOConline (faturação PT)
     TOCONLINE_CLIENT_ID: str = ""
@@ -42,6 +44,9 @@ class Settings(BaseSettings):
     SMTP_PORT: int = 587
     SMTP_USER: str = ""
     SMTP_PASSWORD: str = ""
+    # NOTE: Until Resend domain verification is set up for pietas.care,
+    # keep the working noreply@pieta.care address. Override via env
+    # EMAIL_FROM=noreply@pietas.care once pietas.care SPF/DKIM is verified.
     EMAIL_FROM: str = "noreply@pieta.care"
 
     class Config:

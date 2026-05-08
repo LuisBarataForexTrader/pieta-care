@@ -10,7 +10,7 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
-  title: 'pieta.care',
+  title: 'pietas.care',
   description: 'Cuidar de quem amamos, juntos.',
 }
 

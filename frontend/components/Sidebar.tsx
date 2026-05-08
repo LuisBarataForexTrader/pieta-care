@@ -173,7 +173,7 @@ export default function Sidebar() {
       <div className="sidebar-logo">
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
           <Link href="/dashboard" className="sidebar-logo-mark">
-            <Leaf size={20} strokeWidth={2.25} /> pieta.care
+            <Leaf size={20} strokeWidth={2.25} /> pietas.care
           </Link>
           <ThemeToggle className="sidebar-theme-toggle" />
         </div>

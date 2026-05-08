@@ -41,7 +41,7 @@ export default function Register() {
         <div style={{ width: '100%', maxWidth: 420 }}>
           <div style={{ textAlign: 'center', marginBottom: 32 }}>
             <div style={{ fontSize: 48, marginBottom: 12 }}>🌿</div>
-            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.5px' }}>pieta.care</h1>
+            <h1 style={{ fontSize: 28, fontWeight: 800, color: 'var(--brand)', letterSpacing: '-0.5px' }}>pietas.care</h1>
           </div>
           <div className="auth-card" style={{ textAlign: 'center' }}>
             <div style={{
@@ -85,7 +85,7 @@ export default function Register() {
           }}>
             <Leaf size={30} strokeWidth={2} color="#fff" />
           </div>
-          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pieta.care</h1>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text)', letterSpacing: '-0.025em' }}>pietas.care</h1>
           <p style={{ color: 'var(--text-3)', marginTop: 6, fontSize: 15 }}>14 dias grátis · Sem cartão de crédito</p>
         </div>
 

@@ -11,7 +11,7 @@ PLANS = {
         "price_env": "STRIPE_PRICE_FAMILIA",
         "amount_excl_vat": 35.00,       # €35 + IVA
         "item_code": "PIETA-FAM-M",
-        "description": "pieta.care — Plano Família (mensal)",
+        "description": "pietas.care — Plano Família (mensal)",
         "max_elderly": 1,
         "max_family_members": 2,
         "has_ai": False,
@@ -28,7 +28,7 @@ PLANS = {
         "price_env": "STRIPE_PRICE_FAMILIA_PLUS",
         "amount_excl_vat": 59.00,       # €59 + IVA
         "item_code": "PIETA-FAM-PLUS-M",
-        "description": "pieta.care — Plano Família+ (mensal)",
+        "description": "pietas.care — Plano Família+ (mensal)",
         "max_elderly": 2,
         "max_family_members": 5,
         "has_ai": False,
@@ -48,7 +48,7 @@ PLANS = {
         "price_env": "STRIPE_PRICE_CUIDADOR_PRO",
         "amount_excl_vat": 88.00,       # €88 + IVA
         "item_code": "PIETA-FAM-PLUS-IA-M",
-        "description": "pieta.care — Plano Família Plus com IA (mensal)",
+        "description": "pietas.care — Plano Família Plus com IA (mensal)",
         "max_elderly": 4,
         "max_family_members": None,     # ilimitado
         "has_ai": True,

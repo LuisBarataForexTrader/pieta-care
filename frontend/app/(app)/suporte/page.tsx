@@ -116,7 +116,7 @@ export default function SuportePage() {
       <div className="page-top">
         <div>
           <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}>
-            <LifeBuoy size={20} strokeWidth={2} /> Suporte pieta.care
+            <LifeBuoy size={20} strokeWidth={2} /> Suporte pietas.care
           </div>
           <div className="page-subtitle">Pagamentos, bugs, dúvidas — respondemos em poucas horas</div>
         </div>
@@ -129,7 +129,7 @@ export default function SuportePage() {
           ) : messages.length === 0 ? (
             <div className="empty-state" style={{ padding: 48 }}>
               <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><LifeBuoy size={42} strokeWidth={1.4} /></div>
-              <div className="empty-state-title">Conversa com a equipa pieta.care</div>
+              <div className="empty-state-title">Conversa com a equipa pietas.care</div>
               <div className="empty-state-text">Escreve a tua dúvida ou problema abaixo. Respondemos rapidamente — vais receber um email quando responderemos.</div>
             </div>
           ) : (
@@ -149,7 +149,7 @@ export default function SuportePage() {
                         <div className={`chat-bubble ${own ? 'chat-bubble-own' : ''}`}>
                           {!own && (
                             <div className="chat-sender" style={{ color: m.is_admin_reply ? '#7C3AED' : 'var(--brand)' }}>
-                              {m.is_admin_reply ? 'pieta.care · suporte' : m.sender_name}
+                              {m.is_admin_reply ? 'pietas.care · suporte' : m.sender_name}
                             </div>
                           )}
                           <div className="chat-content">{m.content}</div>

@@ -1,5 +1,5 @@
 """
-One-shot setup of pieta.care products in Stripe (Flow88 account).
+One-shot setup of pietas.care products in Stripe (Flow88 account).
 
 Run locally with the Flow88 Stripe secret key (test or live):
 
@@ -22,21 +22,21 @@ import stripe
 PRODUCTS = [
     {
         "plan_key": "familia",
-        "name": "pieta.care Família",
+        "name": "pietas.care Família",
         "description": "Plano Família — 1 perfil de familiar, até 2 familiares.",
         "amount_eur": 35,
         "secret_name": "STRIPE_PRICE_FAMILIA",
     },
     {
         "plan_key": "familia_plus",
-        "name": "pieta.care Família+",
+        "name": "pietas.care Família+",
         "description": "Plano Família+ — até 2 perfis de familiar, até 5 familiares.",
         "amount_eur": 59,
         "secret_name": "STRIPE_PRICE_FAMILIA_PLUS",
     },
     {
         "plan_key": "cuidador_pro",
-        "name": "pieta.care Família AI",
+        "name": "pietas.care Família AI",
         "description": "Plano Família AI — até 4 perfis, familiares ilimitados, IA.",
         "amount_eur": 88,
         "secret_name": "STRIPE_PRICE_CUIDADOR_PRO",

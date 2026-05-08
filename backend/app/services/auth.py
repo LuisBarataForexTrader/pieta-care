@@ -58,7 +58,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
     verify_url = f"{settings.FRONTEND_URL}/verificar-email?token={token}"
     send_email(
         to=user.email,
-        subject="Confirme o seu email - pieta.care",
+        subject="Confirme o seu email - pietas.care",
         html=verification_email_html(user.full_name, verify_url),
     )
 
@@ -108,7 +108,7 @@ def delete_account(db: Session, user: User) -> None:
     deletion_date = (datetime.utcnow() + timedelta(days=30)).strftime("%d/%m/%Y")
     send_email(
         to=user.email,
-        subject="Pedido de eliminação de conta recebido - pieta.care",
+        subject="Pedido de eliminação de conta recebido - pietas.care",
         html=deletion_confirmation_html(user.full_name, deletion_date),
     )
 
