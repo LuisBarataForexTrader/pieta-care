@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
-import Image from 'next/image'
 import Link from 'next/link'
 import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Stethoscope, ClipboardList, MapPin, Check, Sparkles } from 'lucide-react'
+import ZoomImage from '@/components/ZoomImage'
 
 export const metadata: Metadata = {
   title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
@@ -143,20 +143,18 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Real app screenshot — hero showcase */}
-          <div className="lp-mockup" style={{ maxWidth: 980, margin: '72px auto 0', borderRadius: 18, overflow: 'hidden', boxShadow: '0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(74,222,128,0.08)', border: '1px solid rgba(255,255,255,0.08)' }}>
-            <div style={{ background: '#050507', padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 7 }}>
-              {['','',''].map((_, i) => <span key={i} style={{ width: 11, height: 11, borderRadius: '50%', background: 'rgba(255,255,255,0.15)', display: 'inline-block' }} />)}
-              <span style={{ flex: 1, textAlign: 'center', fontSize: 12, color: 'rgba(255,255,255,0.4)', fontFamily: 'monospace' }}>pietas.care/dashboard</span>
-            </div>
-            <Image
+          {/* Real app screenshot — hero showcase (clickable to zoom) */}
+          <div className="lp-mockup" style={{ maxWidth: 980, margin: '72px auto 0', filter: 'drop-shadow(0 40px 100px rgba(0,0,0,0.55))' }}>
+            <ZoomImage
               src="/showcase/dashboard-dark.webp"
               alt="Dashboard pietas.care: panorama do dia com adesão à medicação, tensão arterial, bem-estar e próxima consulta"
               width={2400}
               height={1500}
               priority
               sizes="(max-width: 1024px) 100vw, 980px"
-              style={{ width: '100%', height: 'auto', display: 'block' }}
+              chrome
+              chromeUrl="pietas.care/dashboard"
+              caption="Hoje · Dashboard com adesão à medicação, tensão arterial, bem-estar e próxima consulta."
             />
           </div>
         </section>
@@ -238,19 +236,15 @@ export default function LandingPage() {
                 },
               ] as const).map((s) => (
                 <article key={s.src} className="lp-showcase-card">
-                  <div className="lp-showcase-frame">
-                    <div className="lp-showcase-chrome">
-                      {[0,1,2].map(i => <span key={i} className="lp-showcase-dot" />)}
-                    </div>
-                    <Image
-                      src={s.src}
-                      alt={s.alt}
-                      width={2400}
-                      height={1500}
-                      sizes="(max-width: 900px) 100vw, 560px"
-                      style={{ width: '100%', height: 'auto', display: 'block' }}
-                    />
-                  </div>
+                  <ZoomImage
+                    src={s.src}
+                    alt={s.alt}
+                    width={2400}
+                    height={1500}
+                    sizes="(max-width: 900px) 100vw, 560px"
+                    chrome
+                    caption={s.alt}
+                  />
                   <div className="lp-showcase-text">
                     <p style={{ fontSize: 12, fontWeight: 700, color: '#4ADE80', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 10 }}>{s.eyebrow}</p>
                     <h3 style={{ fontSize: 'clamp(20px,2.4vw,26px)', fontWeight: 900, color: '#fff', letterSpacing: '-0.02em', lineHeight: 1.2, marginBottom: 12, whiteSpace: 'pre-line' }}>{s.title}</h3>
@@ -327,20 +321,17 @@ export default function LandingPage() {
             </div>
             <div className="lp-ai-frame">
               <div className="lp-ai-frame-glow" aria-hidden="true" />
-              <div className="lp-ai-frame-inner">
-                <div className="lp-ai-frame-chrome">
-                  {[0,1,2].map(i => <span key={i} className="lp-showcase-dot" />)}
-                  <span style={{ flex: 1, textAlign: 'center', fontSize: 11, color: 'rgba(255,255,255,0.35)', fontFamily: 'monospace' }}>Análise IA · 5s</span>
-                </div>
-                <Image
-                  src="/showcase/ai-insight-dark.webp"
-                  alt="Relatório de IA gerado pelo pietas.care: estado geral, pontos positivos, pontos a vigiar e recomendações práticas"
-                  width={2400}
-                  height={1500}
-                  sizes="(max-width: 900px) 100vw, 600px"
-                  style={{ width: '100%', height: 'auto', display: 'block' }}
-                />
-              </div>
+              <ZoomImage
+                src="/showcase/ai-insight-dark.webp"
+                alt="Relatório de IA gerado pelo pietas.care: estado geral, pontos positivos, pontos a vigiar e recomendações práticas"
+                width={2400}
+                height={1500}
+                sizes="(max-width: 900px) 100vw, 600px"
+                chrome
+                chromeUrl="Análise IA · 5s"
+                caption="Análise IA · resumo executivo gerado em 5 segundos a partir de 7 dias de sinais vitais, medicação e bem-estar."
+                wrapperClassName="lp-ai-zoom"
+              />
             </div>
           </div>
           <style>{`
@@ -402,34 +393,57 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* FEATURES */}
+        {/* FEATURES — each card with a real screenshot, clickable to zoom */}
         <section id="funcionalidades" aria-labelledby="funcionalidades-heading" style={{ background: '#F9FAFB', padding: 'clamp(64px,8vw,112px) 24px' }}>
-          <div style={{ maxWidth: 1000, margin: '0 auto' }}>
-            <div style={{ textAlign: 'center', marginBottom: 52 }}>
+          <div style={{ maxWidth: 1180, margin: '0 auto' }}>
+            <div style={{ textAlign: 'center', marginBottom: 56 }}>
               <p style={{ fontSize: 13, fontWeight: 700, color: '#166534', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 14 }}>Funcionalidades</p>
-              <h2 id="funcionalidades-heading" style={{ fontSize: 'clamp(26px,4vw,42px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C' }}>
+              <h2 id="funcionalidades-heading" style={{ fontSize: 'clamp(26px,4vw,42px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', marginBottom: 14 }}>
                 Tudo o que o cuidado diário exige.
               </h2>
+              <p style={{ fontSize: 'clamp(14px,1.4vw,16px)', color: '#6B7280', maxWidth: 580, margin: '0 auto', lineHeight: 1.7 }}>
+                Cada vista abaixo é um ecrã real da aplicação. <span style={{ color: '#166534', fontWeight: 700 }}>Clique para ampliar.</span>
+              </p>
             </div>
-            <div className="lp-features">
+            <div className="lp-features-photo">
               {([
-                [<HeartPulse size={22} strokeWidth={1.75} key="hp" />,'Sinais vitais','Pressão, glicemia, saturação, temperatura e peso com histórico visual.'],
-                [<FileText size={22} strokeWidth={1.75} key="ft" />,'Documentos','Relatórios, receitas e exames digitalizados e organizados.'],
-                [<ClipboardList size={22} strokeWidth={1.75} key="nt" />,'Notas de turno','Comunicação entre cuidadores por turno: manhã, tarde, noite.'],
-                [<Stethoscope size={22} strokeWidth={1.75} key="pl" />,'Plano de cuidados','Rotinas de higiene, nutrição, mobilidade e estimulação cognitiva.'],
-                [<ClipboardList size={22} strokeWidth={1.75} key="dc" />,'Dados clínicos','Diagnósticos, vacinas e historial clínico sempre disponíveis.'],
-                [<FileText size={22} strokeWidth={1.75} key="rm" />,'Relatório médico','Resumos periódicos para partilhar com médicos e especialistas.'],
-                [<AlertTriangle size={22} strokeWidth={1.75} key="al" />,'Alertas','Notificações configuráveis para medicação e acompanhamento.'],
-                [<MapPin size={22} strokeWidth={1.75} key="mp" />,'Mapa corporal','Registo visual de incidentes e zonas afectadas.'],
-              ] as const).map(([icon, title, desc]) => (
-                <article key={String(title)} style={{ padding: '22px 18px', borderRadius: 14, background: '#fff', border: '1px solid #E5E7EB', boxShadow: '0 1px 3px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.05)' }}>
-                  <div style={{ width: 44, height: 44, borderRadius: 11, background: 'rgba(22,101,52,0.08)', color: '#166534', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', marginBottom: 12 }}>{icon}</div>
-                  <h3 style={{ fontSize: 14, fontWeight: 800, color: '#0A0A0C', marginBottom: 6 }}>{String(title)}</h3>
-                  <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65 }}>{String(desc)}</p>
+                { src: '/showcase/saude-dark.webp', icon: <HeartPulse size={18} strokeWidth={2} key="hp" />, title: 'Sinais vitais', desc: 'Pressão, glicemia, saturação, temperatura e peso com histórico visual de 60 dias.' },
+                { src: '/showcase/documentos-dark.webp', icon: <FileText size={18} strokeWidth={2} key="ft" />, title: 'Documentos', desc: 'Relatórios, receitas e exames digitalizados e organizados por categoria.' },
+                { src: '/showcase/notas-dark.webp', icon: <ClipboardList size={18} strokeWidth={2} key="nt" />, title: 'Notas de turno', desc: 'Manhã, tarde e noite — comunicação contínua entre todos os cuidadores.' },
+                { src: '/showcase/plano-dark.webp', icon: <Stethoscope size={18} strokeWidth={2} key="pl" />, title: 'Plano de cuidados', desc: 'Rotinas de higiene, nutrição, mobilidade e estimulação cognitiva.' },
+                { src: '/showcase/clinico-dark.webp', icon: <ClipboardList size={18} strokeWidth={2} key="dc" />, title: 'Dados clínicos', desc: 'Diagnósticos com código ICD, vacinas e historial sempre acessíveis.' },
+                { src: '/showcase/relatorio-dark.webp', icon: <FileText size={18} strokeWidth={2} key="rm" />, title: 'Relatório médico', desc: 'Resumos periódicos prontos a imprimir ou enviar por email ao especialista.' },
+                { src: '/showcase/medicacao-dark.webp', icon: <Pill size={18} strokeWidth={2} key="al" />, title: 'Medicação & alertas', desc: 'Horários personalizáveis, percentagem de adesão e descrição clínica de cada fármaco.' },
+                { src: '/showcase/incidentes-dark.webp', icon: <MapPin size={18} strokeWidth={2} key="mp" />, title: 'Mapa corporal', desc: 'Registo visual de incidentes — quedas, ferimentos — com zona afectada.' },
+              ]).map((f) => (
+                <article key={f.title} className="lp-feature-photo-card">
+                  <ZoomImage
+                    src={f.src}
+                    alt={`${f.title}: ${f.desc}`}
+                    width={2400}
+                    height={1500}
+                    sizes="(max-width: 600px) 100vw, (max-width: 1000px) 50vw, 280px"
+                    chrome
+                    caption={f.desc}
+                  />
+                  <div className="lp-feature-photo-text">
+                    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
+                      <span style={{ width: 30, height: 30, borderRadius: 8, background: 'rgba(22,101,52,0.08)', color: '#166534', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>{f.icon}</span>
+                      <h3 style={{ fontSize: 15, fontWeight: 800, color: '#0A0A0C', letterSpacing: '-0.01em' }}>{f.title}</h3>
+                    </div>
+                    <p style={{ fontSize: 13, color: '#6B7280', lineHeight: 1.65 }}>{f.desc}</p>
+                  </div>
                 </article>
               ))}
             </div>
           </div>
+          <style>{`
+            .lp-features-photo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 28px 22px; }
+            .lp-feature-photo-card { display: flex; flex-direction: column; gap: 14px; }
+            .lp-feature-photo-text { padding: 0 2px; }
+            @media (max-width: 1000px) { .lp-features-photo { grid-template-columns: repeat(2, 1fr); gap: 32px 22px; } }
+            @media (max-width: 520px)  { .lp-features-photo { grid-template-columns: 1fr; gap: 28px; } }
+          `}</style>
         </section>
 
         {/* PRICING */}
