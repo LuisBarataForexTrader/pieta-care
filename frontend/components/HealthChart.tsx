@@ -41,7 +41,7 @@ export default function HealthChart({
   const [hover, setHover] = useState<number | null>(null)
 
   const chart = useMemo(() => {
-    if (data.length < 2) return null
+    if (data.length < 1) return null
 
     // Collect numeric points per series
     const points = data.map((p) => {
@@ -141,15 +141,17 @@ export default function HealthChart({
           </g>
         ))}
 
-        {/* X-axis labels: first, mid, last */}
-        {[0, Math.floor(points.length / 2), points.length - 1].map((idx) => (
+        {/* X-axis labels: first, mid, last (deduped for very short series) */}
+        {Array.from(new Set(
+          [0, Math.floor(points.length / 2), points.length - 1]
+        )).map((idx) => (
           <text
             key={idx}
             x={sx(points[idx].__t as number)}
             y={h - 6}
             fontSize={10}
             fill="var(--text-3)"
-            textAnchor={idx === 0 ? 'start' : idx === points.length - 1 ? 'end' : 'middle'}
+            textAnchor={idx === 0 && points.length > 1 ? 'start' : idx === points.length - 1 && points.length > 1 ? 'end' : 'middle'}
             fontFamily="var(--font-sans)"
           >
             {fmtX(new Date(points[idx].__t as number).toISOString())}
@@ -168,16 +170,31 @@ export default function HealthChart({
           />
         )}
 
-        {/* Series — area + line */}
+        {/* Series — area + line + dots. Single-point case shows just the dot
+           with a hint label, since a line needs ≥2 points. */}
         {series.map((s) => {
-          const pts: { x: number; y: number }[] = []
+          const pts: { x: number; y: number; v: number }[] = []
           for (const p of points) {
             const v = p[s.key] as number | null
             if (typeof v === 'number') {
-              pts.push({ x: sx(p.__t as number), y: sy(v) })
+              pts.push({ x: sx(p.__t as number), y: sy(v), v })
             }
           }
-          if (pts.length < 2) return null
+          if (pts.length === 0) return null
+
+          if (pts.length === 1) {
+            const p = pts[0]
+            return (
+              <g key={s.key}>
+                {/* horizontal dashed reference at the value */}
+                <line x1={PADDING.left} x2={w - PADDING.right} y1={p.y} y2={p.y}
+                  stroke={s.color} strokeWidth={1} strokeDasharray="4 4" opacity={0.5} />
+                <circle cx={p.x} cy={p.y} r={4} fill={s.color} />
+                <circle cx={p.x} cy={p.y} r={8} fill={s.color} fillOpacity={0.18} />
+              </g>
+            )
+          }
+
           const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
           const areaPath =
             `M ${pts[0].x.toFixed(1)},${(h - PADDING.bottom).toFixed(1)} ` +
