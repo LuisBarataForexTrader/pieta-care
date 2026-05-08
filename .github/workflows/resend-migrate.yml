@@ -1,12 +1,10 @@
-name: Migrate Resend domain pieta.care → pietas.care
+name: Resend domain migration
 
-# One-shot domain migration. Runs on the Hetzner box so it can read
-# RESEND_API_KEY from backend/.env without exposing it via gh secrets.
 on:
   workflow_dispatch:
     inputs:
       step:
-        description: "Step (1=remove old + add new, 2=trigger verification, 3=switch EMAIL_FROM)"
+        description: "1=remove old + add new, 2=verify, 3=switch EMAIL_FROM"
         required: true
         default: "1"
 
@@ -25,84 +23,57 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           envs: STEP
           script: |
+            set -eu
             cd /opt/pieta-care
-            KEY=$(grep '^RESEND_API_KEY=' backend/.env | cut -d= -f2-)
-            if [ -z "$KEY" ]; then echo "❌ RESEND_API_KEY missing in backend/.env"; exit 1; fi
+            apt-get install -y jq >/dev/null 2>&1 || true
 
-            api() {
-              curl -s -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" "$@"
-            }
+            KEY=$(grep '^RESEND_API_KEY=' backend/.env | cut -d= -f2-)
+            if [ -z "$KEY" ]; then echo "RESEND_API_KEY missing"; exit 1; fi
+
+            R() { curl -s -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" "$@"; }
 
             case "$STEP" in
               1)
-                echo "→ Listing current Resend domains:"
-                api https://api.resend.com/domains | python3 -m json.tool
+                echo "Listing current domains:"
+                R https://api.resend.com/domains | jq '.data[] | {id,name,status,region}'
 
-                echo
-                echo "→ Removing pieta.care:"
-                OLD_ID=$(api https://api.resend.com/domains | python3 -c "import sys,json; d=json.load(sys.stdin); ids=[x['id'] for x in d.get('data',[]) if x.get('name')=='pieta.care']; print(ids[0] if ids else '')")
-                if [ -n "$OLD_ID" ]; then
-                  api -X DELETE "https://api.resend.com/domains/$OLD_ID"
-                  echo " removed $OLD_ID"
+                OLD=$(R https://api.resend.com/domains | jq -r '.data[] | select(.name=="pieta.care") | .id')
+                if [ -n "$OLD" ]; then
+                  echo "Removing pieta.care ($OLD):"
+                  R -X DELETE "https://api.resend.com/domains/$OLD" | jq .
                 else
-                  echo " pieta.care not found — skipping"
+                  echo "pieta.care not present, skipping"
                 fi
 
-                echo
-                echo "→ Adding pietas.care (region: eu-west-1):"
-                api -X POST https://api.resend.com/domains -d '{"name":"pietas.care","region":"eu-west-1"}' | python3 -m json.tool
+                echo "Adding pietas.care:"
+                R -X POST https://api.resend.com/domains -d '{"name":"pietas.care","region":"eu-west-1"}' | jq .
 
-                echo
-                echo "→ DNS records required (copy these to Vercel DNS):"
-                api https://api.resend.com/domains | python3 -c "
-import sys, json
-data = json.load(sys.stdin)
-new = next((d for d in data.get('data', []) if d.get('name') == 'pietas.care'), None)
-if not new:
-    print('  (no pietas.care domain found)')
-    sys.exit(0)
-print('  domain id:', new['id'])
-print('  status:   ', new.get('status'))
-print('  region:   ', new.get('region'))
-"
-                echo
-                echo "→ Detailed records (need to fetch the domain by id):"
-                NEW_ID=$(api https://api.resend.com/domains | python3 -c "import sys,json; d=json.load(sys.stdin); ids=[x['id'] for x in d.get('data',[]) if x.get('name')=='pietas.care']; print(ids[0] if ids else '')")
-                api "https://api.resend.com/domains/$NEW_ID" | python3 -m json.tool
+                NEW=$(R https://api.resend.com/domains | jq -r '.data[] | select(.name=="pietas.care") | .id')
+                echo "Records for pietas.care ($NEW):"
+                R "https://api.resend.com/domains/$NEW" | jq '.records'
                 ;;
 
               2)
-                echo "→ Triggering Resend verify on pietas.care:"
-                NEW_ID=$(api https://api.resend.com/domains | python3 -c "import sys,json; d=json.load(sys.stdin); ids=[x['id'] for x in d.get('data',[]) if x.get('name')=='pietas.care']; print(ids[0] if ids else '')")
-                api -X POST "https://api.resend.com/domains/$NEW_ID/verify" | python3 -m json.tool
-                echo
-                echo "→ Current status:"
-                api "https://api.resend.com/domains/$NEW_ID" | python3 -c "
-import sys, json
-d = json.load(sys.stdin)
-print('  status:', d.get('status'))
-print('  records verified:')
-for r in d.get('records', []):
-    print(f\"    {r.get('record')} {r.get('name')} → {r.get('value')[:40]}…  status={r.get('status')}\")
-"
+                NEW=$(R https://api.resend.com/domains | jq -r '.data[] | select(.name=="pietas.care") | .id')
+                echo "Triggering verify on pietas.care ($NEW):"
+                R -X POST "https://api.resend.com/domains/$NEW/verify" | jq .
+                echo "Status:"
+                R "https://api.resend.com/domains/$NEW" | jq '{status, records: [.records[] | {record, name, status}]}'
                 ;;
 
               3)
-                echo "→ Switching EMAIL_FROM to noreply@pietas.care"
+                echo "Switching EMAIL_FROM to noreply@pietas.care"
                 if grep -q '^EMAIL_FROM=' backend/.env; then
                   sed -i 's|^EMAIL_FROM=.*|EMAIL_FROM=noreply@pietas.care|' backend/.env
                 else
                   echo 'EMAIL_FROM=noreply@pietas.care' >> backend/.env
                 fi
                 grep '^EMAIL_FROM=' backend/.env
-                echo
-                echo "→ Restarting api container so it picks up the new env:"
                 docker compose restart api
-                echo "✅ Done"
+                echo "Done"
                 ;;
 
               *)
-                echo "Unknown step: $STEP"
-                exit 1
+                echo "Unknown step: $STEP"; exit 1
                 ;;
             esac
