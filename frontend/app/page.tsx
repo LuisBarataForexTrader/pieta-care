@@ -58,7 +58,7 @@ export default function LandingPage() {
         .lp-mobile-menu { display: none; }
 
         .lp-mockup { display: block; }
-        .lp-mockup-inner { display: flex; min-height: 280px; }
+        .lp-mockup--hero .zoom-image-frame { box-shadow: 0 40px 100px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,255,255,0.05) !important; }
 
         .lp-pillars { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
         .lp-features { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
@@ -144,7 +144,7 @@ export default function LandingPage() {
           </div>
 
           {/* Real app screenshot — hero showcase (clickable to zoom) */}
-          <div className="lp-mockup" style={{ maxWidth: 980, margin: '72px auto 0', filter: 'drop-shadow(0 40px 100px rgba(0,0,0,0.55))' }}>
+          <div className="lp-mockup lp-mockup--hero" style={{ maxWidth: 980, margin: '72px auto 0', position: 'relative' }}>
             <ZoomImage
               src="/showcase/dashboard-dark.webp"
               alt="Dashboard pietas.care: panorama do dia com adesão à medicação, tensão arterial, bem-estar e próxima consulta"

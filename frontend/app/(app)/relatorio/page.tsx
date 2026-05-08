@@ -19,7 +19,7 @@ function fmtDateTime(iso: string) {
 }
 
 const STATUS_PT: Record<string, string> = { taken: 'Tomado', skipped: 'Saltado', missed: 'Perdido' }
-const STATUS_COLOR: Record<string, string> = { taken: '#276749', skipped: '#64748B', missed: '#C53030' }
+const STATUS_COLOR: Record<string, string> = { taken: 'var(--success)', skipped: 'var(--text-3)', missed: 'var(--danger)' }
 
 export default function RelatorioPage() {
   const [elderly, setElderly] = useState<Elderly | null>(null)
@@ -177,37 +177,37 @@ export default function RelatorioPage() {
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 10, marginBottom: 24 }}>
           {elderly.blood_type && (
             <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Droplet size={20} strokeWidth={2.25} style={{ color: '#C53030' }} fill="#C53030" fillOpacity={0.15} />
+              <Droplet size={20} strokeWidth={2.25} style={{ color: 'var(--on-tinted-danger)' }} />
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Grupo sanguíneo</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: '#C53030' }}>{elderly.blood_type}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase' }}>Grupo sanguíneo</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--on-tinted-danger)' }}>{elderly.blood_type}</div>
               </div>
             </div>
           )}
           {elderly.health_number && (
             <div style={{ background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.2)', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Hospital size={20} strokeWidth={2.25} style={{ color: 'var(--brand)' }} />
+              <Hospital size={20} strokeWidth={2.25} style={{ color: 'var(--on-tinted-brand)' }} />
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Nº SNS</div>
-                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--brand)' }}>{elderly.health_number}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-brand)', opacity: 0.7, textTransform: 'uppercase' }}>Nº SNS</div>
+                <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--on-tinted-brand)' }}>{elderly.health_number}</div>
               </div>
             </div>
           )}
           {compliance !== null && (
             <div style={{ background: compliance >= 80 ? 'var(--success-light)' : compliance >= 50 ? 'var(--warning-light)' : 'var(--danger-light)', border: `1px solid ${compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)'}`, borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Pill size={20} strokeWidth={2.25} style={{ color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }} />
+              <Pill size={20} strokeWidth={2.25} style={{ color: compliance >= 80 ? 'var(--on-tinted-success)' : compliance >= 50 ? 'var(--on-tinted-warning)' : 'var(--on-tinted-danger)' }} />
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Adesão {days}d</div>
-                <div style={{ fontSize: 18, fontWeight: 800, color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }}>{compliance}%</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: compliance >= 80 ? 'var(--on-tinted-success)' : compliance >= 50 ? 'var(--on-tinted-warning)' : 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase' }}>Adesão {days}d</div>
+                <div style={{ fontSize: 18, fontWeight: 800, color: compliance >= 80 ? 'var(--on-tinted-success)' : compliance >= 50 ? 'var(--on-tinted-warning)' : 'var(--on-tinted-danger)' }}>{compliance}%</div>
               </div>
             </div>
           )}
           {elderly.emergency_contact_phone && (
             <div style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2', borderRadius: 10, padding: '10px 16px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Siren size={20} strokeWidth={2.25} style={{ color: '#C53030' }} />
+              <Siren size={20} strokeWidth={2.25} style={{ color: 'var(--on-tinted-danger)' }} />
               <div>
-                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Emergência</div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: '#C53030' }}>{elderly.emergency_contact_phone}</div>
+                <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase' }}>Emergência</div>
+                <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--on-tinted-danger)' }}>{elderly.emergency_contact_phone}</div>
               </div>
             </div>
           )}
@@ -226,9 +226,9 @@ export default function RelatorioPage() {
 
           {/* Allergies */}
           <div className="card card-lg" style={{ border: elderly.allergies ? '1px solid #FEB2B2' : '1px solid var(--border)', background: elderly.allergies ? 'var(--danger-light)' : 'var(--surface)' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: elderly.allergies ? '#C53030' : 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={13} strokeWidth={2.25} /> Alergias conhecidas</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: elderly.allergies ? 'var(--on-tinted-danger)' : 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 12, display: 'inline-flex', alignItems: 'center', gap: 6 }}><AlertTriangle size={13} strokeWidth={2.25} /> Alergias conhecidas</div>
             {elderly.allergies ? (
-              <div style={{ fontSize: 14, color: '#C53030', lineHeight: 1.7, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{elderly.allergies}</div>
+              <div style={{ fontSize: 14, color: 'var(--on-tinted-danger)', lineHeight: 1.7, fontWeight: 600, whiteSpace: 'pre-wrap' }}>{elderly.allergies}</div>
             ) : (
               <div style={{ fontSize: 14, color: 'var(--text-3)', fontStyle: 'italic' }}>Sem alergias conhecidas</div>
             )}
@@ -306,13 +306,13 @@ export default function RelatorioPage() {
               {/* Summary stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
                 {[
-                  { label: 'Tomadas', count: takenLogs.length, color: 'var(--success)', bg: 'var(--success-light)', icon: '✓' },
-                  { label: 'Saltadas', count: skippedLogs.length, color: '#64748B', bg: '#F1F5F9', icon: '—' },
-                  { label: 'Perdidas', count: missedLogs.length, color: 'var(--danger)', bg: 'var(--danger-light)', icon: '✕' },
+                  { label: 'Tomadas', count: takenLogs.length, color: 'var(--on-tinted-success)', bg: 'var(--success-light)' },
+                  { label: 'Saltadas', count: skippedLogs.length, color: 'var(--text-2)', bg: 'var(--surface-2)' },
+                  { label: 'Perdidas', count: missedLogs.length, color: 'var(--on-tinted-danger)', bg: 'var(--danger-light)' },
                 ].map(s => (
                   <div key={s.label} style={{ background: s.bg, borderRadius: 10, padding: '14px', textAlign: 'center' }}>
                     <div style={{ fontSize: 22, fontWeight: 800, color: s.color }}>{s.count}</div>
-                    <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--text-3)', marginTop: 2 }}>{s.label}</div>
+                    <div style={{ fontSize: 12, fontWeight: 600, color: s.color, opacity: 0.7, marginTop: 2 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -426,30 +426,30 @@ export default function RelatorioPage() {
           </div>
 
           <div className="card card-lg" style={{ background: 'var(--danger-light)', border: '1px solid #FEB2B2' }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#C53030', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Siren size={13} strokeWidth={2.25} /> Contacto de emergência</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--on-tinted-danger)', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 14, display: 'inline-flex', alignItems: 'center', gap: 6 }}><Siren size={13} strokeWidth={2.25} /> Contacto de emergência</div>
             {elderly.emergency_contact_name ? (
               <>
                 <div style={{ marginBottom: 10 }}>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Nome</div>
-                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--text)', marginTop: 2 }}>{elderly.emergency_contact_name}</div>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase' }}>Nome</div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: 'var(--on-tinted-danger)', marginTop: 2 }}>{elderly.emergency_contact_name}</div>
                 </div>
                 {elderly.emergency_contact_phone && (
                   <div>
-                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase' }}>Telefone</div>
-                    <a href={`tel:${elderly.emergency_contact_phone}`} style={{ fontSize: 20, fontWeight: 800, color: '#C53030', textDecoration: 'none', display: 'block', marginTop: 4 }}>
+                    <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase' }}>Telefone</div>
+                    <a href={`tel:${elderly.emergency_contact_phone}`} style={{ fontSize: 20, fontWeight: 800, color: 'var(--on-tinted-danger)', textDecoration: 'none', display: 'block', marginTop: 4 }}>
                       {elderly.emergency_contact_phone}
                     </a>
                   </div>
                 )}
               </>
             ) : (
-              <div style={{ fontSize: 14, color: 'var(--text-3)', fontStyle: 'italic' }}>Não especificado</div>
+              <div style={{ fontSize: 14, color: 'var(--on-tinted-danger)', opacity: 0.7, fontStyle: 'italic' }}>Não especificado</div>
             )}
 
-            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid #FEB2B2' }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', marginBottom: 8 }}>Números de emergência</div>
+            <div style={{ marginTop: 20, paddingTop: 16, borderTop: '1px solid rgba(231,108,108,0.3)' }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--on-tinted-danger)', opacity: 0.7, textTransform: 'uppercase', marginBottom: 8 }}>Números de emergência</div>
               <div style={{ display: 'flex', gap: 8 }}>
-                <a href="tel:112" style={{ flex: 1, background: '#C53030', color: 'white', borderRadius: 8, padding: '10px', textAlign: 'center', fontWeight: 800, fontSize: 18, textDecoration: 'none' }}>112</a>
+                <a href="tel:112" style={{ flex: 1, background: 'var(--danger)', color: 'white', borderRadius: 8, padding: '10px', textAlign: 'center', fontWeight: 800, fontSize: 18, textDecoration: 'none' }}>112</a>
                 <a href="tel:808242424" style={{ flex: 1, background: 'var(--brand)', color: 'white', borderRadius: 8, padding: '10px', textAlign: 'center', fontWeight: 700, fontSize: 13, textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>SNS 24<br/>808 24 24 24</a>
               </div>
             </div>

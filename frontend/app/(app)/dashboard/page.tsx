@@ -229,7 +229,7 @@ export default function Dashboard() {
           <div className="page-subtitle" style={{ textTransform: 'capitalize' }}>{todayFull()}</div>
         </div>
         {allDone && (
-          <div style={{ background: 'var(--success-light)', color: 'var(--success)', padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ background: 'var(--success-light)', color: 'var(--on-tinted-success)', padding: '8px 16px', borderRadius: 99, fontSize: 13, fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: 6 }}>
             <Check size={15} strokeWidth={2.5} /> Tudo confirmado hoje
           </div>
         )}
@@ -574,7 +574,7 @@ export default function Dashboard() {
                       </div>
                       <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                         {recentZones.map(z => (
-                          <span key={z} className="dx-chip" style={{ background: 'var(--danger-light)', color: '#C53030', borderColor: 'rgba(197,48,48,0.18)' }}>
+                          <span key={z} className="dx-chip" style={{ background: 'var(--danger-light)', color: 'var(--on-tinted-danger)', borderColor: 'rgba(197,48,48,0.18)' }}>
                             {BODY_ZONES[z] ?? z}
                           </span>
                         ))}
@@ -604,20 +604,20 @@ export default function Dashboard() {
 
                 {/* Emergency */}
                 <div className="card">
-                  <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={15} strokeWidth={2} style={{ color: '#C53030' }} /> Emergência</div>
+                  <div className="section-title" style={{ marginBottom: 12, display: 'flex', alignItems: 'center', gap: 8 }}><Siren size={15} strokeWidth={2} style={{ color: 'var(--danger)' }} /> Emergência</div>
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginBottom: elderly?.emergency_contact_phone ? 10 : 0 }}>
                     <a href="tel:112" style={{ textDecoration: 'none' }}>
                       <div className="emergency-btn" style={{ background: 'var(--danger-light)', borderColor: 'var(--danger)' }}>
-                        <Siren size={20} strokeWidth={1.75} style={{ color: '#C53030' }} />
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#C53030' }}>112</div>
-                        <div style={{ fontSize: 10, color: 'var(--text-3)' }}>Emergência</div>
+                        <Siren size={20} strokeWidth={1.75} style={{ color: 'var(--on-tinted-danger)' }} />
+                        <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--on-tinted-danger)' }}>112</div>
+                        <div style={{ fontSize: 10, color: 'var(--on-tinted-danger)', opacity: 0.7 }}>Emergência</div>
                       </div>
                     </a>
                     <a href="tel:808242424" style={{ textDecoration: 'none' }}>
                       <div className="emergency-btn" style={{ background: 'var(--brand-light)', borderColor: 'rgba(42,96,73,0.2)' }}>
-                        <Phone size={20} strokeWidth={1.75} style={{ color: 'var(--brand)' }} />
-                        <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--brand)' }}>SNS 24</div>
-                        <div style={{ fontSize: 10, color: 'var(--text-3)' }}>808 24 24 24</div>
+                        <Phone size={20} strokeWidth={1.75} style={{ color: 'var(--on-tinted-brand)' }} />
+                        <div style={{ fontSize: 14, fontWeight: 800, color: 'var(--on-tinted-brand)' }}>SNS 24</div>
+                        <div style={{ fontSize: 10, color: 'var(--on-tinted-brand)', opacity: 0.7 }}>808 24 24 24</div>
                       </div>
                     </a>
                   </div>

@@ -141,13 +141,13 @@ export default function ClinicoPage() {
         {(overdueVac.length > 0 || soonVac.length > 0) && (
           <div style={{ marginBottom: 20, display: 'flex', flexDirection: 'column', gap: 8 }}>
             {overdueVac.map(v => (
-              <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--on-tinted-danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={14} strokeWidth={2.25} />
                 <span><strong>{v.vaccine_name}</strong> — reforço em atraso ({fmtDate(v.next_due_date)})</span>
               </div>
             ))}
             {soonVac.map(v => (
-              <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--on-tinted-warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <CalendarDays size={14} strokeWidth={2.25} />
                 <span><strong>{v.vaccine_name}</strong> — reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})</span>
               </div>
@@ -280,7 +280,7 @@ export default function ClinicoPage() {
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {chronicDx.length > 0 && (
                 <div>
-                  <div style={{ fontSize: 11, fontWeight: 700, color: '#C53030', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--danger)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>
                     Crónicas ({chronicDx.length})
                   </div>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -290,8 +290,8 @@ export default function ClinicoPage() {
                           <div style={{ flex: 1 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 4 }}>
                               <span style={{ fontWeight: 700, fontSize: 15 }}>{dx.description}</span>
-                              {dx.icd_code && <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, fontFamily: 'monospace' }}>{dx.icd_code}</span>}
-                              <span style={{ background: 'var(--danger-light)', color: '#C53030', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Crónica</span>
+                              {dx.icd_code && <span style={{ background: 'var(--danger-light)', color: 'var(--on-tinted-danger)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99, fontFamily: 'monospace' }}>{dx.icd_code}</span>}
+                              <span style={{ background: 'var(--danger-light)', color: 'var(--on-tinted-danger)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Crónica</span>
                               {dx.source && <span style={{ background: 'var(--surface-2)', color: SOURCE_COLOR[dx.source] ?? 'var(--text-3)', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99 }}>{SOURCE_LABEL[dx.source] ?? dx.source}</span>}
                             </div>
                             {dx.diagnosed_date && <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Desde {fmtDate(dx.diagnosed_date)}</div>}
@@ -358,8 +358,8 @@ export default function ClinicoPage() {
                           <Syringe size={15} strokeWidth={2} style={{ color: 'var(--brand)' }} />
                           <span style={{ fontWeight: 700, fontSize: 15 }}>{vac.vaccine_name}</span>
                           {vac.source && <span style={{ background: 'var(--surface-2)', color: SOURCE_COLOR[vac.source] ?? 'var(--text-3)', fontSize: 10, fontWeight: 700, padding: '1px 6px', borderRadius: 99 }}>{SOURCE_LABEL[vac.source] ?? vac.source}</span>}
-                          {overdue && <span style={{ background: 'var(--danger-light)', color: 'var(--danger)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
-                          {soon && <span style={{ background: 'var(--warning-light)', color: 'var(--warning)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
+                          {overdue && <span style={{ background: 'var(--danger-light)', color: 'var(--on-tinted-danger)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em atraso</span>}
+                          {soon && <span style={{ background: 'var(--warning-light)', color: 'var(--on-tinted-warning)', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 99 }}>Reforço em breve</span>}
                         </div>
                         <div style={{ fontSize: 12, color: 'var(--text-3)', display: 'flex', gap: 12, flexWrap: 'wrap' }}>
                           {vac.administered_date && <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}><CalendarDays size={11} strokeWidth={2.25} /> Administrada: {fmtDate(vac.administered_date)}</span>}

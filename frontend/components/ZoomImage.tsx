@@ -37,7 +37,7 @@ export default function ZoomImage({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen(true) }}
         className={wrapperClassName}
         aria-label={`Ampliar: ${alt ?? 'imagem'}`}
         style={{
@@ -51,6 +51,8 @@ export default function ZoomImage({
           width: '100%',
           textAlign: 'left',
           position: 'relative',
+          zIndex: 1,
+          isolation: 'isolate',
         }}
       >
         {chrome ? (
@@ -108,14 +110,14 @@ export default function ZoomImage({
             onClick={(e) => e.stopPropagation()}
             className="zoom-image-stage"
           >
-            <Image
+            {/* Plain <img> so width:100%/height:100% with object-fit fills the
+                stage. next/image wraps in a span that fights flex sizing. */}
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               alt={alt ?? ''}
-              src={imgProps.src}
-              width={imgProps.width as number}
-              height={imgProps.height as number}
+              src={String(imgProps.src)}
               className="zoom-image-large"
-              priority
-              sizes="100vw"
+              decoding="async"
             />
             {caption && (
               <p className="zoom-image-caption">{caption}</p>
@@ -183,19 +185,20 @@ export default function ZoomImage({
         .zoom-image-close:active { transform: scale(0.96); }
 
         .zoom-image-stage {
-          max-width: min(1800px, 96vw);
-          max-height: 92vh;
+          width: min(1800px, 96vw);
+          height: 92vh;
           display: flex; flex-direction: column; align-items: center; gap: 14px;
           cursor: auto;
           animation: zoomImagePop 0.22s cubic-bezier(0.2,0.8,0.2,1);
         }
         .zoom-image-large {
-          width: auto !important;
-          height: auto !important;
-          max-width: 100%;
-          max-height: 86vh;
+          flex: 1 1 auto;
+          width: 100%;
+          height: 100%;
+          min-height: 0;
           display: block;
           object-fit: contain;
+          object-position: center;
           border-radius: 10px;
           box-shadow: 0 60px 140px rgba(0,0,0,0.7);
           border: 1px solid rgba(255,255,255,0.08);
