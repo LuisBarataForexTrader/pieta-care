@@ -22,27 +22,38 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Debug: figure out where TNT lives + what its DB looks like
+            # Find TNT's news.db (Postgres or SQLite). It's not always at
+            # /opt/tnt — TNT may have moved during the Hetzner migration.
             echo "→ TNT discovery"
-            which sqlite3 || echo "  sqlite3 not installed"
-            for p in /opt/tnt/news.db /opt/tnt/backend/news.db /home/luisbarata/tnt/news.db; do
-              [ -f "$p" ] && echo "  found DB: $p ($(stat -c '%s bytes' $p))"
-            done
-
-            DB=/opt/tnt/news.db
-            if [ ! -f "$DB" ]; then
-              echo "::error::TNT DB not at $DB. Adjust path."
-              exit 1
+            DB=$(find /opt /home -maxdepth 4 -name 'news.db' -type f 2>/dev/null | head -1)
+            if [ -z "$DB" ]; then
+              echo "  no news.db file — TNT likely uses Postgres. Trying that…"
+              # TNT shares the same Postgres as everything else on this box.
+              # Find the running postgres container and dump the row.
+              PG_CONTAINER=$(docker ps --format '{{.Names}}' | grep -E 'postgres|db' | head -1)
+              if [ -z "$PG_CONTAINER" ]; then
+                echo "::error::No postgres container found"
+                exit 1
+              fi
+              echo "  postgres container: $PG_CONTAINER"
+              # List databases to find TNT's
+              echo "  databases:"
+              docker exec "$PG_CONTAINER" psql -U postgres -lqt 2>/dev/null | awk -F'|' '{gsub(/^ +| +$/, "", $1); if ($1 != "" && $1 !~ /^(template|postgres)/) print "    "$1}' | head -10
+            else
+              echo "  found SQLite DB: $DB"
             fi
-            echo "→ Tables in $DB:"
-            sqlite3 "$DB" ".tables" 2>&1 | head -3
-            echo "→ toconline_tokens schema:"
-            sqlite3 "$DB" ".schema toconline_tokens" 2>&1 | head -5
-            echo "→ toconline_tokens count:"
-            sqlite3 "$DB" "SELECT COUNT(*), id FROM toconline_tokens" 2>&1 | head -3
 
-            TOC_ACCESS_TOKEN=$(sqlite3 "$DB" \
-              "SELECT access_token FROM toconline_tokens LIMIT 1" 2>/dev/null || true)
+            # Try TNT databases: tnt, tradingnews, tnt_news, news
+            TOC_ACCESS_TOKEN=""
+            for dbname in tnt tradingnews tnt_news news pieta_news; do
+              v=$(docker exec "$PG_CONTAINER" psql -U postgres -d "$dbname" -tAc \
+                "SELECT access_token FROM toconline_tokens LIMIT 1" 2>/dev/null || true)
+              if [ -n "$v" ]; then
+                echo "  found token in db: $dbname"
+                TOC_ACCESS_TOKEN="$v"
+                break
+              fi
+            done
 
             if [ -z "$TOC_ACCESS_TOKEN" ]; then
               echo "::error::TNT DB has no access_token. TNT side may need to re-auth first."
