@@ -55,10 +55,6 @@ class Settings(BaseSettings):
     WEBPUSH_VAPID_PRIVATE_KEY: str = ""
     WEBPUSH_VAPID_SUBJECT: str = "mailto:suporte@pietas.care"
 
-    # TOConline (Portuguese e-invoicing). One token per company file.
-    TOCONLINE_API_KEY: str = ""
-    TOCONLINE_COMPANY_ID: str = ""
-
     # Telegram bot (free SMS-like alerts for elderly)
     TELEGRAM_BOT_TOKEN: str = ""
 
