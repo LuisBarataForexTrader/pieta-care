@@ -44,30 +44,15 @@ PRODUCTS = [
 
 
 async def main() -> int:
-    print(f"  CLIENT_ID len: {len(settings.TOCONLINE_CLIENT_ID or '')}")
-    print(f"  CLIENT_SECRET len: {len(settings.TOCONLINE_CLIENT_SECRET or '')}")
-    if not settings.TOCONLINE_CLIENT_ID or not settings.TOCONLINE_CLIENT_SECRET:
-        print("ERROR: TOCONLINE_CLIENT_ID/SECRET not in env", file=sys.stderr)
-        return 1
-
-    # Try client_credentials first; fall back to a debug print of the
-    # raw TOConline response if it fails.
-    token = await _get_access_token()
+    # The token is passed in via env (extracted from TNT's DB by the
+    # workflow shell, since this container doesn't have access to
+    # /opt/tnt/news.db). TNT's OAuth client uses authorization_code
+    # not client_credentials, so we have to ride on its existing tokens.
+    token = os.environ.get("TOC_ACCESS_TOKEN")
     if not token:
-        print("ERROR: failed to get OAuth access token", file=sys.stderr)
-        # Replay raw response for debugging (no secrets in output)
-        from app.core.toconline import TOCONLINE_OAUTH_URL
-        async with httpx.AsyncClient() as client:
-            for scope in ["commercial contacts", "commercial", ""]:
-                data = {
-                    "grant_type": "client_credentials",
-                    "client_id": settings.TOCONLINE_CLIENT_ID,
-                    "client_secret": settings.TOCONLINE_CLIENT_SECRET,
-                }
-                if scope: data["scope"] = scope
-                r = await client.post(f"{TOCONLINE_OAUTH_URL}/token", data=data, timeout=10)
-                print(f"  scope='{scope}': {r.status_code} → {r.text[:300]}", file=sys.stderr)
+        print("ERROR: TOC_ACCESS_TOKEN env var not set (workflow shell didn't pass it)", file=sys.stderr)
         return 1
+    print(f"✓ Got access token (length {len(token)})")
 
     print(f"✓ Authenticated against TOConline ({TOCONLINE_API_URL})")
     print()
