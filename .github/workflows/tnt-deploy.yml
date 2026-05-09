@@ -67,24 +67,31 @@ jobs:
             python3 /tmp/tnt_patch.py
             rm -f /tmp/tnt_patch.py
 
-            # TNT runs from a Procfile (uvicorn). Discover how it's
-            # supervised — systemd / supervisor / docker — and restart.
-            if systemctl list-units --type=service --no-legend 2>/dev/null | grep -qE '^tnt|tradingnews'; then
-              SVC=$(systemctl list-units --type=service --no-legend | grep -E '^tnt|tradingnews' | awk '{print $1}' | head -1)
-              echo "→ Restarting systemd service: $SVC"
-              systemctl restart "$SVC"
-              systemctl status "$SVC" --no-pager | head -3
-            elif command -v supervisorctl >/dev/null 2>&1 && supervisorctl status 2>/dev/null | grep -qE '^tnt'; then
-              SVC=$(supervisorctl status | grep -E '^tnt' | awk '{print $1}' | head -1)
-              echo "→ Restarting supervisor program: $SVC"
-              supervisorctl restart "$SVC"
-            elif docker ps --format '{{.Names}}' | grep -qE 'tnt|tradingnews'; then
-              CN=$(docker ps --format '{{.Names}}' | grep -E 'tnt|tradingnews' | head -1)
-              echo "→ Restarting docker container: $CN"
-              docker restart "$CN"
-            else
-              echo "::warning::No tnt service/container found. Manual restart needed."
-              echo "→ Discovery dump:"
-              echo "  systemctl: $(systemctl list-units --type=service --no-legend 2>/dev/null | head -10)"
-              echo "  docker:    $(docker ps --format '{{.Names}}' 2>/dev/null | head -10)"
+            # Find + restart the uvicorn process serving /opt/tnt/main.py.
+            PID=$(ps -ef | grep -E 'uvicorn .*main:app|/opt/tnt/main\.py|/opt/tnt/.venv/bin/uvicorn' \
+              | grep -v grep | awk '{print $2}' | head -1)
+            if [ -n "$PID" ]; then
+              echo "→ TNT uvicorn PID: $PID — sending SIGTERM (process supervisor will respawn)"
+              kill -TERM "$PID" || true
+              sleep 2
+              # Confirm it came back
+              NEWPID=$(ps -ef | grep -E 'uvicorn .*main:app|/opt/tnt/main\.py|/opt/tnt/.venv/bin/uvicorn' \
+                | grep -v grep | awk '{print $2}' | head -1)
+              if [ -n "$NEWPID" ] && [ "$NEWPID" != "$PID" ]; then
+                echo "  ✓ respawned as PID $NEWPID"
+              else
+                echo "  ⚠ no respawn — TNT may not be supervised. Trying systemd discovery…"
+              fi
             fi
+            # systemd unit discovery as a backup. Wider regex.
+            SVC=$(systemctl list-units --type=service --no-legend 2>/dev/null \
+              | awk '{print $1}' | xargs -I{} sh -c 'systemctl show {} -p ExecStart 2>/dev/null | grep -l /opt/tnt 2>/dev/null && echo {}' 2>/dev/null | head -1 || true)
+            if [ -n "$SVC" ]; then
+              echo "→ Restarting $SVC"
+              systemctl restart "$SVC"
+            fi
+
+            # Smoke test — does TNT respond?
+            sleep 3
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" http://127.0.0.1:8001/ || echo "000")
+            echo "→ TNT health check (8001): HTTP $CODE"
