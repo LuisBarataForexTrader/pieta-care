@@ -326,14 +326,14 @@ export default function SaudePage() {
                           <tr key={v.id} style={{ borderBottom: i < vitals.length - 1 ? '1px solid var(--border)' : 'none' }}>
                             <td style={{ padding: '12px', whiteSpace: 'nowrap', color: 'var(--text-3)', fontSize: 12 }}>{fmtDT(v.measured_at)}</td>
                             <td style={{ padding: '12px', fontWeight: 700, color: bpColor(v.blood_pressure_sys, v.blood_pressure_dia) }}>
-                              {v.blood_pressure_sys && v.blood_pressure_dia ? `${v.blood_pressure_sys}/${v.blood_pressure_dia}` : '—'}
+                              {v.blood_pressure_sys && v.blood_pressure_dia ? `${v.blood_pressure_sys}/${v.blood_pressure_dia}` : '-'}
                             </td>
-                            <td style={{ padding: '12px', fontWeight: 600, color: hrColor(v.heart_rate) }}>{v.heart_rate ?? '—'}</td>
-                            <td style={{ padding: '12px', color: tempColor(v.temperature) }}>{v.temperature ? `${Number(v.temperature).toFixed(1)}°` : '—'}</td>
-                            <td style={{ padding: '12px' }}>{v.weight ? `${Number(v.weight).toFixed(1)} kg` : '—'}</td>
-                            <td style={{ padding: '12px', color: spo2Color(v.oxygen_saturation) }}>{v.oxygen_saturation ? `${v.oxygen_saturation}%` : '—'}</td>
-                            <td style={{ padding: '12px', color: glucoseColor(v.blood_glucose) }}>{v.blood_glucose ? `${Number(v.blood_glucose).toFixed(0)} mg/dL` : '—'}</td>
-                            <td style={{ padding: '12px', color: 'var(--text-3)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.notes ?? '—'}</td>
+                            <td style={{ padding: '12px', fontWeight: 600, color: hrColor(v.heart_rate) }}>{v.heart_rate ?? '-'}</td>
+                            <td style={{ padding: '12px', color: tempColor(v.temperature) }}>{v.temperature ? `${Number(v.temperature).toFixed(1)}°` : '-'}</td>
+                            <td style={{ padding: '12px' }}>{v.weight ? `${Number(v.weight).toFixed(1)} kg` : '-'}</td>
+                            <td style={{ padding: '12px', color: spo2Color(v.oxygen_saturation) }}>{v.oxygen_saturation ? `${v.oxygen_saturation}%` : '-'}</td>
+                            <td style={{ padding: '12px', color: glucoseColor(v.blood_glucose) }}>{v.blood_glucose ? `${Number(v.blood_glucose).toFixed(0)} mg/dL` : '-'}</td>
+                            <td style={{ padding: '12px', color: 'var(--text-3)', maxWidth: 180, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{v.notes ?? '-'}</td>
                             <td style={{ padding: '12px' }}>
                               <button onClick={() => { if (confirm('Apagar medição?')) { api.deleteVital(elderlyId!, v.id).then(load) } }} className="btn-danger-ghost" title="Apagar"><Trash2 size={14} strokeWidth={2} /></button>
                             </td>

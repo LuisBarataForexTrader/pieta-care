@@ -30,9 +30,9 @@ log = logging.getLogger(__name__)
 # Window keeps the email in scope for ~24h so the hourly job can pick it up
 # regardless of when the user registered during the day.
 MILESTONES = [
-    ("day_2",  2,  3,  "Tudo a correr bem? — pietas.care",                trial_day2_html),
-    ("day_7",  7,  8,  "Como tem sido a experiência? — pietas.care",      trial_day7_html),
-    ("day_13", 13, 14, "Faltam 24 horas no seu trial — pietas.care",      trial_day13_html),
+    ("day_2",  2,  3,  "Tudo a correr bem? - pietas.care",                trial_day2_html),
+    ("day_7",  7,  8,  "Como tem sido a experiência? - pietas.care",      trial_day7_html),
+    ("day_13", 13, 14, "Faltam 24 horas no seu trial - pietas.care",      trial_day13_html),
 ]
 
 

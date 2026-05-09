@@ -42,14 +42,14 @@ export default function Register() {
             router.replace('/dashboard')
             return  // don't reschedule
           } catch {
-            // Login failed for some reason — fall through to /login so
+            // Login failed for some reason - fall through to /login so
             // the user can enter the password manually.
             router.replace('/login')
             return
           }
         }
       } catch {
-        // Network blip — try again next tick.
+        // Network blip - try again next tick.
       }
       if (alive) timer = setTimeout(tick, 3000)
     }
@@ -124,7 +124,7 @@ export default function Register() {
               Clique no link no email para activar a sua conta. O link expira em 24 horas.
             </p>
 
-            {/* Live polling indicator — turns into an "entrando" state once verification is detected */}
+            {/* Live polling indicator - turns into an "entrando" state once verification is detected */}
             <div style={{
               marginTop: 20, padding: '12px 14px', borderRadius: 12,
               background: autoLoggingIn ? 'var(--success-light)' : 'var(--brand-light)',
@@ -136,7 +136,7 @@ export default function Register() {
               {autoLoggingIn ? (
                 <>
                   <CheckCircle2 size={18} strokeWidth={2.25} />
-                  <span>Email confirmado — a entrar…</span>
+                  <span>Email confirmado - a entrar…</span>
                 </>
               ) : (
                 <>

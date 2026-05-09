@@ -87,7 +87,7 @@ export default function AIInsightsPanel() {
         <>
           <p className="ai-panel-body">
             Gera uma análise inteligente que combina sinais vitais, adesão à medicação,
-            bem-estar e incidentes recentes — em 5 segundos, em linguagem clara.
+            bem-estar e incidentes recentes - em 5 segundos, em linguagem clara.
           </p>
           <button onClick={generate} className="ai-panel-cta">
             <Sparkles size={14} strokeWidth={2.5} /> Gerar análise

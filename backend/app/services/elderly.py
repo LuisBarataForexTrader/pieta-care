@@ -146,9 +146,9 @@ def invite_family_member(
     elderly_name = elderly_obj.full_name if elderly_obj else "um familiar"
 
     html = invite_email_html(elderly_name, user.full_name, invite_link, data.relation)
-    sent = send_email(data.email, f"Convite pietas.care — {elderly_name}", html)
+    sent = send_email(data.email, f"Convite pietas.care - {elderly_name}", html)
 
-    msg = "Convite enviado" if sent else "Convite criado (email não configurado — partilha o link manualmente)"
+    msg = "Convite enviado" if sent else "Convite criado (email não configurado - partilha o link manualmente)"
     return {"message": msg, "invite_link": invite_link}
 
 

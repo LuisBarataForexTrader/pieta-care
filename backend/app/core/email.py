@@ -12,7 +12,7 @@ def send_email(to: str, subject: str, html: str) -> bool:
         return _send_resend(to, subject, html)
     if settings.SMTP_HOST and settings.SMTP_USER:
         return _send_smtp(to, subject, html)
-    logger.warning("No email provider configured — recipient: %s", to)
+    logger.warning("No email provider configured - recipient: %s", to)
     return False
 
 
@@ -133,7 +133,7 @@ def password_reset_html(name: str, reset_url: str) -> str:
             </a>
           </div>
           <p style="font-size:13px;color:#94a89a;margin:0 0 8px;line-height:1.6;">
-            Se não fez este pedido, ignore este email — a sua password não será alterada.
+            Se não fez este pedido, ignore este email - a sua password não será alterada.
           </p>
           <p style="font-size:13px;color:#94a89a;margin:0 0 24px;line-height:1.6;">
             Por segurança, este link expira em 1 hora.
@@ -222,7 +222,7 @@ def invite_email_html(elderly_name: str, inviter_name: str, invite_link: str, re
             <strong>{elderly_name}</strong>{rel} na <strong>pietas.care</strong>.
           </p>
           <p style="font-size:14px;margin:0 0 30px;line-height:1.7;color:#4a7060;">
-            A pietas.care é uma plataforma segura de gestão de cuidados para idosos —
+            A pietas.care é uma plataforma segura de gestão de cuidados para idosos -
             medicação, agenda, saúde e bem-estar, tudo num só lugar.
           </p>
           <div style="text-align:center;margin-bottom:32px;">
@@ -299,7 +299,7 @@ def trial_day2_html(name: str) -> str:
     body = f"""
     <p style="font-size:16px;margin:0 0 14px;line-height:1.7;">Olá <strong>{name}</strong>,</p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
-      Está a usar o pietas.care há um par de dias — espero que esteja a correr tudo bem.
+      Está a usar o pietas.care há um par de dias - espero que esteja a correr tudo bem.
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
       Está actualmente no plano <strong style="color:#2A6049;">Família AI</strong> (o mais completo,
@@ -308,7 +308,7 @@ def trial_day2_html(name: str) -> str:
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
       <strong>Precisa de alguma ajuda?</strong> Pode abrir o chat dentro da aplicação e fazer-nos
-      qualquer pergunta — respondemos rapidamente.
+      qualquer pergunta - respondemos rapidamente.
     </p>
     <p style="font-size:15px;margin:0 0 4px;line-height:1.7;color:#3D5249;">
       Estamos aqui para o ajudar a cuidar melhor de quem ama.
@@ -326,7 +326,7 @@ def trial_day7_html(name: str) -> str:
     <p style="font-size:16px;margin:0 0 14px;line-height:1.7;">Olá <strong>{name}</strong>,</p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
       Já passou uma semana desde que começou a experimentar o pietas.care no plano
-      <strong style="color:#2A6049;">Família AI</strong>. Estamos curiosos —
+      <strong style="color:#2A6049;">Família AI</strong>. Estamos curiosos -
       <strong>como tem sido a experiência?</strong>
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
@@ -334,7 +334,7 @@ def trial_day7_html(name: str) -> str:
       A sua opinião ajuda-nos a melhorar a aplicação para todas as famílias portuguesas.
     </p>
     <p style="font-size:15px;margin:0 0 14px;line-height:1.7;">
-      Faltam ainda 7 dias do seu período gratuito — aproveite para explorar o que ainda
+      Faltam ainda 7 dias do seu período gratuito - aproveite para explorar o que ainda
       não testou (relatório médico, dados clínicos, plano de cuidados…).
     </p>"""
     return _trial_email_shell(
@@ -358,13 +358,13 @@ def trial_day13_html(name: str) -> str:
     <div style="background:#F8FAF9;border:1px solid #E2EBE5;border-radius:12px;padding:18px 22px;margin:18px 0;">
       <p style="font-size:13px;font-weight:700;color:#3D5249;margin:0 0 10px;text-transform:uppercase;letter-spacing:0.05em;">Os planos disponíveis</p>
       <table cellpadding="0" cellspacing="0" style="width:100%;font-size:14px;color:#3D5249;">
-        <tr><td style="padding:5px 0;"><strong>Família</strong> — €35/mês + IVA</td><td align="right">1 perfil · 2 familiares</td></tr>
-        <tr><td style="padding:5px 0;"><strong>Família+</strong> — €59/mês + IVA</td><td align="right">2 perfis · 5 familiares</td></tr>
-        <tr><td style="padding:5px 0;"><strong>Família AI</strong> — €88/mês + IVA</td><td align="right">4 perfis · ilimitados · IA</td></tr>
+        <tr><td style="padding:5px 0;"><strong>Família</strong> - €35/mês + IVA</td><td align="right">1 perfil · 2 familiares</td></tr>
+        <tr><td style="padding:5px 0;"><strong>Família+</strong> - €59/mês + IVA</td><td align="right">2 perfis · 5 familiares</td></tr>
+        <tr><td style="padding:5px 0;"><strong>Família AI</strong> - €88/mês + IVA</td><td align="right">4 perfis · ilimitados · IA</td></tr>
       </table>
     </div>
     <p style="font-size:15px;margin:0 0 6px;line-height:1.7;">
-      Se preferir não continuar, pode simplesmente não fazer nada — não cobramos nada e os
+      Se preferir não continuar, pode simplesmente não fazer nada - não cobramos nada e os
       seus dados ficam disponíveis para exportação durante 30 dias.
     </p>"""
     return _trial_email_shell(

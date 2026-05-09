@@ -1,4 +1,4 @@
-"""TOConline invoicing — same pattern as TNT."""
+"""TOConline invoicing - same pattern as TNT."""
 import httpx
 from app.core.config import settings
 
@@ -54,7 +54,7 @@ async def create_invoice(
 ) -> None:
     token = await _get_access_token()
     if not token:
-        print(f"[TOCONLINE] Sem token — fatura não emitida para {email}")
+        print(f"[TOCONLINE] Sem token - fatura não emitida para {email}")
         return
 
     is_eu = country.upper() in EU_COUNTRIES
@@ -102,6 +102,6 @@ async def create_invoice(
         if r.status_code in (200, 201):
             resp = r.json()
             doc_no = resp.get("document_no") or resp.get("data", {}).get("document_no", "?")
-            print(f"[TOCONLINE] Fatura {doc_no} emitida para {email} — €{amount_excl_vat:.2f} + IVA")
+            print(f"[TOCONLINE] Fatura {doc_no} emitida para {email} - €{amount_excl_vat:.2f} + IVA")
         else:
             print(f"[TOCONLINE] Erro {r.status_code}: {r.text[:200]}")

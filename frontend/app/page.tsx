@@ -143,7 +143,7 @@ export default function LandingPage() {
             </p>
           </div>
 
-          {/* Real app screenshot — hero showcase (clickable to zoom) */}
+          {/* Real app screenshot - hero showcase (clickable to zoom) */}
           <div className="lp-mockup lp-mockup--hero" style={{ maxWidth: 980, margin: '72px auto 0', position: 'relative' }}>
             <ZoomImage
               src="/showcase/dashboard-dark.webp"
@@ -187,7 +187,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* SHOWCASE — real app screenshots */}
+        {/* SHOWCASE - real app screenshots */}
         <section aria-labelledby="showcase-heading" style={{ background: '#0D2B1E', padding: 'clamp(72px,9vw,128px) 24px', position: 'relative', overflow: 'hidden' }}>
           <div aria-hidden="true" style={{ position: 'absolute', inset: 0, backgroundImage: 'radial-gradient(ellipse 70% 50% at 50% 100%, rgba(74,222,128,0.12) 0%, transparent 70%)', pointerEvents: 'none' }} />
           <div style={{ maxWidth: 1180, margin: '0 auto', position: 'relative' }}>
@@ -200,7 +200,7 @@ export default function LandingPage() {
                 <br /><span style={{ color: '#4ADE80', fontStyle: 'italic', fontWeight: 800 }}>É um histórico clínico vivo.</span>
               </h2>
               <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: 'rgba(255,255,255,0.62)', lineHeight: 1.7 }}>
-                Tudo o que vê abaixo são ecrãs reais, povoados com dados típicos de um cuidado familiar — gráficos longitudinais, dossier para o médico, dados clínicos completos.
+                Tudo o que vê abaixo são ecrãs reais, povoados com dados típicos de um cuidado familiar - gráficos longitudinais, dossier para o médico, dados clínicos completos.
               </p>
             </div>
 
@@ -211,7 +211,7 @@ export default function LandingPage() {
                   alt: 'Saúde: tensão arterial, frequência cardíaca, saturação O₂, temperatura, peso e glicemia com tendências de 60 dias',
                   eyebrow: 'Saúde',
                   title: 'Tendências, não fotografias.',
-                  body: 'Tensão arterial, frequência cardíaca, glicemia e peso ao longo de 60 dias — em vez de números soltos num caderno.',
+                  body: 'Tensão arterial, frequência cardíaca, glicemia e peso ao longo de 60 dias - em vez de números soltos num caderno.',
                 },
                 {
                   src: '/showcase/relatorio.webp',
@@ -232,7 +232,7 @@ export default function LandingPage() {
                   alt: 'Medicação diária com horários, tomas confirmadas e informação clínica de cada fármaco',
                   eyebrow: 'Medicação',
                   title: 'Cada toma confirmada.\nCada falha registada.',
-                  body: 'Horários personalizáveis, percentagem de adesão, e descrição clínica de cada fármaco gerada por assistente IA — para qualquer familiar perceber.',
+                  body: 'Horários personalizáveis, percentagem de adesão, e descrição clínica de cada fármaco gerada por assistente IA - para qualquer familiar perceber.',
                 },
               ] as const).map((s) => (
                 <article key={s.src} className="lp-showcase-card">
@@ -277,7 +277,7 @@ export default function LandingPage() {
           `}</style>
         </section>
 
-        {/* AI SPOTLIGHT — Família Plus */}
+        {/* AI SPOTLIGHT - Família Plus */}
         <section aria-labelledby="ai-spotlight-heading" style={{ background: '#fff', padding: 'clamp(72px,9vw,128px) 24px', borderTop: '1px solid #E7E5E4' }}>
           <div className="lp-ai-grid" style={{ maxWidth: 1180, margin: '0 auto' }}>
             <div className="lp-ai-text">
@@ -290,13 +290,13 @@ export default function LandingPage() {
                 <span style={{ color: '#7C3AED' }}>Uma análise clínica completa.</span>
               </h2>
               <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: '#4B5563', lineHeight: 1.75, marginBottom: 28 }}>
-                Em vez de cruzar 30 dias de tomas, sinais vitais, incidentes e queixas à mão, a assistente IA do plano <strong style={{ color: '#0A0A0C' }}>Família Plus</strong> faz-lhe um resumo executivo — em português claro, com prioridades.
+                Em vez de cruzar 30 dias de tomas, sinais vitais, incidentes e queixas à mão, a assistente IA do plano <strong style={{ color: '#0A0A0C' }}>Família Plus</strong> faz-lhe um resumo executivo - em português claro, com prioridades.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
                   ['Estado geral', 'Síntese do bem-estar e estabilidade clínica.'],
                   ['Pontos a vigiar', 'Variabilidade de glicemia, doses falhadas, novos sintomas.'],
-                  ['Recomendações práticas', 'Ações concretas — alarmes, contactos, alternativas terapêuticas.'],
+                  ['Recomendações práticas', 'Ações concretas - alarmes, contactos, alternativas terapêuticas.'],
                   ['Sempre informativa', 'Nunca substitui o médico assistente. Apenas organiza o que existe.'],
                 ].map(([t, b]) => (
                   <li key={t} style={{ display: 'flex', gap: 14, alignItems: 'flex-start' }}>
@@ -334,7 +334,7 @@ export default function LandingPage() {
               />
             </div>
           </div>
-          {/* Second exclusive — Chat interno (mirrored asymmetric row) */}
+          {/* Second exclusive - Chat interno (mirrored asymmetric row) */}
           <div className="lp-ai-grid lp-ai-grid--reverse" style={{ maxWidth: 1180, margin: 'clamp(80px, 10vw, 130px) auto 0' }}>
             <div className="lp-ai-frame">
               <div className="lp-ai-chat-glow" aria-hidden="true" />
@@ -355,16 +355,16 @@ export default function LandingPage() {
                 Exclusivo Família Plus
               </span>
               <h2 style={{ fontSize: 'clamp(28px,4.2vw,46px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', lineHeight: 1.1, marginBottom: 22 }}>
-                Chat interno —<br />
+                Chat interno -<br />
                 <span style={{ color: '#166534' }}>menos telefonemas, mais coordenação.</span>
               </h2>
               <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: '#4B5563', lineHeight: 1.75, marginBottom: 28 }}>
-                Cada família tem o seu canal privado dentro da app — só os familiares autorizados pelo titular têm acesso. Sem grupos paralelos no WhatsApp, sem perder informação clínica entre conversas pessoais.
+                Cada família tem o seu canal privado dentro da app - só os familiares autorizados pelo titular têm acesso. Sem grupos paralelos no WhatsApp, sem perder informação clínica entre conversas pessoais.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
                   ['Privado por defeito', 'Apenas familiares aceites pelo titular vêem as mensagens.'],
-                  ['Notificações em tempo real', 'Som e vibração quando alguém escreve — não passa em branco.'],
+                  ['Notificações em tempo real', 'Som e vibração quando alguém escreve - não passa em branco.'],
                   ['Histórico permanente', 'Coordenação de tomas, consultas e visitas, sem se perder.'],
                   ['Presença online', 'Vê em qualquer página quem está na app neste momento.'],
                 ].map(([t, b]) => (
@@ -448,7 +448,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* FEATURES — each card with a real screenshot, clickable to zoom */}
+        {/* FEATURES - each card with a real screenshot, clickable to zoom */}
         <section id="funcionalidades" aria-labelledby="funcionalidades-heading" style={{ background: '#F9FAFB', padding: 'clamp(64px,8vw,112px) 24px' }}>
           <div style={{ maxWidth: 1180, margin: '0 auto' }}>
             <div style={{ textAlign: 'center', marginBottom: 56 }}>
@@ -464,12 +464,12 @@ export default function LandingPage() {
               {([
                 { src: '/showcase/saude-dark.webp', icon: <HeartPulse size={18} strokeWidth={2} key="hp" />, title: 'Sinais vitais', desc: 'Pressão, glicemia, saturação, temperatura e peso com histórico visual de 60 dias.' },
                 { src: '/showcase/documentos-dark.webp', icon: <FileText size={18} strokeWidth={2} key="ft" />, title: 'Documentos', desc: 'Relatórios, receitas e exames digitalizados e organizados por categoria.' },
-                { src: '/showcase/notas-dark.webp', icon: <ClipboardList size={18} strokeWidth={2} key="nt" />, title: 'Notas de turno', desc: 'Manhã, tarde e noite — comunicação contínua entre todos os cuidadores.' },
+                { src: '/showcase/notas-dark.webp', icon: <ClipboardList size={18} strokeWidth={2} key="nt" />, title: 'Notas de turno', desc: 'Manhã, tarde e noite - comunicação contínua entre todos os cuidadores.' },
                 { src: '/showcase/plano-dark.webp', icon: <Stethoscope size={18} strokeWidth={2} key="pl" />, title: 'Plano de cuidados', desc: 'Rotinas de higiene, nutrição, mobilidade e estimulação cognitiva.' },
                 { src: '/showcase/clinico-dark.webp', icon: <ClipboardList size={18} strokeWidth={2} key="dc" />, title: 'Dados clínicos', desc: 'Diagnósticos com código ICD, vacinas e historial sempre acessíveis.' },
                 { src: '/showcase/relatorio-dark.webp', icon: <FileText size={18} strokeWidth={2} key="rm" />, title: 'Relatório médico', desc: 'Resumos periódicos prontos a imprimir ou enviar por email ao especialista.' },
                 { src: '/showcase/medicacao-dark.webp', icon: <Pill size={18} strokeWidth={2} key="al" />, title: 'Medicação & alertas', desc: 'Horários personalizáveis, percentagem de adesão e descrição clínica de cada fármaco.' },
-                { src: '/showcase/incidentes-dark.webp', icon: <MapPin size={18} strokeWidth={2} key="mp" />, title: 'Mapa corporal', desc: 'Registo visual de incidentes — quedas, ferimentos — com zona afectada.' },
+                { src: '/showcase/incidentes-dark.webp', icon: <MapPin size={18} strokeWidth={2} key="mp" />, title: 'Mapa corporal', desc: 'Registo visual de incidentes - quedas, ferimentos - com zona afectada.' },
               ]).map((f) => (
                 <article key={f.title} className="lp-feature-photo-card">
                   <ZoomImage
@@ -515,7 +515,7 @@ export default function LandingPage() {
               {[
                 { id: 'familia', name: 'Família', price: '35', sub: 'Para um familiar', features: ['1 perfil de familiar','Até 2 familiares','Medicação, agenda e sinais vitais','Incidentes e documentos','Notas de turno'], highlight: false, cta: 'Começar' },
                 { id: 'familia_plus', name: 'Família+', price: '59', sub: 'Para mais de um familiar', features: ['Até 2 perfis de familiar','Até 5 familiares','Tudo do plano Família','Relatório médico completo','Dados clínicos avançados','Plano de cuidados detalhado'], highlight: true, cta: 'Começar' },
-                { id: 'cuidador_pro', name: 'Família Plus', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA — análise clínica em 5 segundos','Chat interno entre familiares','Presença online em tempo real'], highlight: false, cta: 'Começar' },
+                { id: 'cuidador_pro', name: 'Família Plus', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do plano Família+','Assistente IA - análise clínica em 5 segundos','Chat interno entre familiares','Presença online em tempo real'], highlight: false, cta: 'Começar' },
               ].map(p => (
                 <div key={p.id} style={{ position: 'relative' }}>
                   <div style={{

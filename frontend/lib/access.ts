@@ -8,7 +8,7 @@
 // Tier ranking:
 //   1 = familia        (€35)
 //   2 = familia_plus   (€59)
-//   3 = cuidador_pro   (€88, "Família Plus" — IA + chat interno)
+//   3 = cuidador_pro   (€88, "Família Plus" - IA + chat interno)
 
 export type PlanKey = 'familia' | 'familia_plus' | 'cuidador_pro'
 
@@ -25,7 +25,7 @@ export const PLAN_LABEL: Record<PlanKey, string> = {
 }
 
 /** Minimum plan tier to access each page. Pages NOT listed are open
- *  (always accessible — e.g. /conta, /suporte, /novo-familiar). */
+ *  (always accessible - e.g. /conta, /suporte, /novo-familiar). */
 export const PAGE_MIN_PLAN: Record<string, PlanKey> = {
   '/dashboard':  'familia',
   '/medicacao':  'familia',

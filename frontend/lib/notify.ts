@@ -55,7 +55,7 @@ function playPing() {
     osc.connect(gain)
     gain.connect(ctx.destination)
     osc.type = 'sine'
-    // Two-tone ping (high → mid) — gentle, not jarring
+    // Two-tone ping (high → mid) - gentle, not jarring
     osc.frequency.setValueAtTime(880, t)
     osc.frequency.exponentialRampToValueAtTime(660, t + 0.18)
     gain.gain.setValueAtTime(0, t)

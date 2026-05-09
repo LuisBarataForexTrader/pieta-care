@@ -1,4 +1,4 @@
-"""Family chat — coordinated messaging between accepted family members
+"""Family chat - coordinated messaging between accepted family members
 of an elderly profile. Access depends on the owner's subscription:
 all accepted family members can chat as long as the family owner is
 on a trial or Família AI plan."""

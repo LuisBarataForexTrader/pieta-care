@@ -91,7 +91,7 @@ export default function HealthChartsPanel({ vitals, days = 14 }: Props) {
               { key: 'dia', label: 'Diastólica', color: '#F472B6' },
             ]
             const last = sorted.filter(v => v.blood_pressure_sys).slice(-1)[0]
-            if (last) latest = `${last.blood_pressure_sys}/${last.blood_pressure_dia ?? '—'}`
+            if (last) latest = `${last.blood_pressure_sys}/${last.blood_pressure_dia ?? '-'}`
           } else {
             const k = spec.key as keyof VitalSign
             data = sorted

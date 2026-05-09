@@ -39,7 +39,7 @@ async function request<T>(
   if (token) headers['Authorization'] = `Bearer ${token}`
 
   // cache: 'no-store' so the browser never serves stale data on refresh
-  // (this app's GETs are user-specific real-time things — chat, presence,
+  // (this app's GETs are user-specific real-time things - chat, presence,
   // billing status, etc.)
   const res = await fetch(`${BASE}${path}`, { cache: 'no-store', ...options, headers })
   if (res.status === 401) {

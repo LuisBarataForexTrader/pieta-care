@@ -264,14 +264,14 @@ function QualidadeInner() {
         <div className="card" style={{ marginBottom: 24, background: 'var(--brand-light)', border: '1px solid rgba(42,96,73,0.15)' }}>
           <div style={{ fontSize: 14, fontWeight: 700, color: 'var(--brand)', marginBottom: 10, display: 'flex', alignItems: 'center', gap: 6 }}><Lightbulb size={14} strokeWidth={2} /> Insights desta semana</div>
           <ul style={{ margin: 0, padding: '0 0 0 18px', display: 'flex', flexDirection: 'column', gap: 6 }}>
-            {medTotal === 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Sem medicação agendada — adiciona medicamentos para acompanhar a adesão</li>}
+            {medTotal === 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Sem medicação agendada - adiciona medicamentos para acompanhar a adesão</li>}
             {medTotal > 0 && medScore >= 90 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Excelente adesão à medicação esta semana ({Math.round(medScore)}%)</li>}
-            {medTotal > 0 && medScore < 70 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Adesão à medicação baixa — {medTotal - medTaken} toma{medTotal - medTaken !== 1 ? 's' : ''} em falta esta semana</li>}
-            {wbDays < 3 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Poucos registos de bem-estar — tenta registar pelo menos 5 dias por semana</li>}
-            {wbDays >= 5 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Bom registo de bem-estar ({wbDays}/7 dias) — mantém a regularidade</li>}
+            {medTotal > 0 && medScore < 70 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Adesão à medicação baixa - {medTotal - medTaken} toma{medTotal - medTaken !== 1 ? 's' : ''} em falta esta semana</li>}
+            {wbDays < 3 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Poucos registos de bem-estar - tenta registar pelo menos 5 dias por semana</li>}
+            {wbDays >= 5 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Bom registo de bem-estar ({wbDays}/7 dias) - mantém a regularidade</li>}
             {moodTrend === 'up' && avgMoodThis && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Humor a melhorar esta semana (média {avgMoodThis.toFixed(1)}/5) ↑</li>}
-            {moodTrend === 'down' && avgMoodThis && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Tendência de humor negativa (média {avgMoodThis.toFixed(1)}/5) — verifica o que mudou</li>}
-            {critCount > 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>{critCount} incidente{critCount !== 1 ? 's' : ''} grave{critCount !== 1 ? 's' : ''} esta semana — requer acompanhamento</li>}
+            {moodTrend === 'down' && avgMoodThis && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Tendência de humor negativa (média {avgMoodThis.toFixed(1)}/5) - verifica o que mudou</li>}
+            {critCount > 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>{critCount} incidente{critCount !== 1 ? 's' : ''} grave{critCount !== 1 ? 's' : ''} esta semana - requer acompanhamento</li>}
             {thisInc.length === 0 && <li style={{ fontSize: 13, color: 'var(--text-2)' }}>Nenhum incidente registado esta semana ✓</li>}
           </ul>
         </div>

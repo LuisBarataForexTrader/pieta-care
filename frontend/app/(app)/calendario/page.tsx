@@ -173,7 +173,7 @@ export default function CalendarioPage() {
             </div>
             <div>
               <label className="field-label">Médico / especialista</label>
-              <input className="field-input" value={eForm.doctor_name} onChange={e => setEForm(f => ({ ...f, doctor_name: e.target.value }))} placeholder="Ex: Dr. João Silva — Cardiologista" />
+              <input className="field-input" value={eForm.doctor_name} onChange={e => setEForm(f => ({ ...f, doctor_name: e.target.value }))} placeholder="Ex: Dr. João Silva - Cardiologista" />
             </div>
             <div className="grid-2">
               <div>

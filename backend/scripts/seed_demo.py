@@ -53,6 +53,14 @@ from app.models.document import Document  # noqa: E402
 
 DEMO_OWNER_EMAIL = os.environ.get("DEMO_OWNER_EMAIL", "demo@pietas.care")
 DEMO_OWNER_PASSWORD = os.environ.get("DEMO_OWNER_PASSWORD", "pietas2026")
+DEMO_OWNER_NAME = os.environ.get("DEMO_OWNER_NAME", "Sofia Ferreira")
+DEMO_OWNER_PHONE = os.environ.get("DEMO_OWNER_PHONE", "+351 932 145 678")
+# Plan tier the owner is on. One of: familia | familia_plus | cuidador_pro
+DEMO_PLAN = os.environ.get("DEMO_PLAN", "cuidador_pro")
+# If "true", invite the joão + inês family members and seed chat history.
+# Skip on lower tiers (chat is gated to cuidador_pro anyway, and the
+# Família plan caps family members at 2).
+DEMO_INCLUDE_FAMILY = os.environ.get("DEMO_INCLUDE_FAMILY", "true").lower() == "true"
 DEMO_DAYS = int(os.environ.get("DEMO_DAYS", sys.argv[1] if len(sys.argv) > 1 else "60"))
 
 random.seed(20260508)  # deterministic-ish demo
@@ -72,7 +80,7 @@ def days_ago(n: int, *, hour: int = 9, minute: int = 0) -> datetime:
 def main() -> None:
     db = SessionLocal()
     try:
-        print(f"▶ Seeding demo for {DEMO_OWNER_EMAIL} with {DEMO_DAYS} days of data…")
+        print(f"▶ Seeding demo for {DEMO_OWNER_EMAIL} ({DEMO_PLAN}) with {DEMO_DAYS} days of data…")
 
         # 1) Owner user (cuidadora principal)
         owner = db.scalar(select(User).where(User.email == DEMO_OWNER_EMAIL))
@@ -80,12 +88,12 @@ def main() -> None:
             owner = User(
                 email=DEMO_OWNER_EMAIL,
                 hashed_password=hash_password(DEMO_OWNER_PASSWORD),
-                full_name="Sofia Ferreira",
-                phone="+351 932 145 678",
+                full_name=DEMO_OWNER_NAME,
+                phone=DEMO_OWNER_PHONE,
                 is_active=True,
                 is_verified=True,
                 subscription_status="active",
-                subscription_plan="cuidador_pro",
+                subscription_plan=DEMO_PLAN,
                 trial_ends_at=NOW + timedelta(days=365),
             )
             db.add(owner)
@@ -93,12 +101,12 @@ def main() -> None:
         else:
             # Refresh — set password + ensure active plan for screenshots
             owner.hashed_password = hash_password(DEMO_OWNER_PASSWORD)
-            owner.full_name = "Sofia Ferreira"
-            owner.phone = "+351 932 145 678"
+            owner.full_name = DEMO_OWNER_NAME
+            owner.phone = DEMO_OWNER_PHONE
             owner.is_active = True
             owner.is_verified = True
             owner.subscription_status = "active"
-            owner.subscription_plan = "cuidador_pro"
+            owner.subscription_plan = DEMO_PLAN
             owner.trial_ends_at = NOW + timedelta(days=365)
 
         # 2) Wipe any prior demo data owned by this user

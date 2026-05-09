@@ -18,7 +18,7 @@ Responde EXACTAMENTE neste formato Markdown, sem nada antes nem depois:
 [1-2 frases sobre a indicação terapêutica principal]
 
 **Como tomar**
-[1-2 frases sobre posologia típica e instruções de toma — em jejum, com comida, etc.]
+[1-2 frases sobre posologia típica e instruções de toma - em jejum, com comida, etc.]
 
 **Cuidados**
 [1-2 frases sobre os efeitos secundários mais comuns e contra-indicações relevantes para idosos]
@@ -28,7 +28,7 @@ Responde EXACTAMENTE neste formato Markdown, sem nada antes nem depois:
 Regras:
 - Português de Portugal (não Brasil).
 - Linguagem acessível, evita jargão técnico.
-- Mantém-te factual — se não conheces o medicamento, responde apenas "Não foi possível identificar este medicamento."
+- Mantém-te factual - se não conheces o medicamento, responde apenas "Não foi possível identificar este medicamento."
 - Não inventes posologias específicas para o paciente.
 - Sem emojis."""
 

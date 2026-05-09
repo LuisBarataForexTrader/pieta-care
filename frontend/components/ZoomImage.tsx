@@ -105,7 +105,7 @@ export default function ZoomImage({
             </button>
           </div>
 
-          {/* Image container — clicking the image itself does NOT close */}
+          {/* Image container - clicking the image itself does NOT close */}
           <div
             onClick={(e) => e.stopPropagation()}
             className="zoom-image-stage"
@@ -124,7 +124,7 @@ export default function ZoomImage({
             )}
           </div>
 
-          {/* Bottom hint — also closes on click */}
+          {/* Bottom hint - also closes on click */}
           <p className="zoom-image-bottom-hint">Clique fora da imagem ou pressione Esc para fechar</p>
         </div>
       )}

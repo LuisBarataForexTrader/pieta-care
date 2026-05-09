@@ -172,7 +172,7 @@ def _user_plan_now(u: User | None) -> str | None:
 
 
 def _resolve_effective_plan(db: Session, user: User) -> str | None:
-    """Highest plan tier the user has access to right now — considering
+    """Highest plan tier the user has access to right now - considering
     their own subscription PLUS every household where they're an accepted
     member (invited members inherit the titular's plan)."""
     # Lazy import to keep module import graph clean
@@ -228,7 +228,7 @@ def billing_status(db: Session, user: User) -> BillingStatusResponse:
             effective_plan=effective,
         )
 
-    # No active Stripe subscription — fall back to local trial state
+    # No active Stripe subscription - fall back to local trial state
     return BillingStatusResponse(
         status=user.subscription_status or "trial",
         plan=user.subscription_plan,

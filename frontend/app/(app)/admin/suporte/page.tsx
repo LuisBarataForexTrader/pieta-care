@@ -10,7 +10,7 @@ function fmtTime(iso: string) {
   return new Date(iso).toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' })
 }
 function fmtRelative(iso: string | null) {
-  if (!iso) return '—'
+  if (!iso) return '-'
   const diff = (Date.now() - new Date(iso).getTime()) / 1000
   if (diff < 60) return 'agora'
   if (diff < 3600) return `há ${Math.floor(diff / 60)} min`
@@ -56,7 +56,7 @@ export default function AdminSuportePage() {
         const list = await api.adminListSupportHouseholds()
         if (!alive) return
         setHouseholds(list)
-        // Auto-select first thread on desktop only — mobile shows the list first
+        // Auto-select first thread on desktop only - mobile shows the list first
         const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 769
         if (selectedId === null && isDesktop) {
           const first = list.flatMap(h => h.members)[0]

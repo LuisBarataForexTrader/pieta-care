@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 export interface ChartPoint {
   /** ISO timestamp */
   t: string
-  /** Numeric value(s) — single or named for multi-series */
+  /** Numeric value(s) - single or named for multi-series */
   v: number | Record<string, number>
 }
 
@@ -186,7 +186,7 @@ export default function HealthChart({
           />
         )}
 
-        {/* Series — area + line + dots. Single-point case shows just the dot
+        {/* Series - area + line + dots. Single-point case shows just the dot
            with a hint label, since a line needs ≥2 points. */}
         {series.map((s) => {
           const pts: { x: number; y: number; v: number }[] = []
@@ -199,7 +199,7 @@ export default function HealthChart({
           if (pts.length === 0) return null
 
           if (pts.length === 1) {
-            // Centre the lone dot horizontally — left edge looks like a glitch
+            // Centre the lone dot horizontally - left edge looks like a glitch
             const cx = PADDING.left + innerW / 2
             const p = { ...pts[0], x: cx }
             return (

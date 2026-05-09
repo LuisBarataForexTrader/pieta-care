@@ -24,7 +24,7 @@ class Settings(BaseSettings):
     HETZNER_STORAGE_ENDPOINT: str = "https://fsn1.your-objectstorage.com"
 
     FRONTEND_URL: str = "https://pietas.care"
-    # Vercel project URL (project still named "pieta-care" on Vercel — leave
+    # Vercel project URL (project still named "pieta-care" on Vercel - leave
     # until renamed there). Used for CORS only.
     FRONTEND_URL_VERCEL: str = "https://pieta-care.vercel.app"
     BACKEND_PUBLIC_URL: str = "https://api.pietas.care"
@@ -35,10 +35,10 @@ class Settings(BaseSettings):
     TOCONLINE_SERIES_ID: str = ""
     TOCONLINE_EXEMPTION_NON_EU: str = ""
 
-    # Anthropic — used for medication info lookups
+    # Anthropic - used for medication info lookups
     ANTHROPIC_API_KEY: str = ""
 
-    # Email — Resend (preferred) or SMTP fallback
+    # Email - Resend (preferred) or SMTP fallback
     RESEND_API_KEY: str = ""
     SMTP_HOST: str = ""
     SMTP_PORT: int = 587

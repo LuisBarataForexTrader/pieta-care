@@ -1,4 +1,4 @@
-"""Support chat — bridge between customers and pietas.care admins.
+"""Support chat - bridge between customers and pietas.care admins.
 
 One thread per user. Admin users (User.is_admin = True) can read all
 threads and reply. Each user only sees their own thread.
@@ -258,7 +258,7 @@ def _elderly_names_for_owner(db: Session, owner: User) -> list[str]:
 
 
 def list_admin_households(db: Session, admin: User) -> list[HouseholdSummary]:
-    """Group support threads by household — the paying owner up top, with
+    """Group support threads by household - the paying owner up top, with
     their family members nested below as sub-rows."""
     _require_admin(admin)
 
@@ -346,7 +346,7 @@ def list_admin_households(db: Session, admin: User) -> list[HouseholdSummary]:
 
 
 def admin_delete_message(db: Session, admin: User, message_id: int) -> None:
-    """Soft-delete an admin reply. Only admin replies can be deleted —
+    """Soft-delete an admin reply. Only admin replies can be deleted -
     user messages are immutable. Any admin can delete any admin reply."""
     _require_admin(admin)
     msg = db.query(SupportMessage).filter(SupportMessage.id == message_id).first()

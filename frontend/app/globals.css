@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 /* ────────────────────────────────────────────────────────
-   THEME — Light (default)
+   THEME - Light (default)
    ────────────────────────────────────────────────────────
    Tokens are set on :root; [data-theme="dark"] overrides
    below provide the dark variant. Body reads them through
@@ -61,7 +61,7 @@
 }
 
 [data-theme="dark"] {
-  /* Sage-leaning green: clinical, calm — not neon */
+  /* Sage-leaning green: clinical, calm - not neon */
   --brand:        #3FA76B;
   --brand-hover:  #339058;
   --brand-light:  rgba(63,167,107,0.14);
@@ -1292,7 +1292,7 @@ textarea.field-input { resize: vertical; min-height: 80px; }
   flex-shrink: 0;
 }
 
-/* ── ADMIN SUPPORT — HOUSEHOLDS ──────────────────────── */
+/* ── ADMIN SUPPORT - HOUSEHOLDS ──────────────────────── */
 
 .household-header {
   background: linear-gradient(180deg, #FFFEF7 0%, #FEFCE8 100%);

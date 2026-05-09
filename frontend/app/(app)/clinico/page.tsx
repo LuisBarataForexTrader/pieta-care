@@ -142,7 +142,7 @@ function ClinicoInner() {
         <div className="info-banner" style={{ marginBottom: 20 }}>
           <FlaskConical size={18} strokeWidth={1.85} style={{ color: '#2B6CB0', flexShrink: 0 }} />
           <div style={{ flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#2B6CB0' }}>Integração SNS FHIR — em desenvolvimento</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#2B6CB0' }}>Integração SNS FHIR - em desenvolvimento</div>
             <div style={{ fontSize: 12, color: 'var(--text-2)', lineHeight: 1.5 }}>
               A SPMS está a desenvolver a API pública SNS/FHIR. Quando disponível, os dados serão importados automaticamente.
               Por agora, pode consultar o seu histórico no <strong>Portal SNS</strong> e registar manualmente.
@@ -156,13 +156,13 @@ function ClinicoInner() {
             {overdueVac.map(v => (
               <div key={v.id} style={{ background: 'var(--danger-light)', border: '1px solid var(--danger)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--on-tinted-danger)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <AlertTriangle size={14} strokeWidth={2.25} />
-                <span><strong>{v.vaccine_name}</strong> — reforço em atraso ({fmtDate(v.next_due_date)})</span>
+                <span><strong>{v.vaccine_name}</strong> - reforço em atraso ({fmtDate(v.next_due_date)})</span>
               </div>
             ))}
             {soonVac.map(v => (
               <div key={v.id} style={{ background: 'var(--warning-light)', border: '1px solid var(--warning)', borderRadius: 10, padding: '10px 14px', fontSize: 13, color: 'var(--on-tinted-warning)', display: 'flex', alignItems: 'center', gap: 8 }}>
                 <CalendarDays size={14} strokeWidth={2.25} />
-                <span><strong>{v.vaccine_name}</strong> — reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})</span>
+                <span><strong>{v.vaccine_name}</strong> - reforço em {daysUntil(v.next_due_date)} dia{daysUntil(v.next_due_date) !== 1 ? 's' : ''} ({fmtDate(v.next_due_date)})</span>
               </div>
             ))}
           </div>
@@ -353,7 +353,7 @@ function ClinicoInner() {
               <div className="empty-state">
                 <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><Syringe size={42} strokeWidth={1.4} /></div>
                 <div className="empty-state-title">Sem vacinas registadas</div>
-                <div className="empty-state-text">Regista o historial de vacinação — gripe sazonal, COVID-19, tétano, pneumococos…</div>
+                <div className="empty-state-text">Regista o historial de vacinação - gripe sazonal, COVID-19, tétano, pneumococos…</div>
                 <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar vacina</button>
               </div>
             </div>

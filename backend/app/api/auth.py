@@ -96,7 +96,7 @@ def export_my_data(current_user: User = Depends(get_current_user), db: Session =
 
 @router.post("/forgot-password", status_code=202)
 def forgot_password(data: ForgotPasswordRequest, db: Session = Depends(get_db)):
-    """Always responds 202 — we don't reveal whether the email exists.
+    """Always responds 202 - we don't reveal whether the email exists.
     If it does, an email is sent (best-effort)."""
     request_password_reset(db, data.email)
     return {"message": "Se a conta existe, enviámos um email com instruções para repor a password."}

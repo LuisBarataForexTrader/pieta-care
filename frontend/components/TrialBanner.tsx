@@ -34,7 +34,7 @@ export default function TrialBanner() {
   function dismiss(e: React.MouseEvent) {
     e.preventDefault()
     e.stopPropagation()
-    // Allow dismiss only when there's no urgency (info tone) — for 24h
+    // Allow dismiss only when there's no urgency (info tone) - for 24h
     localStorage.setItem(DISMISS_KEY, String(Date.now() + 24 * 3600 * 1000))
     setDismissed(true)
   }
@@ -44,7 +44,7 @@ export default function TrialBanner() {
       <Sparkles size={14} strokeWidth={2.25} />
       <span>
         {expired ? (
-          <>O seu trial terminou — escolha um plano em <strong>A minha conta</strong> para continuar →</>
+          <>O seu trial terminou - escolha um plano em <strong>A minha conta</strong> para continuar →</>
         ) : daysLeft === 1 ? (
           <>Amanhã termina o seu trial <strong>Família Plus</strong>. Subscreva em <strong>A minha conta</strong> para manter os dados →</>
         ) : (

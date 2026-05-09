@@ -298,7 +298,7 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <>
-                    <div className="kpi-value-muted">—</div>
+                    <div className="kpi-value-muted">-</div>
                     <div style={{ height: 32 }} />
                     <div className="kpi-sub"><Link href="/saude" className="section-link" style={{ fontSize: 12 }}>Registar →</Link></div>
                   </>
@@ -325,7 +325,7 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <>
-                    <div className="kpi-value-muted">—</div>
+                    <div className="kpi-value-muted">-</div>
                     <div style={{ height: 32 }} />
                     <div className="kpi-sub"><Link href="/saude" className="section-link" style={{ fontSize: 12 }}>Registar →</Link></div>
                   </>
@@ -352,7 +352,7 @@ export default function Dashboard() {
                   </>
                 ) : (
                   <>
-                    <div className="kpi-value-muted">—</div>
+                    <div className="kpi-value-muted">-</div>
                     <div className="kpi-event-title" style={{ color: 'var(--text-3)' }}>Sem consultas marcadas</div>
                     <div className="kpi-sub"><Link href="/calendario" className="section-link" style={{ fontSize: 12 }}>Marcar →</Link></div>
                   </>
@@ -387,7 +387,7 @@ export default function Dashboard() {
             {/* ── MAIN GRID ── */}
             <div className="dash-grid">
 
-              {/* LEFT — Today's timeline */}
+              {/* LEFT - Today's timeline */}
               <div>
                 <div className="section-header">
                   <div className="section-title"><Clock size={17} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Plano de hoje</div>

@@ -203,7 +203,7 @@ export default function MedicacaoPage() {
               <input type="checkbox" checked={form.is_prn} onChange={e => setForm(f => ({ ...f, is_prn: e.target.checked }))} style={{ width: 18, height: 18, accentColor: '#D69E2E' }} />
               <div>
                 <div style={{ fontSize: 14, fontWeight: 700, color: form.is_prn ? '#B7791F' : 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 6 }}><Zap size={15} strokeWidth={2.25} /> Medicamento SOS / PRN</div>
-                <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Tomar quando necessário — sem horário fixo</div>
+                <div style={{ fontSize: 12, color: 'var(--text-3)' }}>Tomar quando necessário - sem horário fixo</div>
               </div>
             </label>
 

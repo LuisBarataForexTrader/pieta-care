@@ -169,7 +169,7 @@ Responde EXACTAMENTE neste formato Markdown, em português europeu:
 Regras:
 - Português de Portugal (não Brasil).
 - Linguagem acessível, sem jargão técnico desnecessário.
-- Mantém-te factual — nunca diagnostiques.
+- Mantém-te factual - nunca diagnostiques.
 - Bullets curtos (máx 15 palavras cada).
 - Se faltarem dados em alguma secção, di-lo claramente."""
 

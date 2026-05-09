@@ -189,7 +189,7 @@ export default function NotasPage() {
             <div className="empty-state">
               <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><FileText size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Sem notas registadas</div>
-              <div className="empty-state-text">Regista as observações de cada turno — alimentação, sono, comportamento, eventos relevantes</div>
+              <div className="empty-state-text">Regista as observações de cada turno - alimentação, sono, comportamento, eventos relevantes</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Registar nota</button>
             </div>
           </div>

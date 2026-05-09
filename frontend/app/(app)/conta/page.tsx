@@ -227,7 +227,7 @@ function ContaPageInner() {
             </div>
           )}
 
-          {/* Plans grid — show only when no active sub */}
+          {/* Plans grid - show only when no active sub */}
           {(!billing?.has_subscription || status === 'canceled' || status === 'incomplete' || status === 'incomplete_expired') && plans.length > 0 && (
             <>
               <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', marginTop: 18, marginBottom: 12 }}>

@@ -200,7 +200,7 @@ function PlanoInner() {
             <div className="empty-state">
               <div className="empty-state-icon" style={{ color: 'var(--text-3)' }}><ClipboardList size={42} strokeWidth={1.4} /></div>
               <div className="empty-state-title">Plano de cuidados vazio</div>
-              <div className="empty-state-text">Define as rotinas de cuidado — higiene, nutrição, mobilidade, actividades sociais e cuidados médicos</div>
+              <div className="empty-state-text">Define as rotinas de cuidado - higiene, nutrição, mobilidade, actividades sociais e cuidados médicos</div>
               <button className="btn-primary" onClick={() => setShowForm(true)} style={{ marginTop: 20, width: 'auto', padding: '10px 24px' }}>+ Adicionar item</button>
             </div>
           </div>

@@ -135,7 +135,7 @@ export default function PerfilPage() {
       <div className="page-body">
         <form onSubmit={save}>
 
-          {/* ── Profile header — photo + name ── */}
+          {/* ── Profile header - photo + name ── */}
           <div className="card" style={{ marginBottom: 24, display: 'flex', alignItems: 'center', gap: 20 }}>
 
             {/* Clickable avatar */}

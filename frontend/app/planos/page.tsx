@@ -3,7 +3,7 @@ import { Check, Sparkles, ArrowLeft, Leaf } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Planos e Preços — pietas.care',
+  title: 'Planos e Preços - pietas.care',
   description: 'Planos pietas.care a partir de €35/mês + IVA. 14 dias grátis. Cancela quando quiseres.',
 }
 
@@ -53,7 +53,7 @@ const PLANS = [
       'Até 4 perfis de familiar',
       'Familiares ilimitados',
       'Tudo do plano Família+',
-      'Assistente IA — informação clínica de medicação',
+      'Assistente IA - informação clínica de medicação',
       'Resumos automáticos diários',
       'Alertas inteligentes',
       'Suporte prioritário',
@@ -61,10 +61,11 @@ const PLANS = [
   },
 ]
 
+
 const FAQ = [
   {
     q: 'Como funciona o período gratuito?',
-    a: 'Tens 14 dias para experimentar qualquer plano sem cobrança. Não pedimos cartão à partida — só quando decidires subscrever.',
+    a: 'Tens 14 dias para experimentar qualquer plano sem cobrança. Não pedimos cartão à partida - só quando decidires subscrever.',
   },
   {
     q: 'Posso mudar de plano a qualquer momento?',
@@ -129,7 +130,7 @@ export default function PlanosPage() {
           fontSize: 'clamp(15px, 1.7vw, 18px)', color: '#57534E',
           lineHeight: 1.5, maxWidth: 600, margin: '0 auto',
         }}>
-          Escolhe o plano que melhor se adapta à tua família. Todos incluem 14 dias de uso gratuito —
+          Escolhe o plano que melhor se adapta à tua família. Todos incluem 14 dias de uso gratuito -
           sem cartão de crédito.
         </p>
       </section>

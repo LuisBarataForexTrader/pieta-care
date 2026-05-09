@@ -5,7 +5,7 @@ import { Wifi, Users as UsersIcon } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, FamilyMember, User } from '@/lib/types'
 
-const ONLINE_WINDOW_MS = 90_000  // 90s — covers gap between 30s heartbeats
+const ONLINE_WINDOW_MS = 90_000  // 90s - covers gap between 30s heartbeats
 const HEARTBEAT_MS = 30_000
 
 function isOnline(lastSeen: string | null | undefined): boolean {
@@ -73,7 +73,7 @@ export default function PresenceBar() {
           <span className="presence-avatar-dot" />
         </div>
         {filtered.slice(0, 4).map(m => (
-          <div key={m.id} className="presence-avatar" title={`${m.full_name ?? m.invited_email} — online`}>
+          <div key={m.id} className="presence-avatar" title={`${m.full_name ?? m.invited_email} - online`}>
             {initials(m.full_name ?? m.invited_email)}
             <span className="presence-avatar-dot" />
           </div>

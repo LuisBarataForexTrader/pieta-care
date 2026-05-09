@@ -51,23 +51,23 @@ type Gender = 'female' | 'male'
 // Head (anatomical oval, slightly tapered jaw)
 const HEAD = 'M 100,12 C 84,12 73,22 72,40 C 71,52 76,60 78,64 C 80,68 84,72 100,72 C 116,72 120,68 122,64 C 124,60 129,52 128,40 C 127,22 116,12 100,12 Z'
 
-// Neck — short trapezoidal with subtle clavicle hint
+// Neck - short trapezoidal with subtle clavicle hint
 const NECK = 'M 90,72 L 88,84 Q 88,88 100,90 Q 112,88 112,84 L 110,72 Z'
 
 // Trapezius / clavicle area (decorative, top of torso)
 const TRAP_DEC = 'M 60,84 Q 80,76 100,82 Q 120,76 140,84 Q 145,90 142,98 L 58,98 Q 55,90 60,84 Z'
 
-// Female torso — narrow waist, soft chest curve
+// Female torso - narrow waist, soft chest curve
 const TORAX_F = 'M 60,84 Q 78,76 100,82 Q 122,76 140,84 C 144,88 152,98 156,118 C 158,140 156,160 152,180 Q 148,196 132,200 L 68,200 Q 52,196 48,180 C 44,160 42,140 44,118 C 48,98 56,88 60,84 Z'
 const ABD_F   = 'M 68,200 Q 100,206 132,200 C 134,218 134,236 132,250 L 68,250 C 66,236 66,218 68,200 Z'
 const BACIA_F = 'M 68,250 L 68,260 C 60,272 54,290 54,302 Q 56,318 100,322 Q 144,318 146,302 C 146,290 140,272 132,260 L 132,250 Z'
 
-// Male torso — broader shoulders, V-taper
+// Male torso - broader shoulders, V-taper
 const TORAX_M = 'M 56,82 Q 78,72 100,80 Q 122,72 144,82 C 152,90 158,108 160,128 C 158,150 152,170 146,184 L 54,184 C 48,170 42,150 40,128 C 42,108 48,90 56,82 Z'
 const ABD_M   = 'M 54,184 Q 100,194 146,184 C 146,200 144,222 140,250 L 60,250 C 56,222 54,200 54,184 Z'
 const BACIA_M = 'M 60,250 L 60,260 C 56,272 52,290 54,302 Q 60,318 100,322 Q 140,318 146,302 C 148,290 144,272 140,260 L 140,250 Z'
 
-// Arms — deltoid bulge, biceps narrow, forearm wider towards wrist
+// Arms - deltoid bulge, biceps narrow, forearm wider towards wrist
 const ARM_ESQ = 'M 56,82 C 44,86 36,96 32,110 C 26,138 22,170 20,200 C 18,230 16,260 22,288 L 36,290 C 38,260 42,230 44,200 C 48,170 52,140 58,112 C 60,98 60,90 58,84 Z'
 const ARM_DIR = 'M 144,82 C 156,86 164,96 168,110 C 174,138 178,170 180,200 C 182,230 184,260 178,288 L 164,290 C 162,260 158,230 156,200 C 152,170 148,140 142,112 C 140,98 140,90 142,84 Z'
 
@@ -79,7 +79,7 @@ const DELT_R = 'M 150,92 Q 162,108 164,130'
 const HAND_L = 'M 22,290 C 14,290 10,300 12,316 C 14,330 22,336 30,332 L 36,326 L 36,294 Z'
 const HAND_R = 'M 178,290 C 186,290 190,300 188,316 C 186,330 178,336 170,332 L 164,326 L 164,294 Z'
 
-// Thighs — quad bulge inside
+// Thighs - quad bulge inside
 const COXA_ESQ_F = 'M 68,322 L 60,398 Q 60,420 80,422 Q 100,420 100,398 L 100,322 Z'
 const COXA_ESQ_M = 'M 60,322 L 56,398 Q 56,420 80,422 Q 100,420 100,398 L 100,322 Z'
 const COXA_DIR_F = 'M 132,322 L 140,398 Q 140,420 120,422 Q 100,420 100,398 L 100,322 Z'
@@ -95,7 +95,7 @@ const PERNA_ESQ_M = 'M 60,422 L 56,490 Q 56,506 80,508 Q 98,506 98,490 L 96,422 
 const PERNA_DIR_F = 'M 136,422 L 140,490 Q 140,506 120,508 Q 102,506 102,490 L 104,422 Z'
 const PERNA_DIR_M = 'M 140,422 L 144,490 Q 144,506 120,508 Q 102,506 102,490 L 104,422 Z'
 
-// Feet (front view — ovalish)
+// Feet (front view - ovalish)
 const PE_ESQ = 'M 64,506 L 56,520 Q 52,532 80,534 Q 96,532 96,524 L 96,508 Z'
 const PE_DIR = 'M 136,506 L 144,520 Q 148,532 120,534 Q 104,532 104,524 L 104,508 Z'
 
@@ -251,7 +251,7 @@ export default function BodyMap({ value = [], onChange, readOnly = false }: Body
           {/* Neck (decorative) */}
           <path d={NECK} fill="url(#bodySkin)" stroke="var(--body-stroke)" strokeWidth={0.6} style={{ pointerEvents: 'none' }} />
 
-          {/* Head — drawn last so on top */}
+          {/* Head - drawn last so on top */}
           <path d={HEAD} {...zp('cabeca')} />
 
           {/* View label */}

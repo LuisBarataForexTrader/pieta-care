@@ -30,7 +30,7 @@ def _vital_response(v) -> VitalSignResponse:
     return VitalSignResponse(
         id=v.id,
         elderly_id=v.elderly_id,
-        recorded_by_name=v.recorded_by.full_name if v.recorded_by else "—",
+        recorded_by_name=v.recorded_by.full_name if v.recorded_by else "-",
         measured_at=v.measured_at,
         blood_pressure_sys=v.blood_pressure_sys,
         blood_pressure_dia=v.blood_pressure_dia,
@@ -48,7 +48,7 @@ def _wellbeing_response(w) -> WellbeingResponse:
     return WellbeingResponse(
         id=w.id,
         elderly_id=w.elderly_id,
-        recorded_by_name=w.recorded_by.full_name if w.recorded_by else "—",
+        recorded_by_name=w.recorded_by.full_name if w.recorded_by else "-",
         logged_date=w.logged_date,
         mood=w.mood,
         energy=w.energy,
@@ -63,7 +63,7 @@ def _incident_response(i) -> IncidentResponse:
     return IncidentResponse(
         id=i.id,
         elderly_id=i.elderly_id,
-        reported_by_name=i.reported_by.full_name if i.reported_by else "—",
+        reported_by_name=i.reported_by.full_name if i.reported_by else "-",
         occurred_at=i.occurred_at,
         type=i.type,
         severity=i.severity,
@@ -80,7 +80,7 @@ def _note_response(n) -> DailyNoteResponse:
     return DailyNoteResponse(
         id=n.id,
         elderly_id=n.elderly_id,
-        recorded_by_name=n.recorded_by.full_name if n.recorded_by else "—",
+        recorded_by_name=n.recorded_by.full_name if n.recorded_by else "-",
         note_date=n.note_date,
         shift=n.shift,
         content=n.content,
@@ -93,7 +93,7 @@ def _care_plan_response(item) -> CarePlanItemResponse:
     return CarePlanItemResponse(
         id=item.id,
         elderly_id=item.elderly_id,
-        created_by_name=item.created_by.full_name if item.created_by else "—",
+        created_by_name=item.created_by.full_name if item.created_by else "-",
         category=item.category,
         title=item.title,
         description=item.description,
@@ -255,7 +255,7 @@ def remove_care_plan_item(elderly_id: int, item_id: int, db: Session = Depends(g
 def _dx_response(dx) -> ClinicalDiagnosisResponse:
     return ClinicalDiagnosisResponse(
         id=dx.id, elderly_id=dx.elderly_id,
-        created_by_name=dx.created_by.full_name if dx.created_by else "—",
+        created_by_name=dx.created_by.full_name if dx.created_by else "-",
         description=dx.description, icd_code=dx.icd_code,
         diagnosed_date=dx.diagnosed_date, is_chronic=dx.is_chronic,
         is_active=dx.is_active, source=dx.source, notes=dx.notes, created_at=dx.created_at,
@@ -299,7 +299,7 @@ def remove_diagnosis(elderly_id: int, dx_id: int, db: Session = Depends(get_db),
 def _vac_response(v) -> VaccinationResponse:
     return VaccinationResponse(
         id=v.id, elderly_id=v.elderly_id,
-        created_by_name=v.created_by.full_name if v.created_by else "—",
+        created_by_name=v.created_by.full_name if v.created_by else "-",
         vaccine_name=v.vaccine_name, administered_date=v.administered_date,
         next_due_date=v.next_due_date, lot_number=v.lot_number,
         source=v.source, notes=v.notes, created_at=v.created_at,

@@ -74,7 +74,7 @@ export default function EsqueciPassword() {
             <>
               <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 6 }}>Repor password</h2>
               <p style={{ fontSize: 14, color: 'var(--text-3)', marginBottom: 24, lineHeight: 1.6 }}>
-                Indique o email da sua conta — enviamos um link para criar uma nova password.
+                Indique o email da sua conta - enviamos um link para criar uma nova password.
               </p>
               <form onSubmit={submit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 <div>

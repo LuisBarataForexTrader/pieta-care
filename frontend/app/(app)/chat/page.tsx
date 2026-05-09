@@ -32,7 +32,7 @@ export default function ChatPage() {
     <PlanGate
       requires="cuidador_pro"
       pageName="Chat familiar"
-      pitch="Canal privado entre os familiares aceites — coordenação em tempo real sem WhatsApp paralelo, com histórico permanente, notificações e presença online."
+      pitch="Canal privado entre os familiares aceites - coordenação em tempo real sem WhatsApp paralelo, com histórico permanente, notificações e presença online."
     >
       <ChatInner />
     </PlanGate>
@@ -198,7 +198,7 @@ function ChatInner() {
               </div>
             </div>
             <p style={{ fontSize: 14, color: 'var(--text-2)', lineHeight: 1.6, marginBottom: 16 }}>
-              Coordene os cuidados em tempo real com toda a família — quem deu a medicação, quem
+              Coordene os cuidados em tempo real com toda a família - quem deu a medicação, quem
               vai à consulta amanhã, dúvidas e observações partilhadas instantaneamente, num
               espaço privado para o vosso familiar.
             </p>

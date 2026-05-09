@@ -27,7 +27,7 @@ export default function RelatorioPage() {
     <PlanGate
       requires="familia_plus"
       pageName="Relatório Médico"
-      pitch="O dossier clínico imprimível — identificação, condições, alergias, medicação, adesão e contactos. Gerado em segundos para entregar ao médico ou enviar por email."
+      pitch="O dossier clínico imprimível - identificação, condições, alergias, medicação, adesão e contactos. Gerado em segundos para entregar ao médico ou enviar por email."
     >
       <RelatorioInner />
     </PlanGate>
@@ -69,7 +69,7 @@ function RelatorioInner() {
     const pct = total ? Math.round((taken / total) * 100) : 0
 
     const lines = [
-      `RESUMO CLÍNICO — ${elderly.full_name}`,
+      `RESUMO CLÍNICO - ${elderly.full_name}`,
       `Gerado em ${new Date().toLocaleDateString('pt-PT')} via pietas.care`,
       ``,
       `IDENTIFICAÇÃO`,
@@ -86,14 +86,14 @@ function RelatorioInner() {
       elderly.allergies || 'Sem alergias conhecidas',
       ``,
       `MEDICAÇÃO ACTUAL (${active.length} medicamento${active.length !== 1 ? 's' : ''})`,
-      ...active.map(m => `• ${m.name} ${m.dosage} — ${m.schedule_times.join(', ')}${m.instructions ? ` | ${m.instructions}` : ''}`),
+      ...active.map(m => `• ${m.name} ${m.dosage} - ${m.schedule_times.join(', ')}${m.instructions ? ` | ${m.instructions}` : ''}`),
       ``,
       `ADESÃO À MEDICAÇÃO (últimos ${days} dias)`,
       `${pct}% (${taken} de ${total} tomas confirmadas)`,
       ``,
       `PRÓXIMAS CONSULTAS`,
       ...events.filter(e => new Date(e.starts_at) >= new Date()).slice(0, 5).map(e =>
-        `• ${e.title} — ${fmtDateTime(e.starts_at)}${e.location ? ` @ ${e.location}` : ''}`
+        `• ${e.title} - ${fmtDateTime(e.starts_at)}${e.location ? ` @ ${e.location}` : ''}`
       ),
       ``,
       `CONTACTO DE EMERGÊNCIA`,
@@ -102,10 +102,10 @@ function RelatorioInner() {
         : 'Não especificado',
       ``,
       `---`,
-      `Gerado via pietas.care — Sistema de gestão de cuidados de saúde`,
+      `Gerado via pietas.care - Sistema de gestão de cuidados de saúde`,
     ].filter(Boolean).join('\n')
 
-    const subject = encodeURIComponent(`Resumo Clínico — ${elderly.full_name}`)
+    const subject = encodeURIComponent(`Resumo Clínico - ${elderly.full_name}`)
     const body = encodeURIComponent(lines)
     window.location.href = `mailto:?subject=${subject}&body=${body}`
   }
@@ -137,7 +137,7 @@ function RelatorioInner() {
 
   return (
     <div>
-      {/* Screen toolbar — hidden on print */}
+      {/* Screen toolbar - hidden on print */}
       <div className="page-top no-print">
         <div>
           <div className="page-title" style={{ display: 'inline-flex', alignItems: 'center', gap: 10 }}><FileBarChart size={20} strokeWidth={2} /> Relatório Médico</div>
@@ -281,7 +281,7 @@ function RelatorioInner() {
                       </div>
                     </td>
                     <td style={{ padding: '12px 0', fontSize: 13, color: 'var(--text-3)', fontStyle: m.instructions ? 'italic' : 'normal' }}>
-                      {m.instructions || '—'}
+                      {m.instructions || '-'}
                     </td>
                   </tr>
                 ))}
@@ -304,7 +304,7 @@ function RelatorioInner() {
         {/* Medication history / compliance */}
         <div className="card card-lg" style={{ marginBottom: 20 }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'inline-flex', alignItems: 'center', gap: 6 }}><BarChart3 size={13} strokeWidth={2.25} /> Adesão à medicação — últimos {days} dias</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-3)', textTransform: 'uppercase', letterSpacing: '0.06em', display: 'inline-flex', alignItems: 'center', gap: 6 }}><BarChart3 size={13} strokeWidth={2.25} /> Adesão à medicação - últimos {days} dias</div>
             {compliance !== null && (
               <span style={{ fontSize: 22, fontWeight: 800, color: compliance >= 80 ? 'var(--success)' : compliance >= 50 ? 'var(--warning)' : 'var(--danger)' }}>
                 {compliance}%
@@ -471,7 +471,7 @@ function RelatorioInner() {
 
         {/* Footer */}
         <div style={{ textAlign: 'center', color: 'var(--text-3)', fontSize: 12, padding: '8px 0 24px', borderTop: '1px solid var(--border)', marginTop: 8 }}>
-          Relatório gerado em {generatedAt} · pietas.care — Sistema de gestão de cuidados de saúde
+          Relatório gerado em {generatedAt} · pietas.care - Sistema de gestão de cuidados de saúde
         </div>
       </div>
 

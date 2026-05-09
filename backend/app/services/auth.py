@@ -21,7 +21,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
     existing = db.query(User).filter(User.email == data.email).first()
 
     # If a record exists but the user never confirmed their email (or the
-    # confirmation send failed silently — e.g. Resend rejected the FROM
+    # confirmation send failed silently - e.g. Resend rejected the FROM
     # domain), let them re-register to refresh the credentials and trigger
     # a new verification email. This avoids "Email já registado" dead-ends
     # for users who mistyped or whose first email never arrived.
@@ -117,7 +117,7 @@ def register_user(db: Session, data: RegisterRequest) -> User:
 
 def request_password_reset(db: Session, email: str) -> None:
     """Generate a reset token + send email. Always returns None (we never
-    leak whether the email exists or not — the API responds the same way
+    leak whether the email exists or not - the API responds the same way
     in both cases)."""
     user = db.query(User).filter(
         User.email == email,
@@ -134,7 +134,7 @@ def request_password_reset(db: Session, email: str) -> None:
     reset_url = f"{settings.FRONTEND_URL}/reset-password?token={token}"
     send_email(
         to=user.email,
-        subject="Repor password — pietas.care",
+        subject="Repor password - pietas.care",
         html=password_reset_html(user.full_name, reset_url),
     )
 

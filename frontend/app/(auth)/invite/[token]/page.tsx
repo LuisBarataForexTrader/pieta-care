@@ -16,7 +16,7 @@ export default function AcceptInvite() {
     try {
       const res = await api.acceptInvite(token, form.password, form.full_name)
       setToken(res.access_token)
-      // Always use the elderly_id from the invite — don't depend on first
+      // Always use the elderly_id from the invite - don't depend on first
       // listElderly() result, which could be a different profile if the
       // invitee already had their own.
       setElderlyId(res.elderly_id)
