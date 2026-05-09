@@ -13,12 +13,16 @@ when missing.
 """
 from __future__ import annotations
 import asyncio
+import os
 import sys
 
-import httpx
+# Allow running from /app/scripts (same trick as seed_demo.py).
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from app.core.config import settings
-from app.core.toconline import _get_access_token, TOCONLINE_API_URL
+import httpx  # noqa: E402
+
+from app.core.config import settings  # noqa: E402
+from app.core.toconline import _get_access_token, TOCONLINE_API_URL  # noqa: E402
 
 PRODUCTS = [
     {
