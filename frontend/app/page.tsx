@@ -546,8 +546,11 @@ export default function LandingPage() {
                         </li>
                       ))}
                     </ul>
-                    <Link href={`/register?plan=${p.id}`} style={{ display: 'block', textAlign: 'center', fontSize: 15, fontWeight: 800, padding: '14px', borderRadius: 12, textDecoration: 'none', background: p.highlight ? '#4ADE80' : '#166534', color: p.highlight ? '#0D2B1E' : '#fff' }}>
-                      {p.cta}
+                    <Link href={`/register?plan=${p.id}&pay=1`} style={{ display: 'block', textAlign: 'center', fontSize: 15, fontWeight: 800, padding: '14px', borderRadius: 12, textDecoration: 'none', background: p.highlight ? '#4ADE80' : '#166534', color: p.highlight ? '#0D2B1E' : '#fff' }}>
+                      Subscrever — €{p.price}/mês →
+                    </Link>
+                    <Link href={`/register?plan=${p.id}`} style={{ display: 'block', textAlign: 'center', fontSize: 13, fontWeight: 700, padding: '10px 12px', marginTop: 8, borderRadius: 10, textDecoration: 'none', color: p.highlight ? 'rgba(255,255,255,0.85)' : '#166534', border: `1px solid ${p.highlight ? 'rgba(255,255,255,0.2)' : 'rgba(22,101,52,0.25)'}` }}>
+                      Ou experimente 14 dias grátis
                     </Link>
                   </div>
                 </div>
