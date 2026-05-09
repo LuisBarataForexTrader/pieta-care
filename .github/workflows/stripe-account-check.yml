@@ -1,0 +1,15 @@
+name: Check Stripe account
+on: { workflow_dispatch: }
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            cd /opt/pieta-care
+            git fetch origin main && git reset --hard origin/main
+            docker compose exec -T api python scripts/stripe_account_check.py
