@@ -2208,6 +2208,62 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   .user-plan-chip-trial .user-plan-chip-label { display: inline; }   /* keep countdown legible */
 }
 
+/* ── Payment status banner (sticky under presence bar) ─────────── */
+.payment-banner {
+  position: sticky;
+  top: 38px;   /* sits below the presence bar (which is sticky top:0) */
+  z-index: 19;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 24px;
+  font-size: 13.5px;
+  font-weight: 600;
+  border-bottom: 1px solid;
+  backdrop-filter: saturate(180%) blur(8px);
+  -webkit-backdrop-filter: saturate(180%) blur(8px);
+}
+.payment-banner-text { flex: 1; min-width: 0; line-height: 1.4; }
+.payment-banner-text strong { font-weight: 800; }
+.payment-banner-cta {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12.5px; font-weight: 800;
+  padding: 7px 14px; border-radius: 8px;
+  border: none; cursor: pointer;
+  text-decoration: none;
+  font-family: inherit;
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s;
+}
+.payment-banner-cta:hover { transform: translateX(1px); }
+.payment-banner-cta:active { transform: translateX(0); }
+.payment-banner-cta-ghost {
+  background: transparent;
+  border: 1px solid currentColor;
+}
+.payment-banner-danger {
+  background: linear-gradient(135deg, var(--danger-light) 0%, transparent 100%);
+  color: var(--on-tinted-danger);
+  border-bottom-color: rgba(197,48,48,0.30);
+}
+.payment-banner-danger .payment-banner-cta:not(.payment-banner-cta-ghost) {
+  background: var(--danger);
+  color: #fff;
+}
+.payment-banner-warning {
+  background: linear-gradient(135deg, var(--warning-light) 0%, transparent 100%);
+  color: var(--on-tinted-warning);
+  border-bottom-color: rgba(192,86,33,0.30);
+}
+.payment-banner-warning .payment-banner-cta:not(.payment-banner-cta-ghost) {
+  background: var(--warning);
+  color: #fff;
+}
+@media (max-width: 600px) {
+  .payment-banner { padding: 9px 16px; font-size: 12.5px; }
+  .payment-banner-cta { padding: 6px 10px; font-size: 11.5px; }
+}
+
 /* ── Sidebar locked-section divider ─────────────────────────────── */
 .nav-section-locked-divider {
   height: 1px;

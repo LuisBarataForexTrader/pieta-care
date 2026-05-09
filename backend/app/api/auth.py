@@ -34,7 +34,11 @@ router = APIRouter(prefix="/auth", tags=["auth"])
 def register(data: RegisterRequest, db: Session = Depends(get_db)):
     try:
         user = register_user(db, data)
-        return RegisterResponse(message="Email de verificação enviado. Verifique a sua caixa de correio.", email=user.email)
+        return RegisterResponse(
+            message="Email de verificação enviado. Verifique a sua caixa de correio.",
+            email=user.email,
+            subscription_status=user.subscription_status,
+        )
     except AuthError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 

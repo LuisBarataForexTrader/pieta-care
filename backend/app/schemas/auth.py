@@ -8,6 +8,7 @@ class RegisterRequest(BaseModel):
     password: str
     full_name: str
     phone: str | None = None
+    nif: str | None = None
     elderly_name: str | None = None
 
 
@@ -42,6 +43,10 @@ class AuthResponse(BaseModel):
 class RegisterResponse(BaseModel):
     message: str
     email: str
+    # 'trial' if a fresh 14-day trial was granted, 'expired' if the user
+    # is detected as having previously consumed a trial under another
+    # account (same phone / NIF / canonical email).
+    subscription_status: str = "trial"
 
 
 class InviteAcceptRequest(BaseModel):

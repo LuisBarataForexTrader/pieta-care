@@ -12,6 +12,7 @@ export default function Register() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [verifyEmail, setVerifyEmail] = useState('')
+  const [verifyStatus, setVerifyStatus] = useState<string>('trial')
   const [autoLoggingIn, setAutoLoggingIn] = useState(false)
   const passwordRef = useRef('')
 
@@ -85,6 +86,7 @@ export default function Register() {
     try {
       const res = await api.register(form.email, form.password, form.full_name, form.elderly_name.trim() || undefined)
       setVerifyEmail(res.email)
+      setVerifyStatus(res.subscription_status)
       passwordRef.current = form.password   // remember for auto-login after verification
       setStep('verify')
     } catch (err: unknown) {
@@ -123,6 +125,19 @@ export default function Register() {
             <p style={{ fontSize: 13, color: 'var(--text-3)', lineHeight: 1.6 }}>
               Clique no link no email para activar a sua conta. O link expira em 24 horas.
             </p>
+
+            {verifyStatus === 'expired' && (
+              <div style={{
+                marginTop: 16, padding: '12px 14px', borderRadius: 10,
+                background: 'var(--warning-light)',
+                border: '1px solid rgba(192,86,33,0.22)',
+                fontSize: 13, color: 'var(--on-tinted-warning)', fontWeight: 600,
+                textAlign: 'left', lineHeight: 1.55,
+              }}>
+                <strong>Sem período de experimentação:</strong> detectámos que já experimentou o pietas.care anteriormente.
+                Para usar a app, terá de subscrever um plano logo após confirmar o email.
+              </div>
+            )}
 
             {/* Live polling indicator - turns into an "entrando" state once verification is detected */}
             <div style={{

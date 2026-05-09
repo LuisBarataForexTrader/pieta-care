@@ -1,6 +1,8 @@
+import re
 import secrets
 from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
+from sqlalchemy import and_, or_
 
 from app.core.auth import hash_password, verify_password, create_access_token, decode_invite_token
 from app.core.email import send_email, verification_email_html, deletion_confirmation_html, password_reset_html
@@ -15,6 +17,51 @@ class AuthError(Exception):
     def __init__(self, message: str, status_code: int = 400):
         self.message = message
         self.status_code = status_code
+
+
+# ─── Anti-trial-abuse helpers ─────────────────────────────────────────
+def _normalize_phone(raw: str | None) -> str | None:
+    """Keep only digits; if 10+ remain, take the last 9 (PT mobile shape).
+    Returns None if nothing useful is left."""
+    if not raw:
+        return None
+    digits = re.sub(r"\D", "", raw)
+    if len(digits) < 9:
+        return None
+    return digits[-9:]
+
+
+def _canonical_email(email: str) -> str:
+    """Lowercase + strip the '+suffix' before @ (gmail-style aliases).
+    foo+anything@bar.com -> foo@bar.com — used for trial-abuse detection,
+    not stored as the login email."""
+    e = email.strip().lower()
+    if "@" not in e:
+        return e
+    local, domain = e.rsplit("@", 1)
+    if "+" in local:
+        local = local.split("+", 1)[0]
+    return f"{local}@{domain}"
+
+
+def _trial_already_consumed(db: Session, *, email: str, phone_norm: str | None, nif: str | None) -> bool:
+    """True if any pre-existing (non-deleted) account looks like the
+    same person trying to grab another 14-day trial. Checks: canonical
+    email, normalised phone, NIF. Returns False on any signal we can't
+    evaluate (e.g. no phone provided)."""
+    canon = _canonical_email(email)
+    filters = [User.email_canonical == canon]
+    if phone_norm:
+        filters.append(User.phone_normalized == phone_norm)
+    if nif:
+        filters.append(User.nif == nif)
+
+    q = db.query(User).filter(
+        User.deleted_at.is_(None),
+        User.trial_used_at.isnot(None),
+        or_(*filters),
+    )
+    return q.first() is not None
 
 
 def register_user(db: Session, data: RegisterRequest) -> User:
@@ -73,13 +120,28 @@ def register_user(db: Session, data: RegisterRequest) -> User:
 
     token = secrets.token_urlsafe(32)
 
+    # ── Anti-trial-abuse decision ──────────────────────────────────
+    # If the same person (by canonical email / phone / NIF) has ALREADY
+    # had a trial, do NOT grant a fresh one. They register normally but
+    # land on subscription_status='expired' — meaning they have to pick
+    # a paid plan to use the app. Status messaging explains this.
+    phone_norm = _normalize_phone(getattr(data, "phone", None))
+    nif = getattr(data, "nif", None)
+    canon_email = _canonical_email(data.email)
+    abused = _trial_already_consumed(db, email=data.email, phone_norm=phone_norm, nif=nif)
+
+    now = datetime.utcnow()
     user = User(
         email=data.email,
+        email_canonical=canon_email,
         hashed_password=hash_password(data.password),
         full_name=data.full_name,
         phone=data.phone,
-        subscription_status="trial",
-        trial_ends_at=datetime.utcnow() + timedelta(days=14),
+        phone_normalized=phone_norm,
+        nif=nif,
+        subscription_status="expired" if abused else "trial",
+        trial_ends_at=None if abused else now + timedelta(days=14),
+        trial_used_at=None if abused else now,
         is_verified=False,
         email_verification_token=token,
     )

@@ -66,10 +66,10 @@ export const api = {
       body: JSON.stringify({ email, password }),
     }),
 
-  register: (email: string, password: string, full_name: string, elderly_name?: string) =>
-    request<{ message: string; email: string }>('/api/v1/auth/register', {
+  register: (email: string, password: string, full_name: string, elderly_name?: string, phone?: string, nif?: string) =>
+    request<{ message: string; email: string; subscription_status: string }>('/api/v1/auth/register', {
       method: 'POST',
-      body: JSON.stringify({ email, password, full_name, elderly_name }),
+      body: JSON.stringify({ email, password, full_name, elderly_name, phone, nif }),
     }),
 
   verifyEmail: (token: string) =>
