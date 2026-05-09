@@ -14,6 +14,7 @@ import type { Elderly, User, BillingStatus } from '@/lib/types'
 import ThemeToggle from '@/components/ThemeToggle'
 import { canAccess, requiredPlanFor, PLAN_LABEL, FEATURE_INFO, type PlanKey } from '@/lib/access'
 import LockedFeatureModal, { type LockedFeature } from '@/components/LockedFeatureModal'
+import PlanBadge from '@/components/PlanBadge'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -200,6 +201,7 @@ export default function Sidebar() {
           <ThemeToggle className="sidebar-theme-toggle" />
         </div>
         <div className="sidebar-tagline">Cuidar com confiança</div>
+        <div className="sidebar-plan-row"><PlanBadge /></div>
       </div>
 
       {/* Elder card + switcher */}
@@ -368,9 +370,7 @@ export default function Sidebar() {
               {accessibleSorted.map(renderAccessible)}
               {locked.length > 0 && (
                 <>
-                  <div className="nav-section-locked-label">
-                    <Lock size={10} strokeWidth={2.5} /> Disponível com upgrade
-                  </div>
+                  <div className="nav-section-locked-divider" aria-hidden="true" />
                   {locked.map(renderLocked)}
                 </>
               )}

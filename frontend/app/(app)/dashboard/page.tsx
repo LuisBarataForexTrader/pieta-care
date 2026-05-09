@@ -281,8 +281,7 @@ export default function Dashboard() {
       <div className="page-top">
         <div>
           <div className="page-title">
-            {todayGreeting()}
-            {me?.full_name && <span style={{ color: 'var(--brand)' }}>, {me.full_name.split(' ')[0]}</span>}
+            {todayGreeting()}{me?.full_name ? `, ${me.full_name.split(' ')[0]}` : ''}
           </div>
           <div className="page-subtitle" style={{ textTransform: 'capitalize' }}>{todayFull()}</div>
         </div>
@@ -314,12 +313,11 @@ export default function Dashboard() {
                       {elderlyAge && <span>{elderlyAge} anos</span>}
                       {elderly.blood_type && <span className="hero-chip"><Droplet size={11} strokeWidth={2.25} /> {elderly.blood_type}</span>}
                       {elderly.health_number && <span className="hero-chip">SNS {elderly.health_number}</span>}
-                      {diagnoses.slice(0, 2).map(d => (
+                      {diagnoses.map(d => (
                         <span key={d.id} className="hero-chip hero-chip-dx" title={d.description}>
-                          {d.description.length > 28 ? d.description.slice(0, 28) + '…' : d.description}
+                          {d.description.length > 32 ? d.description.slice(0, 32) + '…' : d.description}
                         </span>
                       ))}
-                      {diagnoses.length > 2 && <span className="hero-chip">+{diagnoses.length - 2}</span>}
                     </div>
                   </div>
                   <ChevronRight size={18} style={{ color: 'var(--text-3)', flexShrink: 0 }} />

@@ -78,48 +78,48 @@ export function canAccess(effectivePlan: PlanKey | null | undefined, path: strin
  *  the feature does, surfaced before the upgrade CTA. */
 export const FEATURE_INFO: Record<string, { pitch: string; bullets: string[] }> = {
   '/relatorio': {
-    pitch: 'Dossier clínico imprimível pronto a entregar ao médico em segundos.',
+    pitch: 'Um relatório clínico completo, pronto a entregar ao médico ou enviar por email - em qualquer consulta.',
     bullets: [
-      'Identificação, condições crónicas, alergias e medicação atual',
-      'Adesão à medicação dos últimos 30 dias com gráfico',
+      'Identificação, alergias, condições crónicas e medicação atual numa só folha',
+      'Gráfico de adesão à medicação dos últimos 30 dias',
       'Consultas passadas e próximas, contactos de emergência',
-      'Imprime ou envia por email com 1 clique',
+      'Imprime em PDF ou envia por email com 1 clique',
     ],
   },
   '/clinico': {
-    pitch: 'Diagnósticos e vacinas estruturados, sempre acessíveis.',
+    pitch: 'O histórico clínico estruturado que evita ter de explicar tudo de novo a cada novo médico.',
     bullets: [
-      'Códigos ICD, datas e fonte (SNS ou manual)',
-      'Vacinas com lote e próximos reforços calculados',
+      'Diagnósticos com código ICD-10 e data, separados em crónicos vs agudos',
+      'Vacinas com lote, data de administração e próximo reforço calculado',
       'Alertas automáticos quando há reforços em atraso',
-      'Histórico clínico que acompanha o familiar para sempre',
+      'Importação futura via SNS / FHIR (em desenvolvimento)',
     ],
   },
   '/plano': {
-    pitch: 'Rotinas de cuidado organizadas para toda a família seguir.',
+    pitch: 'O plano de cuidados que coordena toda a família e cuidadores em torno das mesmas rotinas.',
     bullets: [
-      'Higiene, nutrição, mobilidade e estimulação cognitiva',
+      'Rotinas por categoria: higiene, nutrição, mobilidade, estimulação',
       'Frequência configurável (diário, semanal, conforme necessário)',
-      'Visível para todos os familiares e cuidadores',
-      'Garante que ninguém perde o fio às rotinas essenciais',
+      'Visível para todos os familiares e cuidadores em tempo real',
+      'Indispensável quando se reveza turnos entre vários cuidadores',
     ],
   },
   '/qualidade': {
-    pitch: 'Métricas mensais para perceber tendências antes que se tornem problema.',
+    pitch: 'Indicadores mensais para detectar tendências negativas antes de se tornarem problema.',
     bullets: [
-      'Taxa de adesão à medicação ao longo do tempo',
-      'Evolução do bem-estar (humor, dor, energia, apetite)',
-      'Frequência e tipologia de incidentes',
-      'Sugestões para falar com o médico',
+      'Score global de qualidade do cuidado, semana a semana',
+      'Taxa de adesão à medicação e evolução do bem-estar',
+      'Frequência e tipologia de incidentes ao longo do tempo',
+      'Sugestões automáticas para conversar com o médico',
     ],
   },
   '/chat': {
-    pitch: 'Canal privado entre os familiares aceites - menos telefonemas, mais coordenação.',
+    pitch: 'Canal privado entre os familiares aceites - coordenação contínua sem WhatsApp paralelo.',
     bullets: [
+      'Conversa partilhada apenas com os familiares autorizados pelo titular',
       'Histórico permanente, organizado por dia',
       'Notificações com som e vibração quando alguém escreve',
       'Presença online em tempo real no topo da app',
-      'Sem WhatsApp paralelo a perder informação clínica',
     ],
   },
 }

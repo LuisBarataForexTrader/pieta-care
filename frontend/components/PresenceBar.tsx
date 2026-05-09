@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react'
 import { Wifi, Users as UsersIcon } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
 import type { Elderly, FamilyMember, User } from '@/lib/types'
-import PlanBadge from '@/components/PlanBadge'
 
 const ONLINE_WINDOW_MS = 90_000  // 90s - covers gap between 30s heartbeats
 const HEARTBEAT_MS = 30_000
@@ -64,29 +63,26 @@ export default function PresenceBar() {
   const totalOnline = filtered.length + 1
 
   return (
-    <div className="presence-bar">
-      <Link href="/familia" className="presence-bar-info" title="Ver família">
-        <Wifi size={13} strokeWidth={2.25} className="presence-pulse" />
-        <span className="presence-count">{totalOnline} online</span>
-        <div className="presence-avatars">
-          {/* me */}
-          <div className="presence-avatar presence-avatar-me" title={`${me.full_name} (você)`}>
-            {initials(me.full_name)}
+    <Link href="/familia" className="presence-bar" title="Ver família">
+      <Wifi size={13} strokeWidth={2.25} className="presence-pulse" />
+      <span className="presence-count">{totalOnline} online</span>
+      <div className="presence-avatars">
+        {/* me */}
+        <div className="presence-avatar presence-avatar-me" title={`${me.full_name} (você)`}>
+          {initials(me.full_name)}
+          <span className="presence-avatar-dot" />
+        </div>
+        {filtered.slice(0, 4).map(m => (
+          <div key={m.id} className="presence-avatar" title={`${m.full_name ?? m.invited_email} - online`}>
+            {initials(m.full_name ?? m.invited_email)}
             <span className="presence-avatar-dot" />
           </div>
-          {filtered.slice(0, 4).map(m => (
-            <div key={m.id} className="presence-avatar" title={`${m.full_name ?? m.invited_email} - online`}>
-              {initials(m.full_name ?? m.invited_email)}
-              <span className="presence-avatar-dot" />
-            </div>
-          ))}
-          {filtered.length > 4 && <span className="presence-more">+{filtered.length - 4}</span>}
-          {filtered.length === 0 && (
-            <span className="presence-empty"><UsersIcon size={11} strokeWidth={2} /> só você</span>
-          )}
-        </div>
-      </Link>
-      <PlanBadge />
-    </div>
+        ))}
+        {filtered.length > 4 && <span className="presence-more">+{filtered.length - 4}</span>}
+        {filtered.length === 0 && (
+          <span className="presence-empty"><UsersIcon size={11} strokeWidth={2} /> só você</span>
+        )}
+      </div>
+    </Link>
   )
 }

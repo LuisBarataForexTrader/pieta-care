@@ -19,11 +19,34 @@ scheduler = AsyncIOScheduler(timezone="Europe/Lisbon")
 
 
 def _trial_emails_job():
+    """Hourly trial-email sweep.
+
+    Uvicorn runs with --workers 2, so each worker also boots its own
+    AsyncIOScheduler. Without coordination both fire at 10:00 and both
+    send emails (the dedup check on user.trial_emails_sent races between
+    the read and the commit). We use a Postgres advisory lock so only
+    ONE worker actually runs the job; the other skips silently.
+    """
+    from sqlalchemy import text
+    from app.core.database import SessionLocal
+
+    LOCK_KEY = 773700001  # arbitrary, unique to this job
+    db = SessionLocal()
     try:
-        result = run_trial_emails()
-        log.info("trial_emails job: %s", result)
-    except Exception:
-        log.exception("trial_emails job failed")
+        got = db.execute(text("SELECT pg_try_advisory_lock(:k)"), {"k": LOCK_KEY}).scalar()
+        if not got:
+            log.info("trial_emails skipped: another worker holds the lock")
+            return
+        try:
+            result = run_trial_emails(db)
+            log.info("trial_emails job: %s", result)
+        except Exception:
+            log.exception("trial_emails job failed")
+        finally:
+            db.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": LOCK_KEY})
+            db.commit()
+    finally:
+        db.close()
 
 
 @asynccontextmanager

@@ -2147,24 +2147,32 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
 .plan-badge:active { transform: translateY(0); }
 
 .plan-badge-familia {
-  background: var(--brand-light);
-  color: var(--on-tinted-brand);
-  border: 1px solid rgba(42,96,73,0.22);
+  background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(74,222,128,0.10));
+  color: #6ABB71;
+  border: 1px solid rgba(74,222,128,0.32);
 }
 .plan-badge-familia_plus {
-  background: var(--brand);
+  background: linear-gradient(135deg, #166534 0%, #22C55E 100%);
   color: #fff;
-  box-shadow: 0 1px 2px rgba(22,101,52,0.22);
+  box-shadow: 0 4px 14px rgba(22,101,52,0.45);
+  border: 1px solid rgba(74,222,128,0.4);
 }
 .plan-badge-cuidador_pro {
   background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
   color: #fff;
-  box-shadow: 0 2px 8px rgba(124,58,237,0.32);
+  box-shadow: 0 4px 14px rgba(124,58,237,0.45);
+  border: 1px solid rgba(167,139,250,0.4);
 }
 .plan-badge-trial {
-  background: var(--warning-light);
-  color: var(--on-tinted-warning);
-  border: 1px solid rgba(192,86,33,0.22);
+  background: linear-gradient(135deg, rgba(224,162,60,0.20), rgba(224,162,60,0.12));
+  color: #E0A23C;
+  border: 1px solid rgba(224,162,60,0.38);
+}
+
+/* Sidebar slot - aligns the badge to the same column as the logo */
+.sidebar-plan-row {
+  margin-top: 10px;
+  display: flex;
 }
 
 @media (max-width: 480px) {
@@ -2174,28 +2182,10 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
 }
 
 /* ── Sidebar locked-section divider ─────────────────────────────── */
-.nav-section-locked-label {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 10px;
-  font-weight: 700;
-  color: rgba(255,255,255,0.32);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 18px 12px 6px;
-  margin-top: 4px;
-}
-.nav-section-locked-label::before {
-  content: '';
-  flex: 1;
+.nav-section-locked-divider {
   height: 1px;
   background: rgba(255,255,255,0.08);
-  margin-right: 4px;
-}
-.nav-section-locked-label::after {
-  content: '';
-  flex: 0 0 auto;
+  margin: 14px 12px 6px;
 }
 .nav-link.locked-clickable {
   cursor: pointer;

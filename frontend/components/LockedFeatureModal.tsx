@@ -57,6 +57,17 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
   const isUpgrade = !!feature.current
   const requiredLabel = PLAN_LABEL[feature.requires]
 
+  // The badge wording differs by tier:
+  //   - cuidador_pro features (chat, IA) are TRULY exclusive to that plan
+  //   - familia_plus features are also accessible to cuidador_pro users
+  //     (so they're "Incluído desde o Família+" rather than "Exclusivo")
+  const badgeText = feature.requires === 'cuidador_pro'
+    ? `Exclusivo ${requiredLabel}`
+    : `Incluído desde ${requiredLabel}`
+  const ctaText = isUpgrade
+    ? `Fazer upgrade para ${requiredLabel}`
+    : `Subscrever ${requiredLabel}`
+
   return (
     <div
       role="dialog"
@@ -86,7 +97,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
           </div>
           <div className="locked-feature-badge">
             {feature.requires === 'cuidador_pro' ? <Sparkles size={11} strokeWidth={2.5} /> : <Lock size={11} strokeWidth={2.5} />}
-            Exclusivo {requiredLabel}
+            {badgeText}
           </div>
         </div>
 
@@ -111,8 +122,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
               className="locked-feature-cta"
               onClick={close}
             >
-              {isUpgrade ? 'Fazer upgrade para ' : 'Subscrever '}
-              <strong>{requiredLabel}</strong>
+              {ctaText}
               <ArrowRight size={15} strokeWidth={2.5} />
             </Link>
             <button type="button" onClick={close} className="locked-feature-cancel">
@@ -123,6 +133,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
           {feature.current && (
             <p className="locked-feature-current">
               Atualmente no plano <strong>{PLAN_LABEL[feature.current]}</strong>.
+              {feature.requires !== 'cuidador_pro' && ' Esta feature também está incluída no Família Plus.'}
             </p>
           )}
         </div>
