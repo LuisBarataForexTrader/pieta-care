@@ -44,13 +44,29 @@ PRODUCTS = [
 
 
 async def main() -> int:
+    print(f"  CLIENT_ID len: {len(settings.TOCONLINE_CLIENT_ID or '')}")
+    print(f"  CLIENT_SECRET len: {len(settings.TOCONLINE_CLIENT_SECRET or '')}")
     if not settings.TOCONLINE_CLIENT_ID or not settings.TOCONLINE_CLIENT_SECRET:
         print("ERROR: TOCONLINE_CLIENT_ID/SECRET not in env", file=sys.stderr)
         return 1
 
+    # Try client_credentials first; fall back to a debug print of the
+    # raw TOConline response if it fails.
     token = await _get_access_token()
     if not token:
         print("ERROR: failed to get OAuth access token", file=sys.stderr)
+        # Replay raw response for debugging (no secrets in output)
+        from app.core.toconline import TOCONLINE_OAUTH_URL
+        async with httpx.AsyncClient() as client:
+            for scope in ["commercial contacts", "commercial", ""]:
+                data = {
+                    "grant_type": "client_credentials",
+                    "client_id": settings.TOCONLINE_CLIENT_ID,
+                    "client_secret": settings.TOCONLINE_CLIENT_SECRET,
+                }
+                if scope: data["scope"] = scope
+                r = await client.post(f"{TOCONLINE_OAUTH_URL}/token", data=data, timeout=10)
+                print(f"  scope='{scope}': {r.status_code} → {r.text[:300]}", file=sys.stderr)
         return 1
 
     print(f"✓ Authenticated against TOConline ({TOCONLINE_API_URL})")
