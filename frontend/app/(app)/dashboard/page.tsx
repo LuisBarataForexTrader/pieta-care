@@ -341,26 +341,49 @@ export default function Dashboard() {
             {elderly && (
               <Link href="/perfil" style={{ textDecoration: 'none', display: 'block', marginBottom: 20 }}>
                 <div className="hero-card">
-                  <div className="hero-avatar">
-                    {elderly.photo_url
-                      ? <img src={elderly.photo_url} alt={elderly.full_name} />
-                      : <span>{initials(elderly.full_name)}</span>
-                    }
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="hero-name">{elderly.full_name}</div>
-                    <div className="hero-meta">
-                      {elderlyAge && <span>{elderlyAge} anos</span>}
-                      {elderly.blood_type && <span className="hero-chip"><Droplet size={11} strokeWidth={2.25} /> {elderly.blood_type}</span>}
-                      {elderly.health_number && <span className="hero-chip">SNS {elderly.health_number}</span>}
-                      {diagnoses.map(d => (
-                        <span key={d.id} className="hero-chip hero-chip-dx" title={d.description}>
-                          {d.description.length > 32 ? d.description.slice(0, 32) + '…' : d.description}
-                        </span>
-                      ))}
+                  {/* Row 1: identity (avatar + name + meta + chevron) */}
+                  <div className="hero-identity">
+                    <div className="hero-avatar">
+                      {elderly.photo_url
+                        ? <img src={elderly.photo_url} alt={elderly.full_name} />
+                        : <span>{initials(elderly.full_name)}</span>
+                      }
                     </div>
+                    <div className="hero-info">
+                      <div className="hero-name">{elderly.full_name}</div>
+                      <div className="hero-meta">
+                        {elderlyAge && <span>{elderlyAge} anos</span>}
+                        {elderly.blood_type && (
+                          <span className="hero-meta-item">
+                            <Droplet size={12} strokeWidth={2.25} />
+                            <span>{elderly.blood_type}</span>
+                          </span>
+                        )}
+                        {elderly.health_number && (
+                          <span className="hero-meta-item hero-meta-mono">
+                            SNS {elderly.health_number}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight size={18} className="hero-chev" />
                   </div>
-                  <ChevronRight size={18} style={{ color: 'var(--text-3)', flexShrink: 0 }} />
+
+                  {/* Row 2: clinical context (diagnoses) — only renders if any */}
+                  {diagnoses.length > 0 && (
+                    <div className="hero-clinical">
+                      <div className="hero-clinical-label">
+                        Diagnósticos · {diagnoses.length}
+                      </div>
+                      <div className="hero-dx-list">
+                        {diagnoses.map(d => (
+                          <span key={d.id} className="hero-dx-chip" title={d.description}>
+                            {d.description.length > 36 ? d.description.slice(0, 36) + '…' : d.description}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               </Link>
             )}
