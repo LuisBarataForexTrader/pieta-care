@@ -62,9 +62,7 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   alternates: { canonical: '/' },
-  // Verification — Google Search Console + Bing Webmaster ids go here
-  // when added. See SEARCH_CONSOLE.md for the manual steps.
-  // verification: { google: 'XXXXXXXX' },
+  verification: { google: 'rXmdq_x6IxPWamyYpJZupjUuVR0Q2VwAUC-lMqcvz5I' },
 }
 
 export const viewport: Viewport = {
