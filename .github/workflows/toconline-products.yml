@@ -22,38 +22,27 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # Find TNT's news.db (Postgres or SQLite). It's not always at
-            # /opt/tnt — TNT may have moved during the Hetzner migration.
-            echo "→ TNT discovery"
-            DB=$(find /opt /home -maxdepth 4 -name 'news.db' -type f 2>/dev/null | head -1)
-            if [ -z "$DB" ]; then
-              echo "  no news.db file — TNT likely uses Postgres. Trying that…"
-              # TNT shares the same Postgres as everything else on this box.
-              # Find the running postgres container and dump the row.
-              PG_CONTAINER=$(docker ps --format '{{.Names}}' | grep -E 'postgres|db' | head -1)
-              if [ -z "$PG_CONTAINER" ]; then
-                echo "::error::No postgres container found"
-                exit 1
-              fi
-              echo "  postgres container: $PG_CONTAINER"
-              # List databases to find TNT's
-              echo "  databases:"
-              docker exec "$PG_CONTAINER" psql -U postgres -lqt 2>/dev/null | awk -F'|' '{gsub(/^ +| +$/, "", $1); if ($1 != "" && $1 !~ /^(template|postgres)/) print "    "$1}' | head -10
-            else
-              echo "  found SQLite DB: $DB"
+            # Read TNT's DATABASE_URL from its .env, then query TOConline tokens.
+            TNT_DB_URL=$(grep -E '^DATABASE_URL=' /opt/tnt/.env 2>/dev/null \
+              | head -1 | sed -E "s/^DATABASE_URL=//; s/^['\"]//; s/['\"]$//")
+            if [ -z "$TNT_DB_URL" ]; then
+              echo "::error::No DATABASE_URL in /opt/tnt/.env"
+              exit 1
             fi
+            echo "→ TNT DB: ${TNT_DB_URL%%@*}@…"  # mask password+host
 
-            # Try TNT databases: tnt, tradingnews, tnt_news, news
-            TOC_ACCESS_TOKEN=""
-            for dbname in tnt tradingnews tnt_news news pieta_news; do
-              v=$(docker exec "$PG_CONTAINER" psql -U postgres -d "$dbname" -tAc \
-                "SELECT access_token FROM toconline_tokens LIMIT 1" 2>/dev/null || true)
-              if [ -n "$v" ]; then
-                echo "  found token in db: $dbname"
-                TOC_ACCESS_TOKEN="$v"
-                break
-              fi
-            done
+            # Use the pieta-care api container (has psycopg) to query TNT's DB.
+            # The container can reach the Postgres host since they're on the
+            # same docker network (or Hetzner network).
+            TOC_ACCESS_TOKEN=$(docker compose exec -T -e _TNT_DB="$TNT_DB_URL" api \
+              python -c "
+            import os, psycopg2
+            conn = psycopg2.connect(os.environ['_TNT_DB'])
+            cur = conn.cursor()
+            cur.execute('SELECT access_token FROM toconline_tokens LIMIT 1')
+            row = cur.fetchone()
+            print(row[0] if row else '')
+            " 2>/dev/null | tr -d '\r\n' || true)
 
             if [ -z "$TOC_ACCESS_TOKEN" ]; then
               echo "::error::TNT DB has no access_token. TNT side may need to re-auth first."
