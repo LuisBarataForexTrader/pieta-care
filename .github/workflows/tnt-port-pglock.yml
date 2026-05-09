@@ -1,0 +1,148 @@
+name: Port pg advisory lock to TNT
+
+# Patches /opt/tnt/main.py:
+# 1. Wraps the slow-path body of get_toconline_access_token() in a
+#    try/finally that acquires a Postgres advisory lock (key 818301002)
+#    BEFORE the existing asyncio.Lock body, and releases it on exit.
+# 2. The advisory lock is cross-process — fixes the race that burns
+#    rotating refresh tokens when two uvicorn workers spot an expired
+#    token simultaneously.
+#
+# Idempotent. Restarts TNT after patching.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Patch + restart TNT
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -eu
+            cat > /tmp/tnt_pglock.py <<'PYEOF'
+            import re, sys
+
+            path = "/opt/tnt/main.py"
+            with open(path) as f:
+                src = f.read()
+
+            MARKER = "pg_advisory_lock(818301002)"
+            if MARKER in src:
+                print("  = pg lock already present, skipping")
+                sys.exit(0)
+
+            lines = src.split("\n")
+            # Find the slow path entry: line containing
+            # "async with _toconline_refresh_lock:" inside get_toconline_access_token.
+            i = 0
+            entry = None
+            while i < len(lines):
+                if "async with _toconline_refresh_lock:" in lines[i]:
+                    entry = i; break
+                i += 1
+            if entry is None:
+                print("::error::could not find _toconline_refresh_lock block", file=sys.stderr)
+                sys.exit(1)
+
+            # The body is the contiguous indented region after entry, until
+            # we see a line with indentation <= entry's indentation (or EOF).
+            entry_indent = len(lines[entry]) - len(lines[entry].lstrip(" "))
+            body_indent = entry_indent + 4
+
+            j = entry + 1
+            body_end = j
+            while j < len(lines):
+                ln = lines[j]
+                if ln.strip() == "":
+                    body_end = j + 1
+                    j += 1
+                    continue
+                ind = len(ln) - len(ln.lstrip(" "))
+                if ind <= entry_indent:
+                    break
+                body_end = j + 1
+                j += 1
+
+            existing_body = lines[entry + 1:body_end]
+
+            # Build the new body. Increase indent of existing_body by 4
+            # (to fit inside a new try:). Prepend the pg_lock acquire +
+            # _release_pg_lock helper. Append the finally.
+            indent_unit = " " * 4
+            new_body = []
+            new_body.append(" " * body_indent + "_pg_lock_conn = None")
+            new_body.append(" " * body_indent + "if DB_BACKEND == \"postgres\":")
+            new_body.append(" " * (body_indent + 4) + "try:")
+            new_body.append(" " * (body_indent + 8) + "_pg_lock_conn = get_conn()")
+            new_body.append(" " * (body_indent + 8) + "_pg_lock_conn.cursor().execute(\"SELECT pg_advisory_lock(818301002)\")")
+            new_body.append(" " * (body_indent + 8) + "_pg_lock_conn.commit()")
+            new_body.append(" " * (body_indent + 8) + "print(\"[TOCONLINE] pg advisory lock acquired (cross-worker)\")")
+            new_body.append(" " * (body_indent + 4) + "except Exception as _le:")
+            new_body.append(" " * (body_indent + 8) + "print(f\"[TOCONLINE] pg advisory lock unavailable ({_le}) — using asyncio.Lock only\")")
+            new_body.append(" " * (body_indent + 8) + "if _pg_lock_conn is not None:")
+            new_body.append(" " * (body_indent + 12) + "try: _pg_lock_conn.close()")
+            new_body.append(" " * (body_indent + 12) + "except Exception: pass")
+            new_body.append(" " * (body_indent + 12) + "_pg_lock_conn = None")
+            new_body.append("")
+            new_body.append(" " * body_indent + "def _release_pg_lock():")
+            new_body.append(" " * (body_indent + 4) + "if _pg_lock_conn is not None:")
+            new_body.append(" " * (body_indent + 8) + "try:")
+            new_body.append(" " * (body_indent + 12) + "_pg_lock_conn.cursor().execute(\"SELECT pg_advisory_unlock(818301002)\")")
+            new_body.append(" " * (body_indent + 12) + "_pg_lock_conn.commit()")
+            new_body.append(" " * (body_indent + 12) + "_pg_lock_conn.close()")
+            new_body.append(" " * (body_indent + 8) + "except Exception:")
+            new_body.append(" " * (body_indent + 12) + "pass")
+            new_body.append("")
+            new_body.append(" " * body_indent + "try:")
+
+            # Existing body: re-indent by +4 to fit inside new try:.
+            for ln in existing_body:
+                if ln.strip() == "":
+                    new_body.append(ln)
+                else:
+                    new_body.append(indent_unit + ln)
+
+            new_body.append(" " * body_indent + "finally:")
+            new_body.append(" " * (body_indent + 4) + "_release_pg_lock()")
+
+            new_lines = lines[:entry + 1] + new_body + lines[body_end:]
+            new_src = "\n".join(new_lines)
+            with open(path, "w") as f:
+                f.write(new_src)
+            print(f"  patched {path}")
+            print(f"    entry line: {entry + 1}")
+            print(f"    body span:  {entry + 2}–{body_end}")
+            print(f"    body lines: {len(existing_body)} (re-indented +4)")
+            PYEOF
+            sed -i 's/^            //' /tmp/tnt_pglock.py
+            python3 /tmp/tnt_pglock.py
+            rm -f /tmp/tnt_pglock.py
+
+            echo ""
+            echo "→ Sanity: parse the file with python to catch syntax errors"
+            python3 -c "import py_compile; py_compile.compile('/opt/tnt/main.py', doraise=True)" \
+              && echo "  ✓ valid Python"
+
+            echo ""
+            echo "→ Restart TNT (SIGTERM all uvicorns; supervisor respawns)"
+            for p in $(ps -ef | grep -E 'uvicorn main:app|/opt/tnt/' | grep -v grep | awk '{print $2}'); do
+              kill -TERM "$p" 2>/dev/null || true
+            done
+            sleep 5
+            for p in $(ps -ef | grep -E 'uvicorn main:app|/opt/tnt/' | grep -v grep | awk '{print $2}'); do
+              kill -KILL "$p" 2>/dev/null || true
+            done
+            sleep 8
+            echo ""
+            echo "→ Final processes:"
+            ps -ef | grep -E 'uvicorn main:app' | grep -v grep || echo "  ⚠ no uvicorn"
+            echo ""
+            echo "→ Smoke (proxy + health):"
+            curl -s -o /dev/null -w "  pieta proxy: HTTP %{http_code}\n" \
+              "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test&code=fake"
