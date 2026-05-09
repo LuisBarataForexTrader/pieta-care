@@ -11,16 +11,26 @@ jobs:
   print:
     runs-on: ubuntu-latest
     steps:
-      - name: Get ADMIN_TOKEN + print URL
-        env:
-          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
-        run: |
-          if [ -z "$ADMIN_TOKEN" ]; then
-            echo "::error::ADMIN_TOKEN not set in GitHub secrets"
-            exit 1
-          fi
-          echo "Open this URL in a browser logged into TOConline:"
-          echo ""
-          echo "https://api.pietas.care/api/v1/admin/toconline/auth?token=$ADMIN_TOKEN"
-          echo ""
-          echo "::notice title=TOConline Auth URL::https://api.pietas.care/api/v1/admin/toconline/auth?token=$ADMIN_TOKEN"
+      - name: Print URL via SSH
+        # Reads ADMIN_TOKEN from /opt/pieta-care/backend/.env on the
+        # Hetzner server. Doesn't go through GH secrets context, so no
+        # masking applied to the printed URL.
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -e
+            T=$(grep -E '^ADMIN_TOKEN=' /opt/pieta-care/backend/.env | head -1 | sed 's/^ADMIN_TOKEN=//')
+            if [ -z "$T" ]; then
+              echo "::error::ADMIN_TOKEN not in /opt/pieta-care/backend/.env"
+              exit 1
+            fi
+            echo ""
+            echo "════════════════════════════════════════════════════════════"
+            echo "Open this URL in a browser logged into TOConline:"
+            echo ""
+            echo "https://api.pietas.care/api/v1/admin/toconline/auth?token=$T"
+            echo ""
+            echo "════════════════════════════════════════════════════════════"
