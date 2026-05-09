@@ -23,6 +23,14 @@ on:
         description: "How many days of history to populate"
         required: false
         default: "60"
+      status:
+        description: "Subscription state: active | trial | expired"
+        required: false
+        default: "active"
+      trial_days:
+        description: "If status=trial, how many days remain (default 7)"
+        required: false
+        default: "7"
 
 jobs:
   seed:
@@ -36,11 +44,13 @@ jobs:
           DEMO_OWNER_NAME: ${{ inputs.name }}
           DEMO_OWNER_PHONE: ${{ inputs.phone }}
           DEMO_DAYS: ${{ inputs.days }}
+          DEMO_STATUS: ${{ inputs.status }}
+          DEMO_TRIAL_DAYS: ${{ inputs.trial_days }}
         with:
           host: 178.104.5.182
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          envs: DEMO_OWNER_EMAIL,DEMO_PLAN,DEMO_OWNER_NAME,DEMO_OWNER_PHONE,DEMO_DAYS
+          envs: DEMO_OWNER_EMAIL,DEMO_PLAN,DEMO_OWNER_NAME,DEMO_OWNER_PHONE,DEMO_DAYS,DEMO_STATUS,DEMO_TRIAL_DAYS
           script: |
             set -eu
             cd /opt/pieta-care
@@ -53,4 +63,6 @@ jobs:
               -e DEMO_OWNER_NAME="$DEMO_OWNER_NAME" \
               -e DEMO_OWNER_PHONE="$DEMO_OWNER_PHONE" \
               -e DEMO_DAYS="$DEMO_DAYS" \
+              -e DEMO_STATUS="$DEMO_STATUS" \
+              -e DEMO_TRIAL_DAYS="$DEMO_TRIAL_DAYS" \
               api python scripts/seed_demo.py

@@ -62,6 +62,10 @@ DEMO_PLAN = os.environ.get("DEMO_PLAN", "cuidador_pro")
 # Família plan caps family members at 2).
 DEMO_INCLUDE_FAMILY = os.environ.get("DEMO_INCLUDE_FAMILY", "true").lower() == "true"
 DEMO_DAYS = int(os.environ.get("DEMO_DAYS", sys.argv[1] if len(sys.argv) > 1 else "60"))
+# "active" (paid) | "trial" (in 14-day trial) | "expired"
+DEMO_STATUS = os.environ.get("DEMO_STATUS", "active").lower()
+# Only meaningful when status="trial". How many days remain in the trial.
+DEMO_TRIAL_DAYS = int(os.environ.get("DEMO_TRIAL_DAYS", "7"))
 
 random.seed(20260508)  # deterministic-ish demo
 
@@ -82,6 +86,20 @@ def main() -> None:
     try:
         print(f"▶ Seeding demo for {DEMO_OWNER_EMAIL} ({DEMO_PLAN}) with {DEMO_DAYS} days of data…")
 
+        # Resolve subscription state based on DEMO_STATUS
+        if DEMO_STATUS == "trial":
+            sub_status = "trial"
+            sub_plan = None  # trial users haven't picked a plan yet
+            trial_end = NOW + timedelta(days=DEMO_TRIAL_DAYS)
+        elif DEMO_STATUS == "expired":
+            sub_status = "expired"
+            sub_plan = None
+            trial_end = NOW - timedelta(days=1)  # trial ended yesterday
+        else:  # "active" (paid)
+            sub_status = "active"
+            sub_plan = DEMO_PLAN
+            trial_end = None
+
         # 1) Owner user (cuidadora principal)
         owner = db.scalar(select(User).where(User.email == DEMO_OWNER_EMAIL))
         if owner is None:
@@ -92,22 +110,22 @@ def main() -> None:
                 phone=DEMO_OWNER_PHONE,
                 is_active=True,
                 is_verified=True,
-                subscription_status="active",
-                subscription_plan=DEMO_PLAN,
-                trial_ends_at=None,  # demo is "active", not trial
+                subscription_status=sub_status,
+                subscription_plan=sub_plan,
+                trial_ends_at=trial_end,
             )
             db.add(owner)
             db.flush()
         else:
-            # Refresh — set password + ensure active plan for screenshots
+            # Refresh — set password + reflect requested status
             owner.hashed_password = hash_password(DEMO_OWNER_PASSWORD)
             owner.full_name = DEMO_OWNER_NAME
             owner.phone = DEMO_OWNER_PHONE
             owner.is_active = True
             owner.is_verified = True
-            owner.subscription_status = "active"
-            owner.subscription_plan = DEMO_PLAN
-            owner.trial_ends_at = None  # demo is "active", not trial
+            owner.subscription_status = sub_status
+            owner.subscription_plan = sub_plan
+            owner.trial_ends_at = trial_end
 
         # 2) Wipe any prior demo data owned by this user
         # — find all elderly profiles created by owner and cascade-clean
