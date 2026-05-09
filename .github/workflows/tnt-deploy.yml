@@ -1,0 +1,46 @@
+name: Deploy TNT (pull + restart)
+
+# One-shot: pull latest TNT main and restart the service. Use after
+# pushing TOConline-related changes to TNT that pieta-care depends on
+# (e.g. the OAuth callback proxy).
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Pull + restart TNT via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -eu
+            cd /opt/tnt
+            git fetch origin main
+            git reset --hard origin/main
+
+            # TNT runs from a Procfile (uvicorn). Discover how it's
+            # supervised — systemd / supervisor / docker — and restart.
+            if systemctl list-units --type=service --no-legend 2>/dev/null | grep -qE '^tnt|tradingnews'; then
+              SVC=$(systemctl list-units --type=service --no-legend | grep -E '^tnt|tradingnews' | awk '{print $1}' | head -1)
+              echo "→ Restarting systemd service: $SVC"
+              systemctl restart "$SVC"
+              systemctl status "$SVC" --no-pager | head -3
+            elif command -v supervisorctl >/dev/null 2>&1 && supervisorctl status 2>/dev/null | grep -qE '^tnt'; then
+              SVC=$(supervisorctl status | grep -E '^tnt' | awk '{print $1}' | head -1)
+              echo "→ Restarting supervisor program: $SVC"
+              supervisorctl restart "$SVC"
+            elif docker ps --format '{{.Names}}' | grep -qE 'tnt|tradingnews'; then
+              CN=$(docker ps --format '{{.Names}}' | grep -E 'tnt|tradingnews' | head -1)
+              echo "→ Restarting docker container: $CN"
+              docker restart "$CN"
+            else
+              echo "::warning::No tnt service/container found. Manual restart needed."
+              echo "→ Discovery dump:"
+              echo "  systemctl: $(systemctl list-units --type=service --no-legend 2>/dev/null | head -10)"
+              echo "  docker:    $(docker ps --format '{{.Names}}' 2>/dev/null | head -10)"
+            fi

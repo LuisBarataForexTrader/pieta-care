@@ -28,6 +28,7 @@ from app.core.database import get_db
 from app.services.toconline_oauth import (
     authorize_url,
     exchange_code_for_tokens,
+    gen_pkce,
     gen_state,
     save_tokens,
     status_summary,
@@ -40,24 +41,31 @@ router = APIRouter(tags=["toconline"])
 
 
 # ─────────────────────────────────────────────────────────────────────
-# CSRF state — in-memory store. State is single-use; valid for 10 min.
+# CSRF state + PKCE store — in-memory, single-use, TTL 10 min.
 
 _STATE_TTL = 600  # 10 min
-_states: Dict[str, float] = {}  # state → expiry timestamp
+# state → (expiry_timestamp, code_verifier)
+_states: Dict[str, Tuple[float, str]] = {}
 
 
-def _store_state(state: str) -> None:
+def _store_state(state: str, code_verifier: str = "") -> None:
     now = time.time()
     # Garbage-collect expired states on each store
-    for s, t in list(_states.items()):
+    for s, (t, _v) in list(_states.items()):
         if t < now:
             del _states[s]
-    _states[state] = now + _STATE_TTL
+    _states[state] = (now + _STATE_TTL, code_verifier)
 
 
-def _consume_state(state: str) -> bool:
-    t = _states.pop(state, None)
-    return t is not None and t > time.time()
+def _consume_state(state: str) -> tuple[bool, str]:
+    """Pop the state. Returns (valid, code_verifier)."""
+    entry = _states.pop(state, None)
+    if not entry:
+        return False, ""
+    expiry, verifier = entry
+    if expiry < time.time():
+        return False, ""
+    return True, verifier
 
 
 # ─────────────────────────────────────────────────────────────────────
@@ -90,8 +98,9 @@ def start_oauth(
         raise HTTPException(503, "TOCONLINE_CLIENT_ID not configured")
 
     state = gen_state()
-    _store_state(state)
-    url = authorize_url(state)
+    verifier, challenge = gen_pkce()
+    _store_state(state, code_verifier=verifier)
+    url = authorize_url(state, code_challenge=challenge)
     if json_only:
         return {"url": url, "state": state}
     return RedirectResponse(url, status_code=302)
@@ -120,11 +129,12 @@ async def oauth_callback(
         )
     if not code or not state:
         return _result_page(ok=False, title="Callback inválido", body="missing code or state")
-    if not _consume_state(state):
+    valid, verifier = _consume_state(state)
+    if not valid:
         return _result_page(ok=False, title="State inválido ou expirado", body="Re-run /admin/toconline/auth.")
 
     try:
-        payload = await exchange_code_for_tokens(code)
+        payload = await exchange_code_for_tokens(code, code_verifier=verifier or None)
     except TOConlineAuthError as e:
         log.exception("toconline callback: code exchange failed")
         return _result_page(ok=False, title="Falha na troca do código", body=str(e))

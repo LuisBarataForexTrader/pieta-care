@@ -39,7 +39,10 @@ class Settings(BaseSettings):
     TOCONLINE_SERIES_ID: str = ""
     TOCONLINE_EXEMPTION_NON_EU: str = ""
     # Must match a redirect URI registered in the TOConline OAuth client.
-    TOCONLINE_REDIRECT_URI: str = "https://api.pietas.care/api/v1/toconline/callback"
+    # We piggyback on TNT's already-registered URI: TNT detects state
+    # prefixed `pieta-` and redirects the browser to our /toconline/callback.
+    # Avoids needing to register a second URI in the TOConline UI.
+    TOCONLINE_REDIRECT_URI: str = "https://api.tradingnewsterminal.com/toconline/callback"
     # Bearer token gating /admin/toconline/* endpoints. Set to a long
     # random string in production env. If empty, admin endpoints 503.
     ADMIN_TOKEN: str = ""

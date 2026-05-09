@@ -45,6 +45,8 @@ Failure modes this guards against (all observed in TNT in production):
    `invalid_grant`, immediately email the admin with the re-auth URL.
 """
 from __future__ import annotations
+import base64
+import hashlib
 import logging
 import secrets
 from datetime import datetime, timedelta
@@ -91,10 +93,11 @@ class TOConlineAuthError(Exception):
 # Public API
 
 
-def authorize_url(state: str) -> str:
+def authorize_url(state: str, code_challenge: str | None = None) -> str:
     """Build the URL the admin opens in a browser to start the OAuth
     dance. The caller should pass a CSRF-protecting random `state` and
-    verify it on the callback."""
+    verify it on the callback. If TOConline's OAuth client requires
+    PKCE, also pass `code_challenge` (base64url(sha256(code_verifier)))."""
     params = {
         "client_id": settings.TOCONLINE_CLIENT_ID,
         "redirect_uri": settings.TOCONLINE_REDIRECT_URI,
@@ -102,17 +105,36 @@ def authorize_url(state: str) -> str:
         "scope": "commercial contacts",
         "state": state,
     }
+    if code_challenge:
+        params["code_challenge"] = code_challenge
+        params["code_challenge_method"] = "S256"
     return f"{OAUTH_URL}/authorize?{urlencode(params)}"
 
 
 def gen_state() -> str:
-    """CSRF state for the OAuth flow. 32 bytes of randomness, hex."""
-    return secrets.token_hex(32)
+    """CSRF state for the OAuth flow.
+
+    Prefixed with `pieta-` so TNT's callback (which has the same
+    OAuth client and redirect URI registered) can detect requests
+    that belong to pieta and proxy them to our callback. Without this,
+    we'd need to register a separate redirect URI in TOConline's UI."""
+    return "pieta-" + secrets.token_hex(32)
 
 
-async def exchange_code_for_tokens(code: str) -> dict:
+def gen_pkce() -> tuple[str, str]:
+    """Generate a (code_verifier, code_challenge) pair for PKCE.
+    Verifier is high-entropy random; challenge is base64url(sha256)."""
+    verifier = secrets.token_urlsafe(64)  # ~86 chars
+    digest = hashlib.sha256(verifier.encode("ascii")).digest()
+    challenge = base64.urlsafe_b64encode(digest).decode("ascii").rstrip("=")
+    return verifier, challenge
+
+
+async def exchange_code_for_tokens(code: str, code_verifier: str | None = None) -> dict:
     """Trade the OAuth code (from /toconline/callback) for an
     access+refresh pair. Returns the raw token response dict.
+
+    Pass `code_verifier` if PKCE was used in /authorize.
 
     Raises TOConlineAuthError on failure — the admin will need to
     re-run the auth flow.
@@ -120,17 +142,18 @@ async def exchange_code_for_tokens(code: str) -> dict:
     if not settings.TOCONLINE_CLIENT_ID or not settings.TOCONLINE_CLIENT_SECRET:
         raise TOConlineAuthError("TOCONLINE_CLIENT_ID/SECRET not configured")
 
+    data = {
+        "grant_type": "authorization_code",
+        "code": code,
+        "redirect_uri": settings.TOCONLINE_REDIRECT_URI,
+        "client_id": settings.TOCONLINE_CLIENT_ID,
+        "client_secret": settings.TOCONLINE_CLIENT_SECRET,
+    }
+    if code_verifier:
+        data["code_verifier"] = code_verifier
+
     async with httpx.AsyncClient(timeout=15) as client:
-        r = await client.post(
-            f"{OAUTH_URL}/token",
-            data={
-                "grant_type": "authorization_code",
-                "code": code,
-                "redirect_uri": settings.TOCONLINE_REDIRECT_URI,
-                "client_id": settings.TOCONLINE_CLIENT_ID,
-                "client_secret": settings.TOCONLINE_CLIENT_SECRET,
-            },
-        )
+        r = await client.post(f"{OAUTH_URL}/token", data=data)
     if r.status_code != 200:
         raise TOConlineAuthError(
             f"code exchange failed: {r.status_code} {r.text[:300]}",
