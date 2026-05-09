@@ -62,7 +62,7 @@ export const metadata: Metadata = {
     apple: '/apple-icon.png',
   },
   alternates: { canonical: '/' },
-  verification: { google: 'rXmdq_x6IxPWamyYpJZupjUuVR0Q2VwAUC-lMqcvz5I' },
+  verification: { google: '0encH7vlWreXvvokfCSH4Se8km2PxSahJdvEqo8A_R0' },
 }
 
 export const viewport: Viewport = {
