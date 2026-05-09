@@ -47,20 +47,40 @@ jobs:
             ps -ef | grep -E '/opt/tnt|main:app' | grep -v grep || echo "  (none)"
             echo ""
 
-            # If nothing came back, start TNT manually.
-            if ! ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep > /dev/null; then
-              echo "→ No TNT process — starting manually:"
-              cd /opt/tnt
-              # Detach so it survives the SSH session ending
-              nohup /opt/tnt/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --workers 2 \
-                > /var/log/tnt.log 2>&1 &
-              disown
-              sleep 3
-              echo "  started PID(s):"
-              ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep
-            fi
+            # Kill any stragglers from manual previous attempts
+            for p in $(ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep | awk '{print $2}'); do
+              echo "  cleanup straggler $p"
+              kill -KILL "$p" 2>/dev/null || true
+            done
+            sleep 2
+
+            echo ""
+            echo "→ Wait 10s for supervisor to respawn + TNT to import (1.8MB main.py is slow)…"
+            sleep 10
+
+            echo ""
+            echo "→ TNT processes FINAL:"
+            ps -ef | grep -E 'uvicorn main:app' | grep -v grep
+            echo ""
+            echo "→ Parent of TNT process (the supervisor):"
+            for p in $(ps -ef | grep -E 'uvicorn main:app --host 0\.0\.0\.0' | grep -v grep | awk '{print $2}'); do
+              ppid=$(ps -p "$p" -o ppid= | tr -d ' ')
+              ps -p "$ppid" -o pid,ppid,cmd | tail -1
+            done
 
             echo ""
             echo "→ Smoke test (state=pieta-X should redirect 302):"
-            curl -s -o /dev/null -w "  HTTP %{http_code}, Location: %{redirect_url}\n" \
-              "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test123&code=fake"
+            for try in 1 2 3 4 5; do
+              CODE=$(curl -s -o /dev/null -w "%{http_code}" \
+                "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test123&code=fake")
+              if [ "$CODE" = "302" ]; then
+                LOC=$(curl -s -o /dev/null -w "%{redirect_url}" \
+                  "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test123&code=fake")
+                echo "  HTTP 302 ✓ Location: $LOC"
+                exit 0
+              fi
+              echo "  attempt $try: HTTP $CODE (waiting 5s…)"
+              sleep 5
+            done
+            echo "::error::TNT still not returning 302 after retries"
+            exit 1
