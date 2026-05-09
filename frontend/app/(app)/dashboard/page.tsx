@@ -331,7 +331,7 @@ export default function Dashboard() {
               <div className="kpi-card">
                 <div className="kpi-head">
                   <div className="kpi-icon" style={{ background: 'var(--brand-light)', color: 'var(--brand)' }}><Pill size={18} strokeWidth={1.9} /></div>
-                  <div className="kpi-label">Adesão hoje</div>
+                  <div className="kpi-label">Medicação de hoje</div>
                 </div>
                 <div className="kpi-value">{compliance}<span className="kpi-unit">%</span></div>
                 <div className="compliance-bar"><div className="compliance-fill" style={{ width: `${compliance}%` }} /></div>
