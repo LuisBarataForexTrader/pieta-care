@@ -20,8 +20,11 @@ jobs:
             ps -ef | grep -E '/opt/tnt|main:app' | grep -v grep || echo "  (none)"
             echo ""
 
-            echo "→ Sending SIGTERM to all uvicorn processes serving /opt/tnt:"
-            PIDS=$(ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep | awk '{print $2}')
+            echo "→ Sending SIGTERM to ALL uvicorn processes binding port 8000 (TNT's port):"
+            # Match: any uvicorn for main:app (TNT). Both /opt/tnt/venv and
+            # the system /usr/local/bin uvicorn need to be killed — they
+            # all bind port 8000 and only one wins.
+            PIDS=$(ps -ef | grep -E 'uvicorn main:app|/opt/tnt/' | grep -v grep | awk '{print $2}')
             for p in $PIDS; do
               echo "  killing $p"
               kill -TERM "$p" 2>/dev/null || true
