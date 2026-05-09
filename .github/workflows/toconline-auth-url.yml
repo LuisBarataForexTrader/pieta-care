@@ -1,0 +1,26 @@
+name: Print TOConline auth URL
+
+# One-shot: prints the URL to start the TOConline OAuth flow.
+# Click the URL → TOConline asks for permission → callback persists tokens.
+# After this, all invoice.paid webhooks issue FT automatically.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get ADMIN_TOKEN + print URL
+        env:
+          ADMIN_TOKEN: ${{ secrets.ADMIN_TOKEN }}
+        run: |
+          if [ -z "$ADMIN_TOKEN" ]; then
+            echo "::error::ADMIN_TOKEN not set in GitHub secrets"
+            exit 1
+          fi
+          echo "Open this URL in a browser logged into TOConline:"
+          echo ""
+          echo "https://api.pietas.care/api/v1/admin/toconline/auth?token=$ADMIN_TOKEN"
+          echo ""
+          echo "::notice title=TOConline Auth URL::https://api.pietas.care/api/v1/admin/toconline/auth?token=$ADMIN_TOKEN"
