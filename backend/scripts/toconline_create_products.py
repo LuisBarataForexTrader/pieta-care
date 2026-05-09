@@ -64,50 +64,50 @@ async def main() -> int:
     }
 
     async with httpx.AsyncClient(timeout=15) as client:
+        # Pre-fetch existing services to skip duplicates
+        existing_codes: set[str] = set()
+        r_list = await client.get(f"{TOCONLINE_API_URL}/api/services", headers=hdrs)
+        if r_list.status_code == 200:
+            try:
+                data = r_list.json()
+                items = data if isinstance(data, list) else data.get("data", [])
+                for svc in items:
+                    attrs = svc.get("attributes", svc) if isinstance(svc, dict) else {}
+                    code = str(attrs.get("item_code", "")).strip()
+                    if code:
+                        existing_codes.add(code)
+            except Exception:
+                pass
+        print(f"  existing codes: {sorted(existing_codes)[:10]}{'…' if len(existing_codes) > 10 else ''}")
+        print()
+
         for spec in PRODUCTS:
             code = spec["item_code"]
             print(f"→ {code}")
-
-            # 1) Check if it already exists
-            r = await client.get(
-                f"{TOCONLINE_API_URL}/api/items",
-                params={"filter[item_code]": code},
-                headers=hdrs,
-            )
-            existing = []
-            if r.status_code == 200:
-                try:
-                    existing = r.json().get("data", [])
-                except Exception:
-                    existing = []
-
-            if existing:
-                print(f"  = already exists (id={existing[0].get('id')})")
+            if code in existing_codes:
+                print(f"  = already exists, skipped")
                 continue
 
-            # 2) Create
+            # TNT-pattern POST to /api/services with array-wrapped data
             payload = {
-                "data": {
-                    "type": "items",
+                "data": [{
+                    "type": "services",
                     "attributes": {
+                        "type": "Service",
                         "item_code": code,
-                        "description": spec["description"],
-                        "unit_price": spec["unit_price"],
-                        "item_type": "Service",
-                        "tax_code": "NOR",
-                        "tax_percentage": 23,
-                    },
-                }
+                        "item_description": spec["description"],
+                        "sales_price": spec["unit_price"],
+                        "purchase_price": 0,
+                    }
+                }]
             }
             r = await client.post(
-                f"{TOCONLINE_API_URL}/api/items",
+                f"{TOCONLINE_API_URL}/api/services",
                 headers=hdrs,
                 json=payload,
             )
             if r.status_code in (200, 201):
-                resp = r.json()
-                item_id = resp.get("data", {}).get("id", "?")
-                print(f"  ✓ created (id={item_id})")
+                print(f"  ✓ created — {spec['description']} @ €{spec['unit_price']:.2f}")
             else:
                 print(f"  ✗ failed {r.status_code}: {r.text[:300]}")
 
