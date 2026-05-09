@@ -20,33 +20,52 @@ jobs:
           script: |
             set -eu
 
-            # Find TNT's actual git checkout — /opt/tnt may be a deploy
-            # target (env, run dir) rather than the repo itself.
-            TNT=""
-            for path in /opt/tnt /opt/trading-news-terminal-backend /opt/tnt/backend /root/tnt /root/trading-news-terminal-backend; do
-              if [ -d "$path/.git" ]; then
-                TNT="$path"; break
-              fi
-            done
-            if [ -z "$TNT" ]; then
-              # Search broader, max depth 4
-              TNT=$(find /opt /root /home -maxdepth 4 -name 'main.py' -type f 2>/dev/null \
-                | xargs -I{} dirname {} 2>/dev/null \
-                | while read d; do
-                    [ -d "$d/.git" ] && grep -q 'tracker-fx-news\|trading-news-terminal' "$d/.git/config" 2>/dev/null && echo "$d" && break
-                  done | head -1)
-            fi
-            if [ -z "$TNT" ]; then
-              echo "::error::TNT git checkout not found"
-              echo "→ Folders containing main.py:"
-              find /opt /root /home -maxdepth 4 -name 'main.py' -type f 2>/dev/null | head -10
+            TNT=/opt/tnt
+            if [ ! -f "$TNT/main.py" ]; then
+              echo "::error::TNT main.py not at $TNT"
               exit 1
             fi
-            echo "→ TNT checkout: $TNT"
+            echo "→ TNT path: $TNT"
 
-            cd "$TNT"
-            git fetch origin main
-            git reset --hard origin/main
+            # /opt/tnt is a file-copy deployment (no .git). Patch the
+            # callback handler in place with the pieta proxy block.
+            # Idempotent — only patches if the marker isn't already present.
+            cat > /tmp/tnt_patch.py <<'PYEOF'
+            import re, sys
+
+            path = "/opt/tnt/main.py"
+            with open(path) as f:
+                src = f.read()
+
+            if "[TOCONLINE] proxying to pieta" in src:
+                print("  = proxy block already present, skipping")
+                sys.exit(0)
+
+            INJECT = (
+                '    state_param = request.query_params.get("state", "")\n'
+                '    if state_param.startswith("pieta-"):\n'
+                '        from urllib.parse import urlencode as _urlenc\n'
+                '        target = f"https://api.pietas.care/api/v1/toconline/callback?{_urlenc(dict(request.query_params))}"\n'
+                '        print(f"[TOCONLINE] proxying to pieta: state={state_param[:20]}...")\n'
+                '        return RedirectResponse(target, status_code=302)\n\n'
+            )
+
+            pattern = re.compile(
+                r'(@app\.get\("/toconline/callback"\)\s*\nasync def toconline_callback\([^)]*\):\s*\n\s*"""[^"]+"""\n)',
+                re.MULTILINE,
+            )
+            new_src, n = pattern.subn(lambda m: m.group(1) + INJECT, src, count=1)
+            if n == 0:
+                print("::error::callback regex did not match — TNT main.py shape changed", file=sys.stderr)
+                sys.exit(1)
+            with open(path, "w") as f:
+                f.write(new_src)
+            print(f"  patched {path}")
+            PYEOF
+            # Strip leading indentation that YAML preserved (12 spaces per line).
+            sed -i 's/^            //' /tmp/tnt_patch.py
+            python3 /tmp/tnt_patch.py
+            rm -f /tmp/tnt_patch.py
 
             # TNT runs from a Procfile (uvicorn). Discover how it's
             # supervised — systemd / supervisor / docker — and restart.
