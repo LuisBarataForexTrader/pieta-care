@@ -1,0 +1,63 @@
+name: Hard restart TNT
+
+on:
+  workflow_dispatch:
+
+jobs:
+  restart:
+    runs-on: ubuntu-latest
+    steps:
+      - name: SIGTERM all TNT processes + verify respawn
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            set -u
+
+            echo "→ TNT processes BEFORE:"
+            ps -ef | grep -E '/opt/tnt|main:app' | grep -v grep || echo "  (none)"
+            echo ""
+
+            echo "→ Sending SIGTERM to all uvicorn processes serving /opt/tnt:"
+            PIDS=$(ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep | awk '{print $2}')
+            for p in $PIDS; do
+              echo "  killing $p"
+              kill -TERM "$p" 2>/dev/null || true
+            done
+
+            sleep 3
+
+            # Force-kill any stragglers
+            for p in $PIDS; do
+              if kill -0 "$p" 2>/dev/null; then
+                echo "  KILL -9 $p (didn't exit on TERM)"
+                kill -KILL "$p" 2>/dev/null || true
+              fi
+            done
+
+            sleep 2
+
+            echo ""
+            echo "→ TNT processes AFTER:"
+            ps -ef | grep -E '/opt/tnt|main:app' | grep -v grep || echo "  (none)"
+            echo ""
+
+            # If nothing came back, start TNT manually.
+            if ! ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep > /dev/null; then
+              echo "→ No TNT process — starting manually:"
+              cd /opt/tnt
+              # Detach so it survives the SSH session ending
+              nohup /opt/tnt/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000 --workers 2 \
+                > /var/log/tnt.log 2>&1 &
+              disown
+              sleep 3
+              echo "  started PID(s):"
+              ps -ef | grep -E '/opt/tnt/venv/bin/uvicorn' | grep -v grep
+            fi
+
+            echo ""
+            echo "→ Smoke test (state=pieta-X should redirect 302):"
+            curl -s -o /dev/null -w "  HTTP %{http_code}, Location: %{redirect_url}\n" \
+              "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test123&code=fake"
