@@ -4,7 +4,7 @@ Pulls recent vitals, wellbeing, medication adherence, and incidents,
 and asks Claude Haiku for a Portuguese clinical summary suitable for
 a family caregiver (not a medical professional).
 
-Gated to Pack Plus + IA (cuidador_pro) tier or active trial.
+Gated to Pack Família Plus + IA (cuidador_pro) tier or active trial.
 """
 from __future__ import annotations
 from datetime import datetime, timedelta
@@ -63,7 +63,7 @@ def _check_access(db: Session, elderly_id: int, user: User) -> ElderlyProfile:
         raise AIInsightsError("Sem acesso a este perfil", 403)
     if not _household_has_ai_access(db, elderly_id, user):
         raise AIInsightsError(
-            "Insights IA disponíveis no Pack Plus + IA. "
+            "Insights IA disponíveis no Pack Família Plus + IA. "
             "Faça upgrade na sua área de cliente.", 402
         )
     elderly = db.query(ElderlyProfile).filter(ElderlyProfile.id == elderly_id).first()

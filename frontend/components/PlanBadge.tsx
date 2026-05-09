@@ -9,7 +9,7 @@ import type { BillingStatus } from '@/lib/types'
 const LABEL: Record<string, string> = {
   familia: 'Pack Família',
   familia_plus: 'Pack Família+',
-  cuidador_pro: 'Pack Plus + IA',
+  cuidador_pro: 'Pack Família Plus + IA',
 }
 
 function daysUntil(iso: string | null): number | null {

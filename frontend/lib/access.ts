@@ -8,7 +8,7 @@
 // Tier ranking:
 //   1 = familia        (€35) - "Pack Família"
 //   2 = familia_plus   (€59) - "Pack Família+"
-//   3 = cuidador_pro   (€88) - "Pack Plus + IA"
+//   3 = cuidador_pro   (€88) - "Pack Família Plus + IA"
 
 export type PlanKey = 'familia' | 'familia_plus' | 'cuidador_pro'
 
@@ -21,7 +21,7 @@ export const PLAN_RANK: Record<PlanKey, number> = {
 export const PLAN_LABEL: Record<PlanKey, string> = {
   familia: 'Pack Família',
   familia_plus: 'Pack Família+',
-  cuidador_pro: 'Pack Plus + IA',
+  cuidador_pro: 'Pack Família Plus + IA',
 }
 
 /** Minimum plan tier to access each page. Pages NOT listed are open

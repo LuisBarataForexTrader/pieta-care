@@ -43,7 +43,7 @@ const PLANS = [
   },
   {
     key: 'cuidador_pro',
-    name: 'Pack Plus + IA',
+    name: 'Pack Família Plus + IA',
     price: 88,
     sub: 'Múltiplos familiares + IA',
     badge: 'IA',

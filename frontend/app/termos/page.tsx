@@ -140,7 +140,7 @@ export default function TermosPage() {
                       {[
                         ['Pack Família', '€35/mês', '1 perfil de familiar, até 2 familiares'],
                         ['Pack Família+', '€59/mês', 'Até 2 perfis, até 5 familiares, relatório médico, dados clínicos avançados'],
-                        ['Pack Plus + IA', '€88/mês', 'Até 4 perfis, familiares ilimitados, assistente IA + chat interno'],
+                        ['Pack Família Plus + IA', '€88/mês', 'Até 4 perfis, familiares ilimitados, assistente IA + chat interno'],
                       ].map(([p, v, d]) => (
                         <tr key={p}><td style={{ fontWeight: 700 }}>{p}</td><td style={{ color: '#2A6049', fontWeight: 700 }}>{v}</td><td style={{ color: '#4A6458' }}>{d}</td></tr>
                       ))}

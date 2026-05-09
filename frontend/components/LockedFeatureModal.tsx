@@ -133,7 +133,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
           {feature.current && (
             <p className="locked-feature-current">
               Atualmente no plano <strong>{PLAN_LABEL[feature.current]}</strong>.
-              {feature.requires !== 'cuidador_pro' && ' Esta feature também está incluída no Pack Plus + IA.'}
+              {feature.requires !== 'cuidador_pro' && ' Esta feature também está incluída no Pack Família Plus + IA.'}
             </p>
           )}
         </div>

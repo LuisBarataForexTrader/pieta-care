@@ -35,7 +35,7 @@ const jsonLd = {
   offers: [
     { '@type': 'Offer', name: 'Pack Família', price: '35', priceCurrency: 'EUR', billingDuration: 'P1M' },
     { '@type': 'Offer', name: 'Pack Família+', price: '59', priceCurrency: 'EUR', billingDuration: 'P1M' },
-    { '@type': 'Offer', name: 'Pack Plus + IA', price: '88', priceCurrency: 'EUR', billingDuration: 'P1M' },
+    { '@type': 'Offer', name: 'Pack Família Plus + IA', price: '88', priceCurrency: 'EUR', billingDuration: 'P1M' },
   ],
 }
 
@@ -277,20 +277,20 @@ export default function LandingPage() {
           `}</style>
         </section>
 
-        {/* AI SPOTLIGHT - Pack Plus + IA */}
+        {/* AI SPOTLIGHT - Pack Família Plus + IA */}
         <section aria-labelledby="ai-spotlight-heading" style={{ background: '#fff', padding: 'clamp(72px,9vw,128px) 24px', borderTop: '1px solid #E7E5E4' }}>
           <div className="lp-ai-grid" style={{ maxWidth: 1180, margin: '0 auto' }}>
             <div className="lp-ai-text">
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', padding: '6px 14px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 22 }}>
                 <Sparkles size={13} strokeWidth={2.5} />
-                Exclusivo Pack Plus + IA
+                Exclusivo Pack Família Plus + IA
               </span>
               <h2 id="ai-spotlight-heading" style={{ fontSize: 'clamp(28px,4.2vw,46px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', lineHeight: 1.1, marginBottom: 22 }}>
                 Cinco segundos.<br />
                 <span style={{ color: '#7C3AED' }}>Uma análise clínica completa.</span>
               </h2>
               <p style={{ fontSize: 'clamp(15px,1.6vw,17px)', color: '#4B5563', lineHeight: 1.75, marginBottom: 28 }}>
-                Em vez de cruzar 30 dias de tomas, sinais vitais, incidentes e queixas à mão, a assistente IA do <strong style={{ color: '#0A0A0C' }}>Pack Plus + IA</strong> faz-lhe um resumo executivo - em português claro, com prioridades.
+                Em vez de cruzar 30 dias de tomas, sinais vitais, incidentes e queixas à mão, a assistente IA do <strong style={{ color: '#0A0A0C' }}>Pack Família Plus + IA</strong> faz-lhe um resumo executivo - em português claro, com prioridades.
               </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 14 }}>
                 {[
@@ -312,7 +312,7 @@ export default function LandingPage() {
               </ul>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <Link href="/register?plan=cuidador_pro" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #7C3AED, #A78BFA)', padding: '13px 26px', borderRadius: 12, textDecoration: 'none' }}>
-                  <Sparkles size={15} strokeWidth={2.5} /> Experimentar Pack Plus + IA
+                  <Sparkles size={15} strokeWidth={2.5} /> Experimentar Pack Família Plus + IA
                 </Link>
                 <Link href="/planos" style={{ fontSize: 14, fontWeight: 700, color: '#7C3AED', textDecoration: 'none', padding: '13px 18px' }}>
                   Comparar planos →
@@ -352,7 +352,7 @@ export default function LandingPage() {
             <div className="lp-ai-text">
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 12, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #166534, #22C55E)', padding: '6px 14px', borderRadius: 99, letterSpacing: '0.06em', textTransform: 'uppercase', marginBottom: 22 }}>
                 <MessageCircle size={13} strokeWidth={2.5} />
-                Exclusivo Pack Plus + IA
+                Exclusivo Pack Família Plus + IA
               </span>
               <h2 style={{ fontSize: 'clamp(28px,4.2vw,46px)', fontWeight: 900, letterSpacing: '-0.03em', color: '#0A0A0C', lineHeight: 1.1, marginBottom: 22 }}>
                 Chat interno -<br />
@@ -381,7 +381,7 @@ export default function LandingPage() {
               </ul>
               <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', alignItems: 'center' }}>
                 <Link href="/register?plan=cuidador_pro" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 800, color: '#fff', background: 'linear-gradient(135deg, #166534, #22C55E)', padding: '13px 26px', borderRadius: 12, textDecoration: 'none' }}>
-                  <Sparkles size={15} strokeWidth={2.5} /> Começar Pack Plus + IA
+                  <Sparkles size={15} strokeWidth={2.5} /> Começar Pack Família Plus + IA
                 </Link>
               </div>
             </div>
@@ -515,7 +515,7 @@ export default function LandingPage() {
               {[
                 { id: 'familia', name: 'Pack Família', price: '35', sub: 'Para um familiar', features: ['1 perfil de familiar','Até 2 familiares','Medicação, agenda e sinais vitais','Incidentes e documentos','Notas de turno'], highlight: false, cta: 'Começar' },
                 { id: 'familia_plus', name: 'Pack Família+', price: '59', sub: 'Para mais de um familiar', features: ['Até 2 perfis de familiar','Até 5 familiares','Tudo do Pack Família','Relatório médico completo','Dados clínicos avançados','Plano de cuidados detalhado'], highlight: true, cta: 'Começar' },
-                { id: 'cuidador_pro', name: 'Pack Plus + IA', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do Pack Família+','Assistente IA - análise clínica em 5 segundos','Chat interno entre familiares','Presença online em tempo real'], highlight: false, cta: 'Começar' },
+                { id: 'cuidador_pro', name: 'Pack Família Plus + IA', badge: 'IA', price: '88', sub: 'Múltiplos familiares + IA', features: ['Até 4 perfis de familiar','Familiares ilimitados','Tudo do Pack Família+','Assistente IA - análise clínica em 5 segundos','Chat interno entre familiares','Presença online em tempo real'], highlight: false, cta: 'Começar' },
               ].map(p => (
                 <div key={p.id} style={{ position: 'relative' }}>
                   <div style={{

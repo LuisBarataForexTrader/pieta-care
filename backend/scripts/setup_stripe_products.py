@@ -36,8 +36,8 @@ PRODUCTS = [
     },
     {
         "plan_key": "cuidador_pro",
-        "name": "Pack Plus + IA",
-        "description": "Pack Plus + IA — até 4 perfis, familiares ilimitados, assistente IA + chat interno.",
+        "name": "Pack Família Plus + IA",
+        "description": "Pack Família Plus + IA — até 4 perfis, familiares ilimitados, assistente IA + chat interno.",
         "amount_eur": 88,
         "secret_name": "STRIPE_PRICE_CUIDADOR_PRO",
     },

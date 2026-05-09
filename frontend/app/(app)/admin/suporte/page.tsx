@@ -23,7 +23,7 @@ function fmtRelative(iso: string | null) {
 const PLAN_LABEL: Record<string, string> = {
   familia: 'Pack Família',
   familia_plus: 'Pack Família+',
-  cuidador_pro: 'Pack Plus + IA',
+  cuidador_pro: 'Pack Família Plus + IA',
 }
 
 export default function AdminSuportePage() {

@@ -191,7 +191,7 @@ function ChatInner() {
               </div>
               <div>
                 <div style={{ fontSize: 18, fontWeight: 800, color: 'var(--text)', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                  Disponível no Pack Plus + IA
+                  Disponível no Pack Família Plus + IA
                   <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 7px', borderRadius: 99, background: 'var(--ai-grad)', color: '#fff', letterSpacing: '0.04em' }}>IA</span>
                 </div>
                 <div style={{ fontSize: 13, color: 'var(--text-3)', marginTop: 2 }}>O chat familiar está incluído no plano mais completo</div>
