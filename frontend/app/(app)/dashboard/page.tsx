@@ -472,13 +472,45 @@ export default function Dashboard() {
               </div>
             )}
 
+            {/* ── TENDÊNCIAS RÁPIDAS (14d sparklines, lifted to the top) ── */}
+            {(sysSeries.length >= 2 || wbSeries.length >= 2) && (
+              <div className="trends-panel" style={{ marginBottom: 20 }}>
+                <div className="section-header" style={{ marginBottom: 8 }}>
+                  <div className="section-title"><TrendingUp size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Tendências (14 dias)</div>
+                  <Link href="/saude" className="section-link">Detalhes <ArrowRight size={13} /></Link>
+                </div>
+                <div className="trends-grid">
+                  {sysSeries.length >= 2 && (
+                    <div className="trend-cell">
+                      <div className="trend-label">Tensão sistólica</div>
+                      <div className="trend-value">{sysSeries[sysSeries.length - 1]} <span className="kpi-unit">mmHg</span></div>
+                      <Sparkline values={sysSeries} color="#E53E3E" height={36} unit="mmHg" />
+                      <div className="trend-foot">
+                        min {Math.min(...sysSeries)} · máx {Math.max(...sysSeries)} · {sysSeries.length} registos
+                      </div>
+                    </div>
+                  )}
+                  {wbSeries.length >= 2 && (
+                    <div className="trend-cell">
+                      <div className="trend-label">Bem-estar</div>
+                      <div className="trend-value">{MOOD_LABEL[Math.round(wbSeries[wbSeries.length - 1])]}</div>
+                      <Sparkline values={wbSeries} color="#D69E2E" height={36} unit="/5" />
+                      <div className="trend-foot">
+                        média {wbAvg7.toFixed(1)}/5 · {wbSeries.length} dias
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* ── HEALTH CHARTS (vitals over time, 30 days) ── */}
+            <HealthChartsPanel vitals={vitals} days={30} />
+
             {/* ── AI INSIGHTS (top-tier) ── */}
-            <div style={{ marginBottom: 20 }}>
+            <div style={{ margin: '20px 0' }}>
               <AIInsightsPanel />
             </div>
-
-            {/* ── HEALTH CHARTS (vitals over time) ── */}
-            <HealthChartsPanel vitals={vitals} days={30} />
 
             {/* ── MAIN GRID ── */}
             <div className="dash-grid">
@@ -576,37 +608,6 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                {/* Trends panel */}
-                {(sysSeries.length >= 2 || wbSeries.length >= 2) && (
-                  <div className="trends-panel">
-                    <div className="section-header" style={{ marginBottom: 8 }}>
-                      <div className="section-title"><TrendingUp size={16} strokeWidth={2} style={{ color: 'var(--brand)' }} /> Tendências (14 dias)</div>
-                      <Link href="/saude" className="section-link">Detalhes <ArrowRight size={13} /></Link>
-                    </div>
-                    <div className="trends-grid">
-                      {sysSeries.length >= 2 && (
-                        <div className="trend-cell">
-                          <div className="trend-label">Tensão sistólica</div>
-                          <div className="trend-value">{sysSeries[sysSeries.length - 1]} <span className="kpi-unit">mmHg</span></div>
-                          <Sparkline values={sysSeries} color="#E53E3E" height={36} unit="mmHg" />
-                          <div className="trend-foot">
-                            min {Math.min(...sysSeries)} · máx {Math.max(...sysSeries)} · {sysSeries.length} registos
-                          </div>
-                        </div>
-                      )}
-                      {wbSeries.length >= 2 && (
-                        <div className="trend-cell">
-                          <div className="trend-label">Bem-estar</div>
-                          <div className="trend-value">{MOOD_LABEL[Math.round(wbSeries[wbSeries.length - 1])]}</div>
-                          <Sparkline values={wbSeries} color="#D69E2E" height={36} unit="/5" />
-                          <div className="trend-foot">
-                            média {wbAvg7.toFixed(1)}/5 · {wbSeries.length} dias
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                )}
               </div>
 
               {/* RIGHT SIDEBAR */}

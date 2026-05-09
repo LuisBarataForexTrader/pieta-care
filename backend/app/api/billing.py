@@ -128,6 +128,17 @@ async def webhook(request: Request, db: Session = Depends(get_db)):
         _sync_subscription_status(db, obj)
     elif event_type == "customer.subscription.deleted":
         _sync_subscription_status(db, obj, force_status="canceled")
+        # Add the customer's last-used card to the Radar blocklist so
+        # they can't re-use the same card to start a fresh trial under
+        # a new account. Failure here MUST NOT break the webhook.
+        try:
+            from app.services.radar import block_card_post_cancel
+            customer_id = obj.get("customer") if isinstance(obj, dict) else None
+            if customer_id:
+                block_card_post_cancel(customer_id)
+        except Exception as e:  # noqa: BLE001
+            import logging
+            logging.getLogger(__name__).warning("radar block failed (non-fatal): %s", e)
     elif event_type == "invoice.payment_failed":
         _sync_subscription_status(db, obj.get("subscription"), force_status="past_due")
 
