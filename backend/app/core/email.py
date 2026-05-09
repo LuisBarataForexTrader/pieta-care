@@ -341,7 +341,7 @@ def trial_day7_html(name: str) -> str:
         title="Como tem sido a experiência?",
         body_html=body,
         cta_label="Deixar avaliação",
-        cta_url="https://pietas.care/dashboard?feedback=open",
+        cta_url="https://pietas.care/avaliacao?source=trial_day7",
     )
 
 

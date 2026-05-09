@@ -9,8 +9,9 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.stripe_client import build_price_map
-from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights
+from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights, feedback, push
 from app.tasks.trial_emails import run_trial_emails
+from app.tasks.weekly_digest import run_weekly_digest
 
 UPLOAD_DIR = "/app/uploads"
 log = logging.getLogger(__name__)
@@ -49,6 +50,30 @@ def _trial_emails_job():
         db.close()
 
 
+def _weekly_digest_job():
+    """Same advisory-lock pattern as the trial sweep, different lock key."""
+    from sqlalchemy import text
+    from app.core.database import SessionLocal
+
+    LOCK_KEY = 773700002
+    db = SessionLocal()
+    try:
+        got = db.execute(text("SELECT pg_try_advisory_lock(:k)"), {"k": LOCK_KEY}).scalar()
+        if not got:
+            log.info("weekly_digest skipped: another worker holds the lock")
+            return
+        try:
+            result = run_weekly_digest(db)
+            log.info("weekly_digest job: %s", result)
+        except Exception:
+            log.exception("weekly_digest job failed")
+        finally:
+            db.execute(text("SELECT pg_advisory_unlock(:k)"), {"k": LOCK_KEY})
+            db.commit()
+    finally:
+        db.close()
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -59,6 +84,15 @@ async def lifespan(app: FastAPI):
         _trial_emails_job,
         CronTrigger(hour=10, minute=0),
         id="trial_emails",
+        replace_existing=True,
+        max_instances=1,
+        coalesce=True,
+    )
+    # Sundays at 09:00 Europe/Lisbon — weekly digest to household owners
+    scheduler.add_job(
+        _weekly_digest_job,
+        CronTrigger(day_of_week="sun", hour=9, minute=0),
+        id="weekly_digest",
         replace_existing=True,
         max_instances=1,
         coalesce=True,
@@ -97,6 +131,8 @@ app.include_router(health.router, prefix="/api/v1")
 app.include_router(chat.router, prefix="/api/v1")
 app.include_router(support.router, prefix="/api/v1")
 app.include_router(ai_insights.router, prefix="/api/v1")
+app.include_router(feedback.router, prefix="/api/v1")
+app.include_router(push.router, prefix="/api/v1")
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR, check_dir=False), name="uploads")
 

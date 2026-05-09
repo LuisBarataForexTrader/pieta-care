@@ -48,6 +48,20 @@ class Settings(BaseSettings):
     # domain has been removed and any noreply@pieta.care send is rejected.
     EMAIL_FROM: str = "noreply@pietas.care"
 
+    # Web Push (VAPID). Generate the keypair once with:
+    #   pip install py-vapid && vapid --gen
+    # Public key goes to the browser; private key stays here.
+    WEBPUSH_VAPID_PUBLIC_KEY: str = ""
+    WEBPUSH_VAPID_PRIVATE_KEY: str = ""
+    WEBPUSH_VAPID_SUBJECT: str = "mailto:suporte@pietas.care"
+
+    # TOConline (Portuguese e-invoicing). One token per company file.
+    TOCONLINE_API_KEY: str = ""
+    TOCONLINE_COMPANY_ID: str = ""
+
+    # Telegram bot (free SMS-like alerts for elderly)
+    TELEGRAM_BOT_TOKEN: str = ""
+
     class Config:
         env_file = ".env"
         extra = "ignore"

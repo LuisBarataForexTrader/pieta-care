@@ -98,6 +98,19 @@ export const api = {
   exportData: () =>
     request<Record<string, unknown>>('/api/v1/auth/export'),
 
+  submitFeedback: (rating: number, comment?: string, source?: string) =>
+    request<{ id: number; rating: number; created_at: string }>('/api/v1/feedback', {
+      method: 'POST',
+      body: JSON.stringify({ rating, comment, source }),
+    }),
+
+  pushPublicKey: () =>
+    request<{ public_key: string }>('/api/v1/push/public-key'),
+  pushSubscribe: (sub: { endpoint: string; keys: { p256dh: string; auth: string } }) =>
+    request<{ ok: boolean }>('/api/v1/push/subscribe', { method: 'POST', body: JSON.stringify(sub) }),
+  pushUnsubscribe: (sub: { endpoint: string }) =>
+    request<{ ok: boolean }>('/api/v1/push/unsubscribe', { method: 'POST', body: JSON.stringify(sub) }),
+
   me: () => request<import('./types').User>('/api/v1/auth/me'),
 
   ping: () => request<void>('/api/v1/auth/ping', { method: 'POST' }),
