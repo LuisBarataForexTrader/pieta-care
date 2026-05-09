@@ -23,22 +23,36 @@ jobs:
             set -u
             cd /opt/pieta-care
 
-            # Find any .env file on the box that has a populated
-            # TOCONLINE_CLIENT_ID. TNT runs as a Procfile/systemd service
-            # (no docker-compose), so its env lives in a plain .env file.
-            SRC=""
-            for path in $(find /opt /home -maxdepth 4 -name '.env' -type f 2>/dev/null); do
-              [ "$path" = "/opt/pieta-care/backend/.env" ] && continue
-              if grep -qE '^TOCONLINE_CLIENT_ID=.+' "$path"; then
-                SRC="$path"
-                break
-              fi
-            done
+            # Find any file on the box that has a populated
+            # TOCONLINE_CLIENT_ID. Could be a .env file, systemd
+            # service file, or a docker container's env list.
+            echo "→ Searching .env-like files…"
+            SRC=$(grep -lrIE '^TOCONLINE_CLIENT_ID=.+' \
+              /opt /home /etc/systemd /etc/environment /root \
+              2>/dev/null \
+              | grep -v '^/opt/pieta-care/backend/\.env$' \
+              | head -1 || true)
+
             if [ -z "$SRC" ]; then
-              echo "::error::No .env file on this box has a populated TOCONLINE_CLIENT_ID"
+              echo "→ Searching running containers…"
+              for name in $(docker ps --format '{{.Names}}' 2>/dev/null); do
+                [ "$name" = "pieta-care-api-1" ] && continue
+                v=$(docker exec "$name" printenv TOCONLINE_CLIENT_ID 2>/dev/null || true)
+                if [ -n "$v" ]; then
+                  echo "→ Found in container: $name"
+                  SRC="docker:$name"
+                  break
+                fi
+              done
+            fi
+
+            if [ -z "$SRC" ]; then
+              echo "::error::No file or container on this box has a populated TOCONLINE_CLIENT_ID"
+              echo "::error::Searched: /opt /home /etc/systemd /etc/environment /root + all docker containers"
+              echo "::error::TNT must have its TOConline env stored elsewhere — please tell me where."
               exit 1
             fi
-            echo "→ Source .env: $SRC"
+            echo "→ Source: $SRC"
 
             touch backend/.env
 
@@ -53,9 +67,15 @@ jobs:
             }
 
             extract() {
-              # extract VALUE from KEY=VALUE in $SRC (handles surrounding quotes)
+              # extract VALUE from KEY=VALUE in $SRC. Handles two source types:
+              # - file path → grep + sed
+              # - "docker:<name>" → printenv inside the container
               local key="$1"
-              grep -E "^${key}=" "$SRC" 2>/dev/null | head -1 | sed -E "s/^${key}=//; s/^['\"]//; s/['\"]$//"
+              if [ "${SRC#docker:}" != "$SRC" ]; then
+                docker exec "${SRC#docker:}" printenv "$key" 2>/dev/null || true
+              else
+                grep -E "^${key}=" "$SRC" 2>/dev/null | head -1 | sed -E "s/^${key}=//; s/^['\"]//; s/['\"]$//"
+              fi
             }
 
             sync_one TOCONLINE_CLIENT_ID     "$(extract TOCONLINE_CLIENT_ID)"
