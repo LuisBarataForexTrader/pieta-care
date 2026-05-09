@@ -1,0 +1,28 @@
+name: Verify TNT proxy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check proxy block in TNT main.py
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script: |
+            echo "→ Checking /opt/tnt/main.py for proxy marker:"
+            grep -c "proxying to pieta" /opt/tnt/main.py || echo "  NOT FOUND"
+            echo ""
+            echo "→ Lines around the callback:"
+            grep -n -A 12 "@app.get..\"/toconline/callback\"" /opt/tnt/main.py | head -20
+            echo ""
+            echo "→ Running uvicorn processes:"
+            ps -ef | grep -E 'uvicorn|main:app' | grep -v grep
+            echo ""
+            echo "→ Trying actual proxy: curl with state=pieta-test"
+            curl -s -o /dev/null -w "  HTTP %{http_code}, redirect to: %{redirect_url}\n" \
+              "https://api.tradingnewsterminal.com/toconline/callback?state=pieta-test"

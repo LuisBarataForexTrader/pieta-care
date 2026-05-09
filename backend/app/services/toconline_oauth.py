@@ -95,20 +95,22 @@ class TOConlineAuthError(Exception):
 
 def authorize_url(state: str, code_challenge: str | None = None) -> str:
     """Build the URL the admin opens in a browser to start the OAuth
-    dance. The caller should pass a CSRF-protecting random `state` and
-    verify it on the callback. If TOConline's OAuth client requires
-    PKCE, also pass `code_challenge` (base64url(sha256(code_verifier)))."""
-    params = {
-        "client_id": settings.TOCONLINE_CLIENT_ID,
-        "redirect_uri": settings.TOCONLINE_REDIRECT_URI,
-        "response_type": "code",
-        "scope": "commercial contacts",
-        "state": state,
-    }
+    dance. TOConline uses `/oauth/auth` (not the RFC-standard
+    `/oauth/authorize`). Mirroring TNT's URL builder verbatim — TNT
+    has been working against this endpoint for ~2 years.
+    """
+    from urllib.parse import quote
+    parts = [
+        f"client_id={settings.TOCONLINE_CLIENT_ID}",
+        f"redirect_uri={quote(settings.TOCONLINE_REDIRECT_URI, safe='')}",
+        "response_type=code",
+        f"scope={quote('commercial contacts')}",
+        f"state={state}",
+    ]
     if code_challenge:
-        params["code_challenge"] = code_challenge
-        params["code_challenge_method"] = "S256"
-    return f"{OAUTH_URL}/authorize?{urlencode(params)}"
+        parts.append(f"code_challenge={code_challenge}")
+        parts.append("code_challenge_method=S256")
+    return f"{OAUTH_URL}/auth?" + "&".join(parts)
 
 
 def gen_state() -> str:
