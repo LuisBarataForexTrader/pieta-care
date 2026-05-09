@@ -22,11 +22,27 @@ jobs:
             git fetch origin main
             git reset --hard origin/main
 
-            # TNT uses authorization_code + refresh_token. Read TNT's
-            # current access_token from its SQLite DB and pass it via
-            # env to the pieta script.
-            TOC_ACCESS_TOKEN=$(sqlite3 /opt/tnt/news.db \
-              "SELECT access_token FROM toconline_tokens WHERE id=1" 2>/dev/null || true)
+            # Debug: figure out where TNT lives + what its DB looks like
+            echo "→ TNT discovery"
+            which sqlite3 || echo "  sqlite3 not installed"
+            for p in /opt/tnt/news.db /opt/tnt/backend/news.db /home/luisbarata/tnt/news.db; do
+              [ -f "$p" ] && echo "  found DB: $p ($(stat -c '%s bytes' $p))"
+            done
+
+            DB=/opt/tnt/news.db
+            if [ ! -f "$DB" ]; then
+              echo "::error::TNT DB not at $DB. Adjust path."
+              exit 1
+            fi
+            echo "→ Tables in $DB:"
+            sqlite3 "$DB" ".tables" 2>&1 | head -3
+            echo "→ toconline_tokens schema:"
+            sqlite3 "$DB" ".schema toconline_tokens" 2>&1 | head -5
+            echo "→ toconline_tokens count:"
+            sqlite3 "$DB" "SELECT COUNT(*), id FROM toconline_tokens" 2>&1 | head -3
+
+            TOC_ACCESS_TOKEN=$(sqlite3 "$DB" \
+              "SELECT access_token FROM toconline_tokens LIMIT 1" 2>/dev/null || true)
 
             if [ -z "$TOC_ACCESS_TOKEN" ]; then
               echo "::error::TNT DB has no access_token. TNT side may need to re-auth first."
