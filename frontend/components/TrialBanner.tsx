@@ -1,11 +1,25 @@
 'use client'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
-import { Sparkles, X } from 'lucide-react'
+import { Clock, ArrowRight, X } from 'lucide-react'
 import { api } from '@/lib/api'
 import type { BillingStatus } from '@/lib/types'
 
 const DISMISS_KEY = 'pieta_trial_banner_dismissed_until'
+
+/** Pretty-print remaining trial time. Avoids absurd values like
+ *  "faltam 364 dias" by promoting weeks/months when appropriate. */
+function formatRemaining(days: number): string {
+  if (days <= 0) return 'expirado'
+  if (days === 1) return 'termina amanhã'
+  if (days <= 14) return `${days} dias restantes`
+  if (days <= 60) {
+    const weeks = Math.round(days / 7)
+    return `${weeks} semanas restantes`
+  }
+  const months = Math.round(days / 30)
+  return `${months} ${months === 1 ? 'mês' : 'meses'} restantes`
+}
 
 export default function TrialBanner() {
   const [billing, setBilling] = useState<BillingStatus | null>(null)
@@ -41,14 +55,23 @@ export default function TrialBanner() {
 
   return (
     <Link href="/conta" className={`trial-banner trial-banner-${tone}`}>
-      <Sparkles size={14} strokeWidth={2.25} />
-      <span>
+      <span className="trial-banner-icon" aria-hidden="true">
+        <Clock size={13} strokeWidth={2.25} />
+      </span>
+      <span className="trial-banner-text">
         {expired ? (
-          <>O seu trial terminou - escolha um plano em <strong>A minha conta</strong> para continuar →</>
-        ) : daysLeft === 1 ? (
-          <>Amanhã termina o seu trial <strong>Pack Família Plus + IA</strong>. Subscreva em <strong>A minha conta</strong> para manter os dados →</>
+          <>Período de avaliação terminado · <strong>Subscrever</strong></>
         ) : (
-          <>A experimentar <strong>Pack Família Plus + IA</strong> · faltam <strong>{daysLeft} dia{daysLeft !== 1 ? 's' : ''}</strong> · gerir em <strong>A minha conta</strong> →</>
+          <>
+            <span className="trial-banner-pill">Avaliação</span>
+            <span className="trial-banner-divider" />
+            <span>{formatRemaining(daysLeft)}</span>
+            <span className="trial-banner-divider" />
+            <span className="trial-banner-cta">
+              Subscrever
+              <ArrowRight size={12} strokeWidth={2.5} />
+            </span>
+          </>
         )}
       </span>
       {tone === 'info' && (

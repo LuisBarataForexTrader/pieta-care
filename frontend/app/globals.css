@@ -2144,21 +2144,109 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
 .trial-banner {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 24px;
-  font-size: 13px;
+  gap: 10px;
+  padding: 9px 22px;
+  font-size: 12.5px;
   font-weight: 600;
+  letter-spacing: 0.005em;
   text-decoration: none;
   border-bottom: 1px solid;
   position: sticky;
   top: 41px;  /* sits below presence bar */
   z-index: 19;
+  transition: background 0.15s;
 }
-@media (max-width: 768px) { .trial-banner { padding: 9px 16px; top: 39px; } }
+@media (max-width: 768px) { .trial-banner { padding: 8px 14px; top: 39px; font-size: 12px; } }
 
-.trial-banner-info   { background: #FEFCE8; color: #854D0E; border-color: #FEF08A; }
-.trial-banner-warn   { background: #FFF7ED; color: #9A3412; border-color: #FDBA74; }
-.trial-banner-danger { background: #FEF2F2; color: #991B1B; border-color: #FCA5A5; }
+/* Info tone — sage/cream, on-brand and calm */
+.trial-banner-info {
+  background: linear-gradient(180deg, #FAF7EC 0%, #F4EFDD 100%);
+  color: #5A4A1F;
+  border-color: #E5DCC0;
+}
+[data-theme="dark"] .trial-banner-info {
+  background: linear-gradient(180deg, #2A2516 0%, #1F1B11 100%);
+  color: #D4C593;
+  border-color: #3A3220;
+}
+
+/* Warn tone — refined amber */
+.trial-banner-warn {
+  background: linear-gradient(180deg, #FFF7ED 0%, #FFEDD5 100%);
+  color: #7C2D12;
+  border-color: #FDBA74;
+}
+[data-theme="dark"] .trial-banner-warn {
+  background: linear-gradient(180deg, #2C1810 0%, #1F100A 100%);
+  color: #FDBA74;
+  border-color: #7C2D12;
+}
+
+/* Danger tone — clean red */
+.trial-banner-danger {
+  background: linear-gradient(180deg, #FEF2F2 0%, #FEE2E2 100%);
+  color: #991B1B;
+  border-color: #FCA5A5;
+}
+[data-theme="dark"] .trial-banner-danger {
+  background: linear-gradient(180deg, #2A0F0F 0%, #1F0808 100%);
+  color: #FCA5A5;
+  border-color: #7F1D1D;
+}
+
+.trial-banner-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.05);
+  flex-shrink: 0;
+}
+[data-theme="dark"] .trial-banner-icon {
+  background: rgba(255,255,255,0.08);
+}
+
+.trial-banner-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.trial-banner-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: rgba(0,0,0,0.07);
+  color: inherit;
+}
+[data-theme="dark"] .trial-banner-pill {
+  background: rgba(255,255,255,0.1);
+}
+
+.trial-banner-divider {
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  opacity: 0.35;
+  flex-shrink: 0;
+}
+
+.trial-banner-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 800;
+  letter-spacing: 0.005em;
+}
+.trial-banner:hover .trial-banner-cta svg { transform: translateX(2px); }
+.trial-banner-cta svg { transition: transform 0.18s; }
 
 .trial-banner-close {
   margin-left: auto;
@@ -2166,14 +2254,16 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   border: none;
   cursor: pointer;
   color: inherit;
-  opacity: 0.6;
+  opacity: 0.5;
   display: flex;
   align-items: center;
   padding: 4px;
   border-radius: 6px;
   transition: background 0.15s, opacity 0.15s;
+  flex-shrink: 0;
 }
-.trial-banner-close:hover { opacity: 1; background: rgba(0,0,0,0.06); }
+.trial-banner-close:hover { opacity: 1; background: rgba(0,0,0,0.08); }
+[data-theme="dark"] .trial-banner-close:hover { background: rgba(255,255,255,0.1); }
 
 /* Inline alert variant for /conta page */
 .alert-warning-banner {
