@@ -19,7 +19,32 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script: |
             set -eu
-            cd /opt/tnt
+
+            # Find TNT's actual git checkout — /opt/tnt may be a deploy
+            # target (env, run dir) rather than the repo itself.
+            TNT=""
+            for path in /opt/tnt /opt/trading-news-terminal-backend /opt/tnt/backend /root/tnt /root/trading-news-terminal-backend; do
+              if [ -d "$path/.git" ]; then
+                TNT="$path"; break
+              fi
+            done
+            if [ -z "$TNT" ]; then
+              # Search broader, max depth 4
+              TNT=$(find /opt /root /home -maxdepth 4 -name 'main.py' -type f 2>/dev/null \
+                | xargs -I{} dirname {} 2>/dev/null \
+                | while read d; do
+                    [ -d "$d/.git" ] && grep -q 'tracker-fx-news\|trading-news-terminal' "$d/.git/config" 2>/dev/null && echo "$d" && break
+                  done | head -1)
+            fi
+            if [ -z "$TNT" ]; then
+              echo "::error::TNT git checkout not found"
+              echo "→ Folders containing main.py:"
+              find /opt /root /home -maxdepth 4 -name 'main.py' -type f 2>/dev/null | head -10
+              exit 1
+            fi
+            echo "→ TNT checkout: $TNT"
+
+            cd "$TNT"
             git fetch origin main
             git reset --hard origin/main
 
