@@ -94,7 +94,7 @@ def main() -> None:
                 is_verified=True,
                 subscription_status="active",
                 subscription_plan=DEMO_PLAN,
-                trial_ends_at=NOW + timedelta(days=365),
+                trial_ends_at=None,  # demo is "active", not trial
             )
             db.add(owner)
             db.flush()
@@ -107,7 +107,7 @@ def main() -> None:
             owner.is_verified = True
             owner.subscription_status = "active"
             owner.subscription_plan = DEMO_PLAN
-            owner.trial_ends_at = NOW + timedelta(days=365)
+            owner.trial_ends_at = None  # demo is "active", not trial
 
         # 2) Wipe any prior demo data owned by this user
         # — find all elderly profiles created by owner and cascade-clean

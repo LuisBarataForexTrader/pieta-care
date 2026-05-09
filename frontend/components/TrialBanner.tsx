@@ -7,18 +7,14 @@ import type { BillingStatus } from '@/lib/types'
 
 const DISMISS_KEY = 'pieta_trial_banner_dismissed_until'
 
-/** Pretty-print remaining trial time. Avoids absurd values like
- *  "faltam 364 dias" by promoting weeks/months when appropriate. */
+/** Pretty-print remaining trial time. The standard pieta trial is 14
+ *  days, so anything longer than that is either the seeded demo account
+ *  or an edge case — show no specific count, just "activo". */
 function formatRemaining(days: number): string {
   if (days <= 0) return 'expirado'
   if (days === 1) return 'termina amanhã'
   if (days <= 14) return `${days} dias restantes`
-  if (days <= 60) {
-    const weeks = Math.round(days / 7)
-    return `${weeks} semanas restantes`
-  }
-  const months = Math.round(days / 30)
-  return `${months} ${months === 1 ? 'mês' : 'meses'} restantes`
+  return 'activo'
 }
 
 export default function TrialBanner() {
@@ -35,6 +31,10 @@ export default function TrialBanner() {
 
   if (!billing || dismissed) return null
   if (billing.has_subscription) return null
+  // Don't show the banner to "active" users without a Stripe subscription
+  // — that's the demo account or a manually-activated user. They're not
+  // on a trial anymore so the trial banner is misleading.
+  if (billing.status === 'active') return null
 
   const trialEnd = billing.trial_ends_at ? new Date(billing.trial_ends_at) : null
   if (!trialEnd) return null
@@ -63,7 +63,7 @@ export default function TrialBanner() {
           <>Período de avaliação terminado · <strong>Subscrever</strong></>
         ) : (
           <>
-            <span className="trial-banner-pill">Avaliação</span>
+            <span className="trial-banner-pill">Trial</span>
             <span className="trial-banner-divider" />
             <span>{formatRemaining(daysLeft)}</span>
             <span className="trial-banner-divider" />
