@@ -1,46 +1,28 @@
-"""TOConline invoicing - same pattern as TNT."""
-import httpx
-from app.core.config import settings
+"""TOConline invoicing.
 
-TOCONLINE_API_URL = "https://api6.toconline.pt"
-TOCONLINE_OAUTH_URL = "https://app6.toconline.pt/oauth"
+Issues a Portuguese-compliant fatura (FT) when a Stripe invoice is
+paid. Auth is handled by app.services.toconline_oauth (authorization_code
+flow with refresh-token rotation, advisory lock against races).
+"""
+from __future__ import annotations
+import logging
+
+import httpx
+
+from app.core.config import settings
+from app.services.toconline_oauth import (
+    API_URL as TOCONLINE_API_URL,  # re-exported for compat with scripts
+    OAUTH_URL as TOCONLINE_OAUTH_URL,
+    TOConlineAuthError,
+    get_access_token,
+)
+
+log = logging.getLogger(__name__)
 
 EU_COUNTRIES = {
     "AT","BE","BG","HR","CY","CZ","DK","EE","FI","FR","DE","GR",
     "HU","IE","IT","LV","LT","LU","MT","NL","PL","PT","RO","SK","SI","ES","SE",
 }
-
-_token_cache: dict = {}
-
-
-async def _get_access_token() -> str | None:
-    import time
-    cached = _token_cache.get("access_token")
-    expires_at = _token_cache.get("expires_at", 0)
-    if cached and time.time() < expires_at - 60:
-        return cached
-
-    if not settings.TOCONLINE_CLIENT_ID or not settings.TOCONLINE_CLIENT_SECRET:
-        return None
-
-    async with httpx.AsyncClient() as client:
-        r = await client.post(
-            f"{TOCONLINE_OAUTH_URL}/token",
-            data={
-                "grant_type": "client_credentials",
-                "client_id": settings.TOCONLINE_CLIENT_ID,
-                "client_secret": settings.TOCONLINE_CLIENT_SECRET,
-                "scope": "commercial contacts",
-            },
-            timeout=10,
-        )
-        if r.status_code == 200:
-            data = r.json()
-            _token_cache["access_token"] = data["access_token"]
-            _token_cache["expires_at"] = time.time() + data.get("expires_in", 3600)
-            return data["access_token"]
-
-    return None
 
 
 async def create_invoice(
@@ -52,9 +34,13 @@ async def create_invoice(
     tax_id: str = "",
     country: str = "PT",
 ) -> None:
-    token = await _get_access_token()
-    if not token:
-        print(f"[TOCONLINE] Sem token - fatura não emitida para {email}")
+    """Issue a fatura. Logs and swallows on failure — billing already
+    succeeded at the Stripe level, the customer experience must not
+    depend on TOConline being up."""
+    try:
+        token = await get_access_token()
+    except TOConlineAuthError as e:
+        log.warning("[TOCONLINE] no access token (%s) — skipping invoice for %s", e, email)
         return
 
     is_eu = country.upper() in EU_COUNTRIES
@@ -76,7 +62,7 @@ async def create_invoice(
         "document_type": "FT",
         "document_series_id": settings.TOCONLINE_SERIES_ID,
         "currency_iso_code": "EUR",
-        "vat_included_prices": False,   # preços sempre SEM IVA
+        "vat_included_prices": False,
         "customer_business_name": name or email.split("@")[0],
         "customer_tax_registration_number": tax_id or "999999990",
         "customer_country": country.upper(),
@@ -93,15 +79,33 @@ async def create_invoice(
     }
 
     async with httpx.AsyncClient() as client:
-        r = await client.post(
-            f"{TOCONLINE_API_URL}/api/v1/commercial_sales_documents",
-            headers=hdrs,
-            json=doc,
-            timeout=15,
-        )
+        try:
+            r = await client.post(
+                f"{TOCONLINE_API_URL}/api/v1/commercial_sales_documents",
+                headers=hdrs,
+                json=doc,
+                timeout=15,
+            )
+        except httpx.HTTPError:
+            log.exception("[TOCONLINE] HTTP error issuing invoice for %s", email)
+            return
+
         if r.status_code in (200, 201):
             resp = r.json()
             doc_no = resp.get("document_no") or resp.get("data", {}).get("document_no", "?")
-            print(f"[TOCONLINE] Fatura {doc_no} emitida para {email} - €{amount_excl_vat:.2f} + IVA")
+            log.info("[TOCONLINE] FT %s issued for %s — €%.2f + IVA", doc_no, email, amount_excl_vat)
         else:
-            print(f"[TOCONLINE] Erro {r.status_code}: {r.text[:200]}")
+            log.warning(
+                "[TOCONLINE] FT issue failed %s: %s",
+                r.status_code, (r.text or "")[:300],
+            )
+
+
+# Backwards-compat shim — the old _get_access_token used by some
+# scripts. Just delegates to the new service.
+async def _get_access_token():  # noqa: D401
+    """Compatibility shim — delegates to services.toconline_oauth."""
+    try:
+        return await get_access_token()
+    except TOConlineAuthError:
+        return None

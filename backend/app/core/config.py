@@ -29,11 +29,20 @@ class Settings(BaseSettings):
     FRONTEND_URL_VERCEL: str = "https://pieta-care.vercel.app"
     BACKEND_PUBLIC_URL: str = "https://api.pietas.care"
 
-    # TOConline (faturação PT)
+    # TOConline (faturação PT). authorization_code OAuth flow:
+    # 1. Admin hits /admin/toconline/auth → gets URL → opens in browser
+    # 2. Browser completes OAuth → TOConline redirects to /toconline/callback
+    # 3. Backend exchanges code for tokens → stores in toconline_tokens row
+    # 4. Subsequent invoices auto-refresh access_token from DB
     TOCONLINE_CLIENT_ID: str = ""
     TOCONLINE_CLIENT_SECRET: str = ""
     TOCONLINE_SERIES_ID: str = ""
     TOCONLINE_EXEMPTION_NON_EU: str = ""
+    # Must match a redirect URI registered in the TOConline OAuth client.
+    TOCONLINE_REDIRECT_URI: str = "https://api.pietas.care/api/v1/toconline/callback"
+    # Bearer token gating /admin/toconline/* endpoints. Set to a long
+    # random string in production env. If empty, admin endpoints 503.
+    ADMIN_TOKEN: str = ""
 
     # Anthropic - used for medication info lookups
     ANTHROPIC_API_KEY: str = ""

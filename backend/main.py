@@ -9,7 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.stripe_client import build_price_map
-from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights, feedback, push
+from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights, feedback, push, toconline as toconline_api
 from app.tasks.trial_emails import run_trial_emails
 from app.tasks.weekly_digest import run_weekly_digest
 
@@ -133,6 +133,7 @@ app.include_router(support.router, prefix="/api/v1")
 app.include_router(ai_insights.router, prefix="/api/v1")
 app.include_router(feedback.router, prefix="/api/v1")
 app.include_router(push.router, prefix="/api/v1")
+app.include_router(toconline_api.router, prefix="/api/v1")
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR, check_dir=False), name="uploads")
 
