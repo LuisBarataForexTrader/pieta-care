@@ -72,3 +72,54 @@ export function canAccess(effectivePlan: PlanKey | null | undefined, path: strin
   if (required === null) return true // always-open routes + unknown
   return planAtLeast(effectivePlan, required)
 }
+
+/** Shown in the locked-feature modal when the user clicks a locked
+ *  sidebar item. Each entry is a short marketing description of what
+ *  the feature does, surfaced before the upgrade CTA. */
+export const FEATURE_INFO: Record<string, { pitch: string; bullets: string[] }> = {
+  '/relatorio': {
+    pitch: 'Dossier clínico imprimível pronto a entregar ao médico em segundos.',
+    bullets: [
+      'Identificação, condições crónicas, alergias e medicação atual',
+      'Adesão à medicação dos últimos 30 dias com gráfico',
+      'Consultas passadas e próximas, contactos de emergência',
+      'Imprime ou envia por email com 1 clique',
+    ],
+  },
+  '/clinico': {
+    pitch: 'Diagnósticos e vacinas estruturados, sempre acessíveis.',
+    bullets: [
+      'Códigos ICD, datas e fonte (SNS ou manual)',
+      'Vacinas com lote e próximos reforços calculados',
+      'Alertas automáticos quando há reforços em atraso',
+      'Histórico clínico que acompanha o familiar para sempre',
+    ],
+  },
+  '/plano': {
+    pitch: 'Rotinas de cuidado organizadas para toda a família seguir.',
+    bullets: [
+      'Higiene, nutrição, mobilidade e estimulação cognitiva',
+      'Frequência configurável (diário, semanal, conforme necessário)',
+      'Visível para todos os familiares e cuidadores',
+      'Garante que ninguém perde o fio às rotinas essenciais',
+    ],
+  },
+  '/qualidade': {
+    pitch: 'Métricas mensais para perceber tendências antes que se tornem problema.',
+    bullets: [
+      'Taxa de adesão à medicação ao longo do tempo',
+      'Evolução do bem-estar (humor, dor, energia, apetite)',
+      'Frequência e tipologia de incidentes',
+      'Sugestões para falar com o médico',
+    ],
+  },
+  '/chat': {
+    pitch: 'Canal privado entre os familiares aceites - menos telefonemas, mais coordenação.',
+    bullets: [
+      'Histórico permanente, organizado por dia',
+      'Notificações com som e vibração quando alguém escreve',
+      'Presença online em tempo real no topo da app',
+      'Sem WhatsApp paralelo a perder informação clínica',
+    ],
+  },
+}

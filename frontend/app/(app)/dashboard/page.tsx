@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useId, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Pill, CalendarDays as CalendarIcon, HeartPulse, Activity,
@@ -54,8 +54,11 @@ function MoodIcon({ mood, size = 16 }: { mood: number; size?: number }) {
 }
 
 function Sparkline({
-  values, color = '#2A6049', height = 32, fill = true,
-}: { values: number[]; color?: string; height?: number; fill?: boolean }) {
+  values, color = '#2A6049', height = 32, fill = true, unit,
+}: { values: number[]; color?: string; height?: number; fill?: boolean; unit?: string }) {
+  const [hover, setHover] = useState<number | null>(null)
+  // Stable id per render of this Sparkline so multiple cards don't share defs
+  const gid = useId().replace(/:/g, '_')
   if (values.length < 2) {
     return <div style={{ height, display: 'flex', alignItems: 'center', color: 'var(--text-3)', fontSize: 11 }}>Sem dados</div>
   }
@@ -65,15 +68,64 @@ function Sparkline({
   const pts = values.map((v, i) => {
     const x = (i / (values.length - 1)) * w
     const y = h - ((v - min) / range) * (h - 4) - 2
-    return `${x.toFixed(1)},${y.toFixed(1)}`
+    return { x, y, v }
   })
-  const path = pts.join(' L ')
+  const path = pts.map(p => `${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' L ')
   const area = `M 0,${h} L ${path} L ${w},${h} Z`
+  const hoveredPt = hover !== null ? pts[hover] : null
   return (
-    <svg viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="none" style={{ width: '100%', height, display: 'block' }}>
-      {fill && <path d={area} fill={color} fillOpacity={0.10} />}
-      <path d={`M ${path}`} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <div style={{ position: 'relative' }}>
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        preserveAspectRatio="none"
+        style={{ width: '100%', height, display: 'block', cursor: 'crosshair' }}
+        onMouseMove={(e) => {
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect()
+          const ratio = (e.clientX - rect.left) / rect.width
+          const idx = Math.round(ratio * (pts.length - 1))
+          setHover(Math.max(0, Math.min(pts.length - 1, idx)))
+        }}
+        onMouseLeave={() => setHover(null)}
+      >
+        <defs>
+          <linearGradient id={`spark-${gid}`} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={color} stopOpacity={0.34} />
+            <stop offset="100%" stopColor={color} stopOpacity={0} />
+          </linearGradient>
+        </defs>
+        {fill && <path d={area} fill={`url(#spark-${gid})`} />}
+        <path d={`M ${path}`} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+        {hoveredPt && (
+          <>
+            <circle cx={hoveredPt.x} cy={hoveredPt.y} r={3.5} fill={color} opacity={0.18} />
+            <circle cx={hoveredPt.x} cy={hoveredPt.y} r={1.8} fill={color} />
+          </>
+        )}
+      </svg>
+      {hoveredPt && (
+        <div
+          style={{
+            position: 'absolute',
+            top: -22,
+            left: `${(hoveredPt.x / w) * 100}%`,
+            transform: 'translateX(-50%)',
+            padding: '2px 7px',
+            background: 'var(--surface)',
+            border: '1px solid var(--border)',
+            borderRadius: 6,
+            fontSize: 10.5,
+            fontWeight: 800,
+            color,
+            whiteSpace: 'nowrap',
+            pointerEvents: 'none',
+            boxShadow: '0 2px 6px rgba(0,0,0,0.12)',
+          }}
+        >
+          {Number.isInteger(hoveredPt.v) ? hoveredPt.v : hoveredPt.v.toFixed(1)}
+          {unit ? ` ${unit}` : ''}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -91,6 +143,7 @@ export default function Dashboard() {
   const [schedule,    setSchedule]    = useState<DailyScheduleItem[]>([])
   const [events,      setEvents]      = useState<CalendarEvent[]>([])
   const [elderly,     setElderly]     = useState<Elderly | null>(null)
+  const [me,          setMe]          = useState<{ full_name: string } | null>(null)
   const [wellbeing,   setWellbeing]   = useState<WellbeingLog | null | undefined>(undefined)
   const [vitals,      setVitals]      = useState<VitalSign[]>([])
   const [wbHistory,   setWbHistory]   = useState<WellbeingLog[]>([])
@@ -104,7 +157,7 @@ export default function Dashboard() {
 
   const load = useCallback(async () => {
     if (!elderlyId) return
-    const [sched, evs, elderlyList, wb, v, wbHist, inc, ns, dx, vac] = await Promise.all([
+    const [sched, evs, elderlyList, wb, v, wbHist, inc, ns, dx, vac, user] = await Promise.all([
       api.dailySchedule(elderlyId),
       api.listEvents(elderlyId),
       api.listElderly(),
@@ -115,6 +168,7 @@ export default function Dashboard() {
       api.listNotes(elderlyId, 7).catch(() => []),
       api.listDiagnoses(elderlyId, false).catch(() => []),
       api.listVaccinations(elderlyId).catch(() => []),
+      api.me().catch(() => null),
     ])
     setSchedule(sched)
     setEvents(evs.sort((a, b) => a.starts_at.localeCompare(b.starts_at)))
@@ -126,6 +180,7 @@ export default function Dashboard() {
     setNotes(ns)
     setDiagnoses(dx)
     setVaccinations(vac)
+    setMe(user)
     setLoading(false)
   }, [elderlyId])
 
@@ -225,7 +280,10 @@ export default function Dashboard() {
       {/* ── HEADER ── */}
       <div className="page-top">
         <div>
-          <div className="page-title">{todayGreeting()}</div>
+          <div className="page-title">
+            {todayGreeting()}
+            {me?.full_name && <span style={{ color: 'var(--brand)' }}>, {me.full_name.split(' ')[0]}</span>}
+          </div>
           <div className="page-subtitle" style={{ textTransform: 'capitalize' }}>{todayFull()}</div>
         </div>
         {allDone && (
@@ -292,7 +350,7 @@ export default function Dashboard() {
                   <>
                     <div className="kpi-value">{latestVital.blood_pressure_sys}<span className="kpi-unit">/{latestVital.blood_pressure_dia}</span></div>
                     {sysSeries.length >= 2
-                      ? <div style={{ marginTop: 4 }}><Sparkline values={sysSeries} color="#E53E3E" /></div>
+                      ? <div style={{ marginTop: 4 }}><Sparkline values={sysSeries} color="#E53E3E" unit="mmHg" /></div>
                       : <div style={{ height: 32 }} />}
                     <div className="kpi-sub">{timeAgo(latestVital.measured_at)}{latestVital.heart_rate ? ` · ${latestVital.heart_rate} bpm` : ''}</div>
                   </>
@@ -315,7 +373,7 @@ export default function Dashboard() {
                   <>
                     <div className="kpi-value">{wbAvg7.toFixed(1)}<span className="kpi-unit">/5</span></div>
                     {wbSeries.length >= 2
-                      ? <div style={{ marginTop: 4 }}><Sparkline values={wbSeries} color="#D69E2E" /></div>
+                      ? <div style={{ marginTop: 4 }}><Sparkline values={wbSeries} color="#D69E2E" unit="/5" /></div>
                       : <div style={{ height: 32 }} />}
                     <div className="kpi-sub">
                       {trendOf(wbSeries) === 'up' && <><TrendingUp size={11} strokeWidth={2.25} style={{ display: 'inline', verticalAlign: '-2px', color: 'var(--success)' }} /> a melhorar</>}
@@ -478,7 +536,7 @@ export default function Dashboard() {
                         <div className="trend-cell">
                           <div className="trend-label">Tensão sistólica</div>
                           <div className="trend-value">{sysSeries[sysSeries.length - 1]} <span className="kpi-unit">mmHg</span></div>
-                          <Sparkline values={sysSeries} color="#E53E3E" height={36} />
+                          <Sparkline values={sysSeries} color="#E53E3E" height={36} unit="mmHg" />
                           <div className="trend-foot">
                             min {Math.min(...sysSeries)} · máx {Math.max(...sysSeries)} · {sysSeries.length} registos
                           </div>
@@ -488,7 +546,7 @@ export default function Dashboard() {
                         <div className="trend-cell">
                           <div className="trend-label">Bem-estar</div>
                           <div className="trend-value">{MOOD_LABEL[Math.round(wbSeries[wbSeries.length - 1])]}</div>
-                          <Sparkline values={wbSeries} color="#D69E2E" height={36} />
+                          <Sparkline values={wbSeries} color="#D69E2E" height={36} unit="/5" />
                           <div className="trend-foot">
                             média {wbAvg7.toFixed(1)}/5 · {wbSeries.length} dias
                           </div>

@@ -35,12 +35,32 @@ function scoreGrade(s: number) {
 
 function ScoreGauge({ score }: { score: number }) {
   const color = scoreColor(score)
+  // Lighter accent stop for the gradient (white-ish blend) so the ring
+  // looks dimensional instead of flat
+  const accent = score >= 85 ? '#86EFAC' : score >= 70 ? '#FED7AA' : score >= 55 ? '#FDE68A' : '#FCA5A5'
   const filled = (score / 100) * CIRC
   return (
     <svg width={200} height={200} viewBox="0 0 200 200">
+      <defs>
+        <linearGradient id="score-gauge-grad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor={accent} />
+          <stop offset="100%" stopColor={color} />
+        </linearGradient>
+        <filter id="score-gauge-glow" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="3" />
+        </filter>
+      </defs>
       <circle cx={100} cy={100} r={R} fill="none" stroke="var(--surface-2)" strokeWidth={14} />
+      {/* soft outer glow */}
       <circle
         cx={100} cy={100} r={R} fill="none" stroke={color} strokeWidth={14} strokeLinecap="round"
+        strokeDasharray={`${filled} ${CIRC - filled}`}
+        transform="rotate(-90 100 100)"
+        filter="url(#score-gauge-glow)" opacity={0.4}
+      />
+      {/* main gradient stroke */}
+      <circle
+        cx={100} cy={100} r={R} fill="none" stroke="url(#score-gauge-grad)" strokeWidth={14} strokeLinecap="round"
         strokeDasharray={`${filled} ${CIRC - filled}`}
         transform="rotate(-90 100 100)"
         style={{ transition: 'stroke-dasharray 0.8s ease' }}
@@ -60,7 +80,12 @@ function Bar({ label, score, sub, lastScore }: { label: string; score: number; s
       <div style={{ fontSize: 30, fontWeight: 800, color, marginBottom: 2 }}>{Math.round(score)}%</div>
       <div style={{ fontSize: 12, color: 'var(--text-3)', marginBottom: 10 }}>{sub}</div>
       <div style={{ height: 6, background: 'var(--surface-2)', borderRadius: 99, overflow: 'hidden' }}>
-        <div style={{ height: 6, background: color, borderRadius: 99, width: `${score}%`, transition: 'width 0.8s' }} />
+        <div style={{
+          height: 6, borderRadius: 99,
+          background: `linear-gradient(90deg, ${color} 0%, ${color}dd 100%)`,
+          boxShadow: `0 0 8px ${color}55`,
+          width: `${score}%`, transition: 'width 0.8s',
+        }} />
       </div>
       {lastScore != null && (
         <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 6 }}>

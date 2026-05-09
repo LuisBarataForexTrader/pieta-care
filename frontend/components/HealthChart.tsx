@@ -1,5 +1,5 @@
 'use client'
-import { useMemo, useState } from 'react'
+import { useId, useMemo, useState } from 'react'
 
 export interface ChartPoint {
   /** ISO timestamp */
@@ -12,6 +12,25 @@ export interface ChartSeries {
   key: string
   label?: string
   color: string
+}
+
+/** Pull a CSS-color string apart so we can build an `rgba()` from it.
+ *  Handles 3-/6-digit hex; falls back to the original string for anything else
+ *  (var(--…), already-rgba(), etc. - those will just lose the opacity step but
+ *  still render). */
+function withAlpha(color: string, alpha: number): string {
+  if (color.startsWith('#')) {
+    const hex = color.length === 4
+      ? color.slice(1).split('').map(c => c + c).join('')
+      : color.slice(1)
+    if (hex.length === 6) {
+      const r = parseInt(hex.slice(0, 2), 16)
+      const g = parseInt(hex.slice(2, 4), 16)
+      const b = parseInt(hex.slice(4, 6), 16)
+      return `rgba(${r},${g},${b},${alpha})`
+    }
+  }
+  return color
 }
 
 interface Props {
@@ -39,6 +58,7 @@ export default function HealthChart({
   height = 180, emptyText = 'Sem registos no período',
 }: Props) {
   const [hover, setHover] = useState<number | null>(null)
+  const gradId = useId().replace(/:/g, '_')   // unique gradient ids per chart instance
 
   const chart = useMemo(() => {
     if (data.length < 1) return null
@@ -113,6 +133,11 @@ export default function HealthChart({
   const ticks = 4
   const yTicks = Array.from({ length: ticks + 1 }, (_, i) => lo + (i * (hi - lo)) / ticks)
 
+  // Pixel-space x for the hovered point (used by the floating tooltip)
+  const hoverX = hover !== null && points[hover]
+    ? (sx(points[hover].__t as number) / w) * 100   // % within the SVG
+    : null
+
   return (
     <div className="health-chart-wrap">
       <svg
@@ -133,8 +158,41 @@ export default function HealthChart({
           }
           setHover(best)
         }}
+        onTouchMove={(e) => {
+          const touch = e.touches[0]
+          if (!touch) return
+          const rect = (e.currentTarget as SVGSVGElement).getBoundingClientRect()
+          const xRatio = (touch.clientX - rect.left) / rect.width
+          const xSvg = xRatio * w
+          let best = 0
+          let bestDx = Infinity
+          for (let i = 0; i < points.length; i++) {
+            const px = sx(points[i].__t as number)
+            const dx = Math.abs(px - xSvg)
+            if (dx < bestDx) { bestDx = dx; best = i }
+          }
+          setHover(best)
+        }}
         onMouseLeave={() => setHover(null)}
+        onTouchEnd={() => setHover(null)}
       >
+        {/* SVG gradient defs - one per series for premium area fills */}
+        <defs>
+          {series.map((s) => (
+            <linearGradient key={s.key} id={`grad-${gradId}-${s.key}`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={s.color} stopOpacity={0.32} />
+              <stop offset="60%" stopColor={s.color} stopOpacity={0.08} />
+              <stop offset="100%" stopColor={s.color} stopOpacity={0} />
+            </linearGradient>
+          ))}
+          <filter id={`glow-${gradId}`} x="-50%" y="-50%" width="200%" height="200%">
+            <feGaussianBlur stdDeviation="2" result="b" />
+            <feMerge>
+              <feMergeNode in="b" />
+              <feMergeNode in="SourceGraphic" />
+            </feMerge>
+          </filter>
+        </defs>
         {/* Grid */}
         {yTicks.map((t, i) => (
           <g key={i}>
@@ -213,18 +271,43 @@ export default function HealthChart({
             )
           }
 
-          const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
-          const areaPath =
-            `M ${pts[0].x.toFixed(1)},${(h - PADDING.bottom).toFixed(1)} ` +
-            pts.map((p) => `L ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ') +
-            ` L ${pts[pts.length - 1].x.toFixed(1)},${(h - PADDING.bottom).toFixed(1)} Z`
+          // Smooth line via cubic Bezier averaging neighbouring slopes
+          const lineCmds: string[] = []
+          for (let i = 0; i < pts.length; i++) {
+            const p = pts[i]
+            if (i === 0) { lineCmds.push(`M ${p.x.toFixed(1)},${p.y.toFixed(1)}`); continue }
+            const prev = pts[i - 1]
+            // Tension: 0 = straight; we use ~0.3 for premium curve
+            const cp1x = prev.x + (p.x - prev.x) * 0.4
+            const cp1y = prev.y
+            const cp2x = p.x - (p.x - prev.x) * 0.4
+            const cp2y = p.y
+            lineCmds.push(`C ${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p.x.toFixed(1)},${p.y.toFixed(1)}`)
+          }
+          const linePath = lineCmds.join(' ')
+          const areaPath = linePath
+            + ` L ${pts[pts.length - 1].x.toFixed(1)},${(h - PADDING.bottom).toFixed(1)}`
+            + ` L ${pts[0].x.toFixed(1)},${(h - PADDING.bottom).toFixed(1)} Z`
+          // Find the hovered point's index within THIS series' filtered pts
+          const hoveredPt = hover !== null && points[hover]
+            ? pts.find(p => Math.abs(p.x - sx(points[hover].__t as number)) < 0.5)
+            : null
           return (
             <g key={s.key}>
-              <path d={areaPath} fill={s.color} fillOpacity={0.10} />
-              <path d={linePath} fill="none" stroke={s.color} strokeWidth={1.75} strokeLinecap="round" strokeLinejoin="round" />
+              <path d={areaPath} fill={`url(#grad-${gradId}-${s.key})`} />
+              <path d={linePath} fill="none" stroke={s.color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
               {pts.map((p, i) => (
-                <circle key={i} cx={p.x} cy={p.y} r={2.5} fill={s.color} />
+                <circle key={i} cx={p.x} cy={p.y} r={2} fill={s.color} opacity={0.45} />
               ))}
+              {hoveredPt && (
+                <>
+                  {/* outer halo */}
+                  <circle cx={hoveredPt.x} cy={hoveredPt.y} r={9} fill={withAlpha(s.color, 0.18)} />
+                  {/* solid dot with glow */}
+                  <circle cx={hoveredPt.x} cy={hoveredPt.y} r={4.5} fill={s.color} filter={`url(#glow-${gradId})`} />
+                  <circle cx={hoveredPt.x} cy={hoveredPt.y} r={2.5} fill="#fff" />
+                </>
+              )}
             </g>
           )
         })}
@@ -243,7 +326,32 @@ export default function HealthChart({
         )}
       </svg>
 
-      {/* Legend + tooltip */}
+      {/* Floating tooltip near the cursor's column */}
+      {hover !== null && points[hover] && hoverX !== null && (
+        <div
+          className="health-chart-bubble"
+          style={{ left: `${hoverX}%` }}
+        >
+          <div className="health-chart-bubble-date">
+            {fmtX(new Date(points[hover].__t as number).toISOString())}
+          </div>
+          {series.map((s) => {
+            const v = points[hover][s.key] as number | null
+            if (v === null) return null
+            return (
+              <div key={s.key} className="health-chart-bubble-row">
+                <span className="health-chart-bubble-dot" style={{ background: s.color }} />
+                <span className="health-chart-bubble-label">{s.label ?? s.key}</span>
+                <span className="health-chart-bubble-val" style={{ color: s.color }}>
+                  {Number.isInteger(v) ? v : v.toFixed(1)}{unit ? ` ${unit}` : ''}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {/* Legend (the floating bubble above replaces the inline tooltip) */}
       <div className="health-chart-legend">
         {series.map((s) => (
           <span key={s.key} className="health-chart-legend-item">
@@ -251,20 +359,6 @@ export default function HealthChart({
             {s.label ?? s.key}
           </span>
         ))}
-        {hover !== null && points[hover] && (
-          <span className="health-chart-tooltip">
-            {fmtX(new Date(points[hover].__t as number).toISOString())} ·{' '}
-            {series.map((s) => {
-              const v = points[hover][s.key] as number | null
-              if (v === null) return null
-              return (
-                <span key={s.key} style={{ color: s.color, marginRight: 6, fontWeight: 700 }}>
-                  {Number.isInteger(v) ? v : v.toFixed(1)}{unit ? ` ${unit}` : ''}
-                </span>
-              )
-            })}
-          </span>
-        )}
       </div>
     </div>
   )

@@ -12,7 +12,8 @@ import { api, clearToken, getElderlyId, setElderlyId } from '@/lib/api'
 import { notifyNewChatMessage } from '@/lib/notify'
 import type { Elderly, User, BillingStatus } from '@/lib/types'
 import ThemeToggle from '@/components/ThemeToggle'
-import { canAccess, requiredPlanFor, PLAN_LABEL, type PlanKey } from '@/lib/access'
+import { canAccess, requiredPlanFor, PLAN_LABEL, FEATURE_INFO, type PlanKey } from '@/lib/access'
+import LockedFeatureModal, { type LockedFeature } from '@/components/LockedFeatureModal'
 
 const ICON_PROPS = { size: 19, strokeWidth: 1.75 }
 
@@ -80,6 +81,7 @@ export default function Sidebar() {
   }, [pathname])
 
   const effectivePlan = (billing?.effective_plan ?? null) as PlanKey | null
+  const [lockedFeature, setLockedFeature] = useState<LockedFeature | null>(null)
 
   // Close switcher on outside click
   useEffect(() => {
@@ -287,37 +289,98 @@ export default function Sidebar() {
         </div>
       )}
 
-      {/* Nav */}
+      {/* Nav - accessible items first, locked items grouped at the bottom */}
       <nav className="sidebar-nav">
         <div className="nav-section-label">Navegação</div>
-        {NAV.map(item => {
-          const allowed = canAccess(effectivePlan, item.href)
-          const required = requiredPlanFor(item.href)
-          const isActive = pathname.startsWith(item.href)
-          // If billing hasn't loaded yet (effectivePlan is null AND billing is null),
-          // optimistically render as allowed to avoid flashing a lock.
+        {(() => {
           const billingLoaded = billing !== null
-          const locked = billingLoaded && !allowed && required !== null
+          // Always-open final entry (A minha conta) goes at the very end
+          const ALWAYS_OPEN_PATHS = new Set(['/conta'])
+
+          // Partition NAV into accessible and locked, preserving original order
+          const accessible = NAV.filter(item => {
+            const required = requiredPlanFor(item.href)
+            if (required === null) return true
+            // While billing loads, render as accessible to avoid the flash
+            if (!billingLoaded) return true
+            return canAccess(effectivePlan, item.href)
+          })
+          const locked = billingLoaded
+            ? NAV.filter(item => {
+                const required = requiredPlanFor(item.href)
+                if (required === null) return false
+                return !canAccess(effectivePlan, item.href)
+              })
+            : []
+
+          // Move /conta to the bottom of the accessible list (visual rhythm)
+          const accessibleSorted = [
+            ...accessible.filter(i => !ALWAYS_OPEN_PATHS.has(i.href)),
+            ...accessible.filter(i => ALWAYS_OPEN_PATHS.has(i.href)),
+          ]
+
+          const renderAccessible = (item: typeof NAV[number]) => {
+            const isActive = pathname.startsWith(item.href)
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`nav-link${isActive ? ' active' : ''}`}
+              >
+                {item.icon}
+                <span style={{ flex: 1 }}>{item.label}</span>
+                {item.href === '/chat' && chatUnread > 0 && (
+                  <span className="nav-badge">{chatUnread > 99 ? '99+' : chatUnread}</span>
+                )}
+              </Link>
+            )
+          }
+
+          const renderLocked = (item: typeof NAV[number]) => {
+            const required = requiredPlanFor(item.href) as PlanKey
+            const info = FEATURE_INFO[item.href] ?? { pitch: '', bullets: [] }
+            return (
+              <button
+                key={item.href}
+                type="button"
+                onClick={() => setLockedFeature({
+                  path: item.href,
+                  name: item.label,
+                  requires: required,
+                  icon: item.icon,
+                  pitch: info.pitch,
+                  bullets: info.bullets,
+                  current: effectivePlan,
+                })}
+                className="nav-link locked locked-clickable"
+                title={`Disponível no plano ${PLAN_LABEL[required]} - clique para saber mais`}
+                aria-label={`${item.label} - exclusivo do plano ${PLAN_LABEL[required]}`}
+              >
+                {item.icon}
+                <span style={{ flex: 1 }}>{item.label}</span>
+                <Lock size={13} strokeWidth={2.25} className="nav-lock-icon" style={{ flexShrink: 0, color: 'var(--text-3)', opacity: 0.7 }} />
+              </button>
+            )
+          }
+
           return (
-            <Link
-              key={item.href}
-              href={locked ? '/conta' : item.href}
-              className={`nav-link${isActive ? ' active' : ''}${locked ? ' locked' : ''}`}
-              title={locked && required ? `Disponível no plano ${PLAN_LABEL[required]}` : undefined}
-              aria-disabled={locked || undefined}
-            >
-              {item.icon}
-              <span style={{ flex: 1 }}>{item.label}</span>
-              {item.href === '/chat' && !locked && chatUnread > 0 && (
-                <span className="nav-badge">{chatUnread > 99 ? '99+' : chatUnread}</span>
+            <>
+              {accessibleSorted.map(renderAccessible)}
+              {locked.length > 0 && (
+                <>
+                  <div className="nav-section-locked-label">
+                    <Lock size={10} strokeWidth={2.5} /> Disponível com upgrade
+                  </div>
+                  {locked.map(renderLocked)}
+                </>
               )}
-              {locked && (
-                <Lock size={13} strokeWidth={2.25} style={{ flexShrink: 0, color: 'var(--text-3)', opacity: 0.7 }} />
-              )}
-            </Link>
+            </>
           )
-        })}
+        })()}
       </nav>
+
+      {/* Locked feature modal — shown when user clicks a locked sidebar item */}
+      <LockedFeatureModal feature={lockedFeature} onClose={() => setLockedFeature(null)} />
 
       {/* User footer */}
       <div className="sidebar-footer">
