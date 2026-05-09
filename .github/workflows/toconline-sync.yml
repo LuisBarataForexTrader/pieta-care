@@ -20,31 +20,31 @@ jobs:
           key: ${{ secrets.HETZNER_SSH_KEY }}
           script_stop: true
           script: |
-            set -eu
+            set -u
             cd /opt/pieta-care
 
-            # 1) Find a container that has a NON-EMPTY TOCONLINE_CLIENT_ID
-            # (excludes pieta-care itself, which defines the var as "" by default).
-            CONTAINER=""
-            for name in $(docker ps --format '{{.Names}}'); do
-              [ "$name" = "pieta-care-api-1" ] && continue
-              v=$(docker exec "$name" printenv TOCONLINE_CLIENT_ID 2>/dev/null || true)
-              if [ -n "$v" ]; then
-                CONTAINER="$name"
+            # Find any .env file on the box that has a populated
+            # TOCONLINE_CLIENT_ID. TNT runs as a Procfile/systemd service
+            # (no docker-compose), so its env lives in a plain .env file.
+            SRC=""
+            for path in $(find /opt /home -maxdepth 4 -name '.env' -type f 2>/dev/null); do
+              [ "$path" = "/opt/pieta-care/backend/.env" ] && continue
+              if grep -qE '^TOCONLINE_CLIENT_ID=.+' "$path"; then
+                SRC="$path"
                 break
               fi
             done
-            if [ -z "$CONTAINER" ]; then
-              echo "::error::No running container has a populated TOCONLINE_CLIENT_ID"
+            if [ -z "$SRC" ]; then
+              echo "::error::No .env file on this box has a populated TOCONLINE_CLIENT_ID"
               exit 1
             fi
-            echo "→ Source container: $CONTAINER"
+            echo "→ Source .env: $SRC"
 
             touch backend/.env
 
             sync_one() {
               local key="$1"; local val="$2"
-              [ -z "$val" ] && return
+              [ -z "$val" ] && return 0
               # Atomic replace: strip old line, append new, swap file.
               grep -v "^${key}=" backend/.env > backend/.env.tmp || true
               echo "${key}=${val}" >> backend/.env.tmp
@@ -52,16 +52,19 @@ jobs:
               echo "  ✓ $key"
             }
 
-            for key in TOCONLINE_CLIENT_ID TOCONLINE_CLIENT_SECRET; do
-              v=$(docker exec "$CONTAINER" printenv "$key" 2>/dev/null || true)
-              sync_one "$key" "$v"
-            done
+            extract() {
+              # extract VALUE from KEY=VALUE in $SRC (handles surrounding quotes)
+              local key="$1"
+              grep -E "^${key}=" "$SRC" 2>/dev/null | head -1 | sed -E "s/^${key}=//; s/^['\"]//; s/['\"]$//"
+            }
 
-            # SERIES_ID + EXEMPTION_NON_EU may not exist in TNT's env if they're
-            # hard-coded constants. Use the defaults from TNT main.py.
-            S=$(docker exec "$CONTAINER" printenv TOCONLINE_SERIES_ID 2>/dev/null || true)
+            sync_one TOCONLINE_CLIENT_ID     "$(extract TOCONLINE_CLIENT_ID)"
+            sync_one TOCONLINE_CLIENT_SECRET "$(extract TOCONLINE_CLIENT_SECRET)"
+            # Series ID + exemption code may live in TNT's main.py as
+            # constants instead of env. Default to TNT's hard-coded values.
+            S="$(extract TOCONLINE_SERIES_ID)"
             sync_one TOCONLINE_SERIES_ID "${S:-8670652}"
-            E=$(docker exec "$CONTAINER" printenv TOCONLINE_EXEMPTION_NON_EU 2>/dev/null || true)
+            E="$(extract TOCONLINE_EXEMPTION_NON_EU)"
             sync_one TOCONLINE_EXEMPTION_NON_EU "${E:-28}"
 
             docker compose restart api
