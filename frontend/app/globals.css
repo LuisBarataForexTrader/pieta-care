@@ -1996,6 +1996,11 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   border-color: #C7B8FF;
 }
 .plan-card-ai:hover { border-color: #9F7AEA; }
+[data-theme="dark"] .plan-card-ai {
+  background: linear-gradient(135deg, rgba(124,58,237,0.18) 0%, rgba(167,139,250,0.08) 100%);
+  border-color: rgba(167,139,250,0.32);
+}
+[data-theme="dark"] .plan-card-ai:hover { border-color: rgba(167,139,250,0.55); }
 
 .plan-badge {
   position: absolute;
@@ -2128,8 +2133,10 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   .presence-bar-info { gap: 8px; }
 }
 
-/* Plan badge - shown on the right of the presence bar */
-.plan-badge {
+/* User plan chip - shown in the sidebar header.
+   NB: deliberately NOT named .plan-badge - that class is reserved for
+   the absolute-positioned "Com IA" tag on the /conta pricing cards. */
+.user-plan-chip {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -2143,27 +2150,27 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
   flex-shrink: 0;
 }
-.plan-badge:hover { transform: translateY(-1px); }
-.plan-badge:active { transform: translateY(0); }
+.user-plan-chip:hover { transform: translateY(-1px); }
+.user-plan-chip:active { transform: translateY(0); }
 
-.plan-badge-familia {
+.user-plan-chip-familia {
   background: linear-gradient(135deg, rgba(74,222,128,0.18), rgba(74,222,128,0.10));
   color: #6ABB71;
   border: 1px solid rgba(74,222,128,0.32);
 }
-.plan-badge-familia_plus {
+.user-plan-chip-familia_plus {
   background: linear-gradient(135deg, #166534 0%, #22C55E 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(22,101,52,0.45);
   border: 1px solid rgba(74,222,128,0.4);
 }
-.plan-badge-cuidador_pro {
+.user-plan-chip-cuidador_pro {
   background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
   color: #fff;
   box-shadow: 0 4px 14px rgba(124,58,237,0.45);
   border: 1px solid rgba(167,139,250,0.4);
 }
-.plan-badge-trial {
+.user-plan-chip-trial {
   background: linear-gradient(135deg, rgba(224,162,60,0.20), rgba(224,162,60,0.12));
   color: #E0A23C;
   border: 1px solid rgba(224,162,60,0.38);
@@ -2176,9 +2183,9 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
 }
 
 @media (max-width: 480px) {
-  .plan-badge-label { display: none; }
-  .plan-badge { padding: 5px 7px; }
-  .plan-badge-trial .plan-badge-label { display: inline; }   /* keep countdown legible */
+  .user-plan-chip-label { display: none; }
+  .user-plan-chip { padding: 5px 7px; }
+  .user-plan-chip-trial .user-plan-chip-label { display: inline; }   /* keep countdown legible */
 }
 
 /* ── Sidebar locked-section divider ─────────────────────────────── */

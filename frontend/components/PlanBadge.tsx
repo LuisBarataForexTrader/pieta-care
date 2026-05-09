@@ -43,9 +43,9 @@ export default function PlanBadge() {
   if (billing.status === 'trial' || billing.status === 'trialing') {
     const days = daysUntil(billing.trial_ends_at)
     return (
-      <Link href="/conta" className="plan-badge plan-badge-trial" title="Período de experimentação">
+      <Link href="/conta" className="user-plan-chip user-plan-chip-trial" title="Período de experimentação">
         <Clock size={12} strokeWidth={2.5} />
-        <span className="plan-badge-label">
+        <span className="user-plan-chip-label">
           Trial{days !== null ? ` · ${days}d` : ''}
         </span>
       </Link>
@@ -59,11 +59,11 @@ export default function PlanBadge() {
   return (
     <Link
       href="/conta"
-      className={`plan-badge plan-badge-${plan}`}
+      className={`user-plan-chip user-plan-chip-${plan}`}
       title={`Plano ${LABEL[plan]} · gerir em A minha conta`}
     >
       {isPlus && <Sparkles size={12} strokeWidth={2.5} />}
-      <span className="plan-badge-label">{LABEL[plan]}</span>
+      <span className="user-plan-chip-label">{LABEL[plan]}</span>
     </Link>
   )
 }
