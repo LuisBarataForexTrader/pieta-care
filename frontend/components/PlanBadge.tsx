@@ -7,9 +7,9 @@ import { api } from '@/lib/api'
 import type { BillingStatus } from '@/lib/types'
 
 const LABEL: Record<string, string> = {
-  familia: 'Família',
-  familia_plus: 'Família+',
-  cuidador_pro: 'Família Plus',
+  familia: 'Pack Família',
+  familia_plus: 'Pack Família+',
+  cuidador_pro: 'Pack Plus + IA',
 }
 
 function daysUntil(iso: string | null): number | null {
@@ -60,7 +60,7 @@ export default function PlanBadge() {
     <Link
       href="/conta"
       className={`user-plan-chip user-plan-chip-${plan}`}
-      title={`Plano ${LABEL[plan]} · gerir em A minha conta`}
+      title={`${LABEL[plan]} · gerir em A minha conta`}
     >
       {isPlus && <Sparkles size={12} strokeWidth={2.5} />}
       <span className="user-plan-chip-label">{LABEL[plan]}</span>

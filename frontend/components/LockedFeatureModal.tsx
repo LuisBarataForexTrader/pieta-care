@@ -60,7 +60,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
   // The badge wording differs by tier:
   //   - cuidador_pro features (chat, IA) are TRULY exclusive to that plan
   //   - familia_plus features are also accessible to cuidador_pro users
-  //     (so they're "Incluído desde o Família+" rather than "Exclusivo")
+  //     (so they're "Incluído desde o Pack Família+" rather than "Exclusivo")
   const badgeText = feature.requires === 'cuidador_pro'
     ? `Exclusivo ${requiredLabel}`
     : `Incluído desde ${requiredLabel}`
@@ -133,7 +133,7 @@ export default function LockedFeatureModal({ feature, onClose }: Props) {
           {feature.current && (
             <p className="locked-feature-current">
               Atualmente no plano <strong>{PLAN_LABEL[feature.current]}</strong>.
-              {feature.requires !== 'cuidador_pro' && ' Esta feature também está incluída no Família Plus.'}
+              {feature.requires !== 'cuidador_pro' && ' Esta feature também está incluída no Pack Plus + IA.'}
             </p>
           )}
         </div>

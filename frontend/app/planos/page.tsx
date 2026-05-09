@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 const PLANS = [
   {
     key: 'familia',
-    name: 'Família',
+    name: 'Pack Família',
     price: 35,
     sub: 'Para um familiar',
     badge: null,
@@ -26,7 +26,7 @@ const PLANS = [
   },
   {
     key: 'familia_plus',
-    name: 'Família+',
+    name: 'Pack Família+',
     price: 59,
     sub: 'Para mais de um familiar',
     badge: 'Mais popular',
@@ -34,7 +34,7 @@ const PLANS = [
     features: [
       'Até 2 perfis de familiar',
       'Até 5 familiares',
-      'Tudo do plano Família',
+      'Tudo do Pack Família',
       'Relatório médico completo',
       'Dados clínicos avançados',
       'Plano de cuidados detalhado',
@@ -43,7 +43,7 @@ const PLANS = [
   },
   {
     key: 'cuidador_pro',
-    name: 'Família Plus',
+    name: 'Pack Plus + IA',
     price: 88,
     sub: 'Múltiplos familiares + IA',
     badge: 'IA',
@@ -52,7 +52,7 @@ const PLANS = [
     features: [
       'Até 4 perfis de familiar',
       'Familiares ilimitados',
-      'Tudo do plano Família+',
+      'Tudo do Pack Família+',
       'Assistente IA - informação clínica de medicação',
       'Resumos automáticos diários',
       'Alertas inteligentes',

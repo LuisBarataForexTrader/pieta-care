@@ -22,22 +22,22 @@ import stripe
 PRODUCTS = [
     {
         "plan_key": "familia",
-        "name": "pietas.care Família",
-        "description": "Plano Família — 1 perfil de familiar, até 2 familiares.",
+        "name": "Pack Família",
+        "description": "Pack Família — 1 perfil de familiar, até 2 familiares.",
         "amount_eur": 35,
         "secret_name": "STRIPE_PRICE_FAMILIA",
     },
     {
         "plan_key": "familia_plus",
-        "name": "pietas.care Família+",
-        "description": "Plano Família+ — até 2 perfis de familiar, até 5 familiares.",
+        "name": "Pack Família+",
+        "description": "Pack Família+ — até 2 perfis de familiar, até 5 familiares.",
         "amount_eur": 59,
         "secret_name": "STRIPE_PRICE_FAMILIA_PLUS",
     },
     {
         "plan_key": "cuidador_pro",
-        "name": "pietas.care Família Plus",
-        "description": "Plano Família Plus — até 4 perfis, familiares ilimitados, assistente IA + chat interno.",
+        "name": "Pack Plus + IA",
+        "description": "Pack Plus + IA — até 4 perfis, familiares ilimitados, assistente IA + chat interno.",
         "amount_eur": 88,
         "secret_name": "STRIPE_PRICE_CUIDADOR_PRO",
     },

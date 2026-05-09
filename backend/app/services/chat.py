@@ -87,11 +87,11 @@ def _check_access(db: Session, elderly_id: int, user: User) -> FamilyMember:
     has_access, is_owner = _family_has_chat_access(db, elderly_id, user)
     if not has_access:
         if is_owner:
-            msg = ("O chat familiar está disponível no plano Família AI. "
+            msg = ("O chat familiar está disponível no Pack Plus + IA. "
                    "Faça upgrade na sua área de cliente.")
         else:
             msg = ("O chat familiar requer que o titular da família esteja "
-                   "no plano Família AI.")
+                   "no Pack Plus + IA.")
         raise ChatError(msg, 402)
     return membership
 

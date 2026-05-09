@@ -173,7 +173,7 @@ function ContaPageInner() {
               <div style={{ fontSize: 22, fontWeight: 800, color: 'var(--text)', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: 10 }}>
                 {isTrial ? (
                   <>
-                    Família Plus
+                    Pack Plus + IA
                     <span style={{ fontSize: 10, fontWeight: 800, padding: '3px 8px', borderRadius: 99, background: 'var(--ai-grad)', color: '#fff', letterSpacing: '0.04em' }}>IA</span>
                     <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 9px', borderRadius: 99, background: 'var(--accent-light)', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Trial</span>
                   </>
