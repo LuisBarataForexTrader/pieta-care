@@ -18,7 +18,6 @@ jobs:
           host: 178.104.5.182
           username: root
           key: ${{ secrets.HETZNER_SSH_KEY }}
-          script_stop: true
           script: |
             set -u
             cd /opt/pieta-care
@@ -78,8 +77,12 @@ jobs:
               fi
             }
 
-            sync_one TOCONLINE_CLIENT_ID     "$(extract TOCONLINE_CLIENT_ID)"
-            sync_one TOCONLINE_CLIENT_SECRET "$(extract TOCONLINE_CLIENT_SECRET)"
+            CID="$(extract TOCONLINE_CLIENT_ID)"
+            CSEC="$(extract TOCONLINE_CLIENT_SECRET)"
+            echo "  CLIENT_ID length: ${#CID}"
+            echo "  CLIENT_SECRET length: ${#CSEC}"
+            sync_one TOCONLINE_CLIENT_ID "$CID"
+            sync_one TOCONLINE_CLIENT_SECRET "$CSEC"
             # Series ID + exemption code may live in TNT's main.py as
             # constants instead of env. Default to TNT's hard-coded values.
             S="$(extract TOCONLINE_SERIES_ID)"
