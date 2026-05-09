@@ -33,7 +33,7 @@ async def main() -> int:
     await create_invoice(
         email="teste@pietas.care",
         name="Teste Smoke (não cobrar)",
-        amount_excl_vat=1.00,                   # €1 + IVA
+        amount_excl_vat=0.01,                   # €0.01 + IVA
         description="[TEST] pieta-care TOConline smoke test",
         item_code="PIETA-FAM-M",                # use real catalogue code
         country="PT",
