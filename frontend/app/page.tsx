@@ -4,11 +4,11 @@ import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Steth
 import ZoomImage from '@/components/ZoomImage'
 
 export const metadata: Metadata = {
-  title: { absolute: 'pietas.care · App para cuidar de pais idosos em Portugal' },
+  title: { absolute: 'pietas.care — A tranquilidade de saber que está bem cuidado' },
   description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
   alternates: { canonical: '/' },
   openGraph: {
-    title: 'pietas.care · App para cuidar de pais idosos em Portugal',
+    title: 'pietas.care — A tranquilidade de saber que está bem cuidado',
     description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
     url: '/',
     type: 'website',
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'pietas.care · App para cuidar de pais idosos',
+    title: 'pietas.care — A tranquilidade de saber que está bem cuidado',
     description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
   },
 }
