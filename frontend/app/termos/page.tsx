@@ -3,10 +3,10 @@ import Link from 'next/link'
 import { Leaf, AlertTriangle } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Termos de Uso - pietas.care',
-  description: 'Termos e condições de utilização do pietas.care, plataforma de gestão de cuidados familiares. Rege-se pelo direito português e legislação europeia aplicável.',
-  alternates: { canonical: 'https://pietas.care/termos' },
-  robots: { index: true, follow: false },
+  title: 'Termos de utilização',
+  description: 'Termos e condições do pietas.care. Rege-se pelo direito português e RGPD. Flow 88 — Gestão de Ativos Lda, NIPC 509294391.',
+  alternates: { canonical: '/termos' },
+  robots: { index: true, follow: true },
 }
 
 const SECTIONS = [

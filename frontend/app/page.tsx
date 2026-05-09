@@ -4,45 +4,125 @@ import { Leaf, Pill, Calendar, HeartPulse, AlertTriangle, FileText, Users, Steth
 import ZoomImage from '@/components/ZoomImage'
 
 export const metadata: Metadata = {
-  title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
-  description: 'Plataforma portuguesa para famílias que cuidam de um familiar idoso ou dependente. Medicação, consultas, sinais vitais e coordenação familiar, tudo num só lugar.',
-  keywords: ['cuidar de idosos', 'app cuidadores', 'gestão medicação idosos', 'plataforma cuidados familiares', 'cuidar familiar à distância', 'pieta care'],
+  title: 'App para cuidar de pais idosos em Portugal',
+  description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'pietas.care - A tranquilidade de saber que está bem cuidado',
-    description: 'Quando não consegue estar sempre presente, o pietas.care garante que nada passa em branco.',
-    url: 'https://pietas.care',
-    siteName: 'pietas.care',
-    locale: 'pt_PT',
+    title: 'pietas.care · App para cuidar de pais idosos em Portugal',
+    description: 'Medicação, consultas, sinais vitais e coordenação familiar num só lugar. 14 dias grátis.',
+    url: '/',
     type: 'website',
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'pietas.care - Cuidar de quem ama, mesmo à distância',
-    description: 'Medicação, consultas, sinais vitais e coordenação familiar num só lugar.',
+    title: 'pietas.care · App para cuidar de pais idosos',
+    description: 'Medicação, consultas, sinais vitais e família a par — tudo num só lugar.',
   },
-  alternates: { canonical: 'https://pietas.care' },
 }
 
-const jsonLd = {
+// Multiple JSON-LD blocks for richer SERP coverage:
+// SoftwareApplication, Organization, FAQPage. Google picks the most
+// relevant for each query — e.g. FAQ rich snippets in mobile.
+const ldSoftwareApplication = {
   '@context': 'https://schema.org',
   '@type': 'SoftwareApplication',
+  '@id': 'https://pietas.care/#software',
   name: 'pietas.care',
+  alternateName: 'pieta.care',
   applicationCategory: 'HealthApplication',
-  operatingSystem: 'Web',
-  description: 'Plataforma portuguesa de gestão de cuidados para famílias de idosos e pessoas dependentes.',
+  applicationSubCategory: 'Eldercare',
+  operatingSystem: 'Web, iOS (PWA), Android (PWA)',
+  description: 'App portuguesa de coordenação de cuidados para famílias com pais idosos: medicação, agenda, sinais vitais, incidentes, vacinas e relatório médico, partilhados em tempo real.',
   url: 'https://pietas.care',
   inLanguage: 'pt-PT',
+  publisher: { '@id': 'https://pietas.care/#org' },
   offers: [
-    { '@type': 'Offer', name: 'Pack Família', price: '35', priceCurrency: 'EUR', billingDuration: 'P1M' },
-    { '@type': 'Offer', name: 'Pack Família+', price: '59', priceCurrency: 'EUR', billingDuration: 'P1M' },
-    { '@type': 'Offer', name: 'Pack Família Plus + IA', price: '88', priceCurrency: 'EUR', billingDuration: 'P1M' },
+    { '@type': 'Offer', name: 'Pack Família', price: '35', priceCurrency: 'EUR', priceSpecification: { '@type': 'UnitPriceSpecification', price: '35', priceCurrency: 'EUR', unitCode: 'MON' } },
+    { '@type': 'Offer', name: 'Pack Família+', price: '59', priceCurrency: 'EUR', priceSpecification: { '@type': 'UnitPriceSpecification', price: '59', priceCurrency: 'EUR', unitCode: 'MON' } },
+    { '@type': 'Offer', name: 'Pack Família Plus + IA', price: '88', priceCurrency: 'EUR', priceSpecification: { '@type': 'UnitPriceSpecification', price: '88', priceCurrency: 'EUR', unitCode: 'MON' } },
+  ],
+}
+
+const ldOrganization = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  '@id': 'https://pietas.care/#org',
+  name: 'pietas.care',
+  legalName: 'Flow 88 — Gestão de Ativos Lda',
+  url: 'https://pietas.care',
+  logo: 'https://pietas.care/og.png',
+  email: 'suporte@pietas.care',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Rua Quinta da Piedade 1, 7B',
+    addressLocality: 'Póvoa de Santa Iria',
+    postalCode: '2625-178',
+    addressCountry: 'PT',
+  },
+  vatID: 'PT509294391',
+  areaServed: 'PT',
+}
+
+const ldFAQ = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: [
+    {
+      '@type': 'Question',
+      name: 'Como funciona o pietas.care?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Crie um perfil do seu familiar idoso, registe medicação, consultas e sinais vitais. Toda a família autorizada vê o histórico em tempo real. Há lembretes automáticos de tomas e alertas para o que ficar por confirmar.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'O pietas.care é para quem?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Para famílias portuguesas que cuidam de pais idosos ou dependentes em casa, sozinhos ou em equipa. Funciona com 1 ou vários familiares e pode incluir cuidadores formais.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Quanto custa?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'A partir de €35/mês. Há 3 planos: Pack Família (€35), Pack Família+ (€59) e Pack Família Plus + IA (€88). Todos com 14 dias grátis sem cartão de crédito. Cancela quando quiser.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Os meus dados de saúde estão seguros?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Sim. Dados encriptados em trânsito (TLS) e em repouso. Servidores na União Europeia (Hetzner Alemanha), conformes RGPD. Pode exportar ou apagar a sua conta a qualquer momento.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Funciona em telemóvel?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Sim. Funciona em qualquer browser (telemóvel, tablet, computador). Pode instalar como app no telemóvel (PWA) — recebe notificações de medicação tal como uma app nativa.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: 'Substitui o médico?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: 'Não. O pietas.care organiza informação para a família e ajuda na coordenação. Não dá diagnósticos, não substitui consulta médica, e a assistente IA (no plano Pack Família Plus + IA) é informativa, nunca prescritiva.',
+      },
+    },
   ],
 }
 
 export default function LandingPage() {
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldSoftwareApplication) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldOrganization) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ldFAQ) }} />
       <style>{`
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 

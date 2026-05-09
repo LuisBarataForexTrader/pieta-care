@@ -3,8 +3,14 @@ import { Check, Sparkles, ArrowLeft, Leaf } from 'lucide-react'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Planos e Preços - pietas.care',
-  description: 'Planos pietas.care a partir de €35/mês + IVA. 14 dias grátis. Cancela quando quiseres.',
+  title: 'Planos e preços — App para cuidar de pais idosos',
+  description: 'Planos pietas.care desde €35/mês + IVA. Pack Família, Família+ e Família Plus + IA com 14 dias grátis. Cancele quando quiser.',
+  alternates: { canonical: '/planos' },
+  openGraph: {
+    title: 'Planos pietas.care — desde €35/mês',
+    description: '14 dias grátis · sem cartão · cancele quando quiser. App de cuidados para famílias portuguesas.',
+    url: '/planos',
+  },
 }
 
 const PLANS = [

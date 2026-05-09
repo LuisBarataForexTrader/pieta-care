@@ -9,9 +9,63 @@ const inter = Inter({
   display: 'swap',
 })
 
+// Global SEO defaults. Per-page metadata overrides title/description
+// via Next.js metadata API. The defaults below are the safety net.
 export const metadata: Metadata = {
-  title: 'pietas.care',
-  description: 'Cuidar de quem amamos, juntos.',
+  metadataBase: new URL('https://pietas.care'),
+  title: {
+    default: 'pietas.care · App para cuidar de pais idosos em Portugal',
+    template: '%s · pietas.care',
+  },
+  description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis.',
+  applicationName: 'pietas.care',
+  authors: [{ name: 'Flow 88 — Gestão de Ativos Lda', url: 'https://pietas.care' }],
+  generator: 'Next.js',
+  keywords: [
+    'app cuidar pais idosos',
+    'app cuidar idosos',
+    'gestão medicação idosos',
+    'agenda medicação',
+    'cuidar familiar idoso',
+    'app saúde idosos',
+    'cuidador familiar',
+    'aplicação cuidados domiciliários',
+    'pietas.care',
+    'cuidar pais distância',
+  ],
+  referrer: 'origin-when-cross-origin',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
+    },
+  },
+  openGraph: {
+    type: 'website',
+    siteName: 'pietas.care',
+    locale: 'pt_PT',
+    url: 'https://pietas.care',
+    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'pietas.care — Cuidar dos pais idosos, com toda a família a par' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    images: ['/og.png'],
+  },
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+    ],
+    apple: '/apple-icon.png',
+  },
+  alternates: { canonical: '/' },
+  // Verification — Google Search Console + Bing Webmaster ids go here
+  // when added. See SEARCH_CONSOLE.md for the manual steps.
+  // verification: { google: 'XXXXXXXX' },
 }
 
 export const viewport: Viewport = {
@@ -26,7 +80,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="pt" className={inter.variable} suppressHydrationWarning>
+    <html lang="pt-PT" className={inter.variable} suppressHydrationWarning>
       <head>
         {/* Apply theme before first paint to avoid flash */}
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
