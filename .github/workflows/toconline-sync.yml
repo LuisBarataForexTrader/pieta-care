@@ -1,0 +1,72 @@
+name: Sync TOConline credentials from TNT
+
+# One-shot: copy TOCONLINE_CLIENT_ID / CLIENT_SECRET / SERIES_ID etc.
+# from the TNT container (which already has them) into pieta-care's
+# backend/.env, on the same Hetzner box. Avoids round-tripping the
+# values through GitHub secrets — they never leave the server.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Sync via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 178.104.5.182
+          username: root
+          key: ${{ secrets.HETZNER_SSH_KEY }}
+          script_stop: true
+          script: |
+            set -eu
+            cd /opt/pieta-care
+
+            # 1) Find any container with TOCONLINE_* env vars (TNT is the
+            #    one that has them today).
+            CONTAINER=""
+            for name in $(docker ps --format '{{.Names}}'); do
+              if docker exec "$name" env 2>/dev/null | grep -q '^TOCONLINE_'; then
+                CONTAINER="$name"
+                break
+              fi
+            done
+            if [ -z "$CONTAINER" ]; then
+              echo "::error::No running container exposes TOCONLINE_* env vars"
+              exit 1
+            fi
+            echo "→ Source container: $CONTAINER"
+
+            # 2) Snapshot only the keys we care about — values stay on
+            #    server; print only the keys to the log.
+            KEYS="TOCONLINE_CLIENT_ID TOCONLINE_CLIENT_SECRET TOCONLINE_SERIES_ID TOCONLINE_EXEMPTION_NON_EU"
+            touch backend/.env
+            for key in $KEYS; do
+              # Look up value from TNT container
+              val=$(docker exec "$CONTAINER" sh -c "printenv $key" || true)
+              if [ -z "$val" ]; then
+                # Fall back to a known default for series/exemption (from TNT main.py)
+                case "$key" in
+                  TOCONLINE_SERIES_ID) val="8670652" ;;       # FT INV starts at INV/1001
+                  TOCONLINE_EXEMPTION_NON_EU) val="28" ;;     # M99
+                  *) echo "  ⚠ $key not found, skipping"; continue ;;
+                esac
+                echo "  ↻ $key (default applied)"
+              else
+                echo "  ✓ $key (synced from $CONTAINER)"
+              fi
+              # Write/replace in pieta-care/backend/.env
+              if grep -q "^${key}=" backend/.env; then
+                # Use awk for safe in-place edit (no sed escaping issues)
+                tmp=$(mktemp)
+                awk -v k="$key" -v v="$val" -F= 'BEGIN{OFS="="} $1==k{$2=v; print; next} {print}' backend/.env > "$tmp"
+                mv "$tmp" backend/.env
+              else
+                echo "${key}=${val}" >> backend/.env
+              fi
+            done
+
+            # 3) Restart the pieta-care api so the new env is loaded
+            docker compose restart api
+            echo "✅ pieta-care api restarted with TOConline env"
