@@ -2047,20 +2047,76 @@ button.metric-tile { all: unset; padding: 16px 18px; background: var(--surface);
   z-index: 20;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 8px 24px;
   background: var(--surface);
   backdrop-filter: saturate(180%) blur(8px);
   -webkit-backdrop-filter: saturate(180%) blur(8px);
   border-bottom: 1px solid var(--border);
-  text-decoration: none;
   color: var(--text-2);
+}
+.presence-bar-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  color: inherit;
+  padding: 4px 6px;
+  border-radius: 8px;
+  margin: -4px -6px;
   transition: background 0.15s;
 }
-.presence-bar:hover { background: var(--surface-2); }
+.presence-bar-info:hover { background: var(--surface-2); }
 
 @media (max-width: 768px) {
   .presence-bar { padding: 7px 16px; gap: 8px; }
+  .presence-bar-info { gap: 8px; }
+}
+
+/* Plan badge - shown on the right of the presence bar */
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, opacity 0.15s ease;
+  flex-shrink: 0;
+}
+.plan-badge:hover { transform: translateY(-1px); }
+.plan-badge:active { transform: translateY(0); }
+
+.plan-badge-familia {
+  background: var(--brand-light);
+  color: var(--on-tinted-brand);
+  border: 1px solid rgba(42,96,73,0.22);
+}
+.plan-badge-familia_plus {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 1px 2px rgba(22,101,52,0.22);
+}
+.plan-badge-cuidador_pro {
+  background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(124,58,237,0.32);
+}
+.plan-badge-trial {
+  background: var(--warning-light);
+  color: var(--on-tinted-warning);
+  border: 1px solid rgba(192,86,33,0.22);
+}
+
+@media (max-width: 480px) {
+  .plan-badge-label { display: none; }
+  .plan-badge { padding: 5px 7px; }
+  .plan-badge-trial .plan-badge-label { display: inline; }   /* keep countdown legible */
 }
 
 .presence-pulse {
