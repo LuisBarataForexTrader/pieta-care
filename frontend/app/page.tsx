@@ -9,21 +9,16 @@ export const metadata: Metadata = {
   alternates: { canonical: '/' },
   openGraph: {
     title: 'pietas.care · App para cuidar de pais idosos em Portugal',
-    description: 'Medicação, consultas, sinais vitais e coordenação familiar num só lugar. 14 dias grátis.',
+    description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
     url: '/',
     type: 'website',
     siteName: 'pietas.care',
     locale: 'pt_PT',
-    // Re-declare images explicitly: Next.js metadata doesn't deep-merge
-    // openGraph between layout and child page — declaring openGraph here
-    // would otherwise drop the layout's default image.
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'pietas.care — Cuidar dos pais idosos, com toda a família a par' }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'pietas.care · App para cuidar de pais idosos',
-    description: 'Medicação, consultas, sinais vitais e família a par — tudo num só lugar.',
-    images: ['/og.png'],
+    description: 'App portuguesa para famílias que cuidam de pais idosos: medicação, consultas, sinais vitais e coordenação familiar. 14 dias grátis, sem cartão.',
   },
 }
 

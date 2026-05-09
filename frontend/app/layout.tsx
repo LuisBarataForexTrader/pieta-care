@@ -50,11 +50,10 @@ export const metadata: Metadata = {
     siteName: 'pietas.care',
     locale: 'pt_PT',
     url: 'https://pietas.care',
-    images: [{ url: '/og.png', width: 1200, height: 630, alt: 'pietas.care — Cuidar dos pais idosos, com toda a família a par' }],
+    // og:image injected automatically via app/opengraph-image.tsx (Next.js file convention)
   },
   twitter: {
     card: 'summary_large_image',
-    images: ['/og.png'],
   },
   icons: {
     icon: [

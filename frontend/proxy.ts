@@ -4,6 +4,7 @@ const PUBLIC = [
   '/', '/login', '/register', '/invite',
   '/verificar-email', '/esqueci-password', '/reset-password',
   '/privacidade', '/termos', '/planos',
+  '/opengraph-image', '/twitter-image',
 ]
 
 // File extensions of static assets that must NEVER hit the auth gate —
