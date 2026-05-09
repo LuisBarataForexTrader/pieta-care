@@ -246,6 +246,14 @@ def create_checkout_session(db: Session, user: User, plan: str) -> str:
     if not settings.STRIPE_SECRET_KEY:
         raise BillingError("Pagamentos não configurados no servidor", 503)
 
+    # Block subscribing to the plan you're already on - the customer
+    # portal handles upgrades/downgrades; checkout is for new subscriptions.
+    if (
+        user.subscription_status in ("active", "trialing")
+        and user.subscription_plan == plan
+    ):
+        raise BillingError("Já está subscrito a este plano. Use 'Gerir faturação' para alterar.", 400)
+
     price_id = _get_price_id(plan)
     customer_id = ensure_stripe_customer(db, user)
 

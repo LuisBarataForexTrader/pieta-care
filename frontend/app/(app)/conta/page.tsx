@@ -234,17 +234,24 @@ function ContaPageInner() {
                 Escolhe um plano
               </div>
               <div className="plans-grid">
-                {plans.map(p => (
-                  <div key={p.key} className={`plan-card ${currentPlan === p.key ? 'plan-card-current' : ''} ${p.has_ai ? 'plan-card-ai' : ''}`}>
+                {plans.map(p => {
+                  const isCurrent = currentPlan === p.key
+                  // VAT included total (PT default 23%) for transparency
+                  const totalWithVat = (p.price * 1.23).toFixed(2).replace('.', ',')
+                  return (
+                  <div key={p.key} className={`plan-card ${isCurrent ? 'plan-card-current' : ''} ${p.has_ai ? 'plan-card-ai' : ''}`}>
                     {p.has_ai && (
                       <div className="plan-badge">
                         <Sparkles size={11} strokeWidth={2.25} /> Com IA
                       </div>
                     )}
                     <div className="plan-name">{p.name}</div>
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 6, marginBottom: 14 }}>
+                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 4, marginTop: 6, marginBottom: 4 }}>
                       <span className="plan-price">€{p.price.toFixed(0)}</span>
                       <span className="plan-period">+ IVA / mês</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: 'var(--text-3)', marginBottom: 14 }}>
+                      ≈ €{totalWithVat} c/ IVA (23% PT)
                     </div>
                     <ul className="plan-features">
                       {p.features.map((f, i) => (
@@ -252,15 +259,19 @@ function ContaPageInner() {
                       ))}
                     </ul>
                     <button
-                      onClick={() => startCheckout(p.key)}
-                      disabled={checkingOut !== null}
-                      className={p.has_ai ? 'btn-primary' : 'btn-secondary'}
-                      style={{ width: '100%', marginTop: 14, padding: '11px', fontSize: 14 }}
+                      onClick={() => isCurrent ? null : startCheckout(p.key)}
+                      disabled={isCurrent || checkingOut !== null}
+                      className={isCurrent ? 'btn-secondary' : (p.has_ai ? 'btn-primary' : 'btn-secondary')}
+                      style={{ width: '100%', marginTop: 14, padding: '11px', fontSize: 14, cursor: isCurrent ? 'default' : 'pointer' }}
+                      title={isCurrent ? 'Já está neste plano' : undefined}
                     >
-                      {checkingOut === p.key ? 'A redirecionar…' : isTrial ? 'Subscrever' : 'Escolher'}
+                      {isCurrent
+                        ? <><Check size={13} strokeWidth={2.5} /> Plano atual</>
+                        : (checkingOut === p.key ? 'A redirecionar…' : isTrial ? 'Subscrever' : 'Escolher')}
                     </button>
                   </div>
-                ))}
+                  )
+                })}
               </div>
             </>
           )}

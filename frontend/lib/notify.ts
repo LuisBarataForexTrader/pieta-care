@@ -97,6 +97,50 @@ export function notifyNewChatMessage(opts?: { title?: string; body?: string }) {
   if (opts?.title) browserNotify(opts.title, opts.body)
 }
 
+/** Distinct, slightly higher-pitched ping for medication-due alerts so the
+ *  caregiver can tell it apart from a chat message. Stronger vibration too. */
+function playMedicationChime() {
+  const ctx = getCtx()
+  if (!ctx) return
+  try {
+    if (ctx.state === 'suspended') void ctx.resume().catch(() => {})
+    const t = ctx.currentTime
+    // Three-tone arpeggio - C5, E5, G5 - distinctly "medication o'clock"
+    for (let i = 0; i < 3; i++) {
+      const osc = ctx.createOscillator()
+      const gain = ctx.createGain()
+      osc.connect(gain)
+      gain.connect(ctx.destination)
+      osc.type = 'sine'
+      const freq = [523.25, 659.25, 783.99][i]
+      const start = t + i * 0.18
+      osc.frequency.setValueAtTime(freq, start)
+      gain.gain.setValueAtTime(0, start)
+      gain.gain.linearRampToValueAtTime(0.18, start + 0.02)
+      gain.gain.exponentialRampToValueAtTime(0.001, start + 0.30)
+      osc.start(start)
+      osc.stop(start + 0.32)
+    }
+  } catch { /* ignore */ }
+}
+
+export function notifyMedicationDue(opts: { title: string; body?: string; key: string }) {
+  // We rely on the caller to pass a unique key per medication-time tuple
+  // and to deduplicate via a Set; here we just play sound + browser toast.
+  playMedicationChime()
+  if (typeof navigator !== 'undefined') {
+    const v = (navigator as Navigator & { vibrate?: (p: number | number[]) => boolean }).vibrate
+    if (typeof v === 'function') {
+      try { v.call(navigator, [120, 80, 120, 80, 200]) } catch {}
+    }
+  }
+  if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+    try {
+      new Notification(opts.title, { body: opts.body, icon: '/favicon.ico', tag: `pieta-med-${opts.key}`, requireInteraction: true })
+    } catch {}
+  }
+}
+
 /** Request browser notification permission (call from a user gesture). */
 export async function requestNotificationPermission(): Promise<NotificationPermission | 'unsupported'> {
   if (typeof Notification === 'undefined') return 'unsupported'

@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useId, useState, useCallback } from 'react'
+import { useEffect, useId, useRef, useState, useCallback } from 'react'
 import Link from 'next/link'
 import {
   Pill, CalendarDays as CalendarIcon, HeartPulse, Activity,
@@ -9,6 +9,7 @@ import {
   PersonStanding,
 } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
+import { notifyMedicationDue, requestNotificationPermission } from '@/lib/notify'
 import type {
   DailyScheduleItem, CalendarEvent, Elderly, WellbeingLog, VitalSign,
   Incident, DailyNote, ClinicalDiagnosis, Vaccination,
@@ -185,6 +186,45 @@ export default function Dashboard() {
   }, [elderlyId])
 
   useEffect(() => { load() }, [load])
+
+  // Tick once a minute so overdue colours stay fresh without a refresh.
+  const [now, setNow] = useState(() => Date.now())
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 60_000)
+    const onVisible = () => { if (document.visibilityState === 'visible') setNow(Date.now()) }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => { clearInterval(id); document.removeEventListener('visibilitychange', onVisible) }
+  }, [])
+
+  // Ask permission for browser notifications once, on the first dashboard
+  // mount per session. The actual notification fires below.
+  useEffect(() => {
+    void requestNotificationPermission()
+  }, [])
+
+  // Fire sound + push toast the first time each pending medication crosses
+  // its scheduled time within the 5-minute window. We track which alerts
+  // we've already fired in a ref so a re-render doesn't double-ping.
+  const notifiedRef = useRef<Set<string>>(new Set())
+  useEffect(() => {
+    for (const item of schedule) {
+      if (item.status !== 'pending') continue
+      const dueAt = new Date(item.scheduled_time).getTime()
+      const minutesPast = (now - dueAt) / 60_000
+      // Fire once when due (within first 5 min of being late)
+      if (minutesPast >= 0 && minutesPast < 5) {
+        const key = `${item.medication_id}-${item.scheduled_time}`
+        if (!notifiedRef.current.has(key)) {
+          notifiedRef.current.add(key)
+          notifyMedicationDue({
+            title: 'Hora da medicação',
+            body: `${item.name} ${item.dosage}${item.instructions ? ` - ${item.instructions}` : ''}`,
+            key,
+          })
+        }
+      }
+    }
+  }, [schedule, now])
 
   async function confirm(item: DailyScheduleItem, status: 'taken' | 'skipped') {
     if (!elderlyId || item.status !== 'pending') return
@@ -467,9 +507,23 @@ export default function Dashboard() {
                     {timeline.map((item, i) => {
                       const isPendingMed = item.kind === 'med' && item.data.status === 'pending'
                       const isDoneMed    = item.kind === 'med' && item.data.status !== 'pending'
+                      // How many minutes past the scheduled time? Drives the
+                      // "is this becoming a problem?" colour ramp.
+                      const minutesLate = isPendingMed
+                        ? (now - new Date(item.data.scheduled_time).getTime()) / 60_000
+                        : 0
+                      const overdueClass = !isPendingMed
+                        ? ''
+                        : minutesLate < 0          ? ''                  // future, normal
+                        : minutesLate < 30         ? ' tl-card-due'      // due now (0-30 min)
+                        : minutesLate < 90         ? ' tl-card-overdue'  // late (30-90 min)
+                        :                            ' tl-card-critical' // critical (>90 min)
                       const dotClass     = item.kind === 'event'
                         ? 'tl-dot-event'
-                        : isPendingMed ? 'tl-dot-pending'
+                        : isPendingMed
+                          ? minutesLate < 30 ? 'tl-dot-pending'
+                          : minutesLate < 90 ? 'tl-dot-overdue'
+                          : 'tl-dot-critical'
                         : item.data.status === 'taken' ? 'tl-dot-taken'
                         : 'tl-dot-other'
                       return (
@@ -481,7 +535,7 @@ export default function Dashboard() {
                           </div>
                           <div className="tl-body">
                             {item.kind === 'med' ? (
-                              <div className={`tl-card ${isPendingMed ? 'tl-card-pending' : isDoneMed ? 'tl-card-done' : ''}`}>
+                              <div className={`tl-card ${isPendingMed ? 'tl-card-pending' : isDoneMed ? 'tl-card-done' : ''}${overdueClass}`}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                                   <div style={{ flex: 1, minWidth: 0 }}>
                                     <div className="tl-title"><Pill size={14} strokeWidth={2} style={{ color: 'var(--brand)', marginRight: 6, verticalAlign: '-2px' }} />{item.data.name}</div>

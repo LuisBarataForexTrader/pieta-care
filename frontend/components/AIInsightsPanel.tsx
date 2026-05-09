@@ -1,8 +1,8 @@
 'use client'
 import { useState } from 'react'
-import Link from 'next/link'
-import { Sparkles, RefreshCw, ArrowRight, AlertCircle } from 'lucide-react'
+import { Sparkles, RefreshCw, AlertCircle } from 'lucide-react'
 import { api, getElderlyId } from '@/lib/api'
+import LockedFeatureModal, { type LockedFeature } from '@/components/LockedFeatureModal'
 
 interface Insights {
   generated_at: string
@@ -27,25 +27,41 @@ function renderInsights(text: string) {
   return out
 }
 
+// Bullets shown in the LockedFeatureModal when a non-Plus user clicks
+// "Gerar análise". Re-uses FEATURE_INFO when there's no /chat-style entry
+// for AI insights specifically.
+const AI_FEATURE: Pick<LockedFeature, 'path' | 'name' | 'requires' | 'pitch' | 'bullets'> = {
+  path: '/dashboard#ai',
+  name: 'Insights clínicos automáticos',
+  requires: 'cuidador_pro',
+  pitch: 'Em 5 segundos, a assistente IA cruza sinais vitais, medicação, bem-estar e incidentes dos últimos 7 dias - em português claro.',
+  bullets: [
+    'Estado geral - síntese do bem-estar e estabilidade clínica',
+    'Pontos a vigiar - variabilidade de glicemia, doses falhadas, novos sintomas',
+    'Recomendações práticas - alarmes, contactos, alternativas terapêuticas',
+    'Sempre informativa, nunca substitui o médico assistente',
+  ],
+}
+
 export default function AIInsightsPanel() {
   const [insights, setInsights] = useState<Insights | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const [paywall, setPaywall] = useState(false)
+  const [showLockedModal, setShowLockedModal] = useState(false)
 
   async function generate() {
     const elderlyId = getElderlyId()
     if (!elderlyId) return
     setLoading(true)
     setError(null)
-    setPaywall(false)
     try {
       const res = await api.aiInsights(elderlyId)
       setInsights({ generated_at: res.generated_at, markdown: res.markdown })
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Erro a gerar insights'
-      if (msg.toLowerCase().includes('família plus') || msg.toLowerCase().includes('upgrade')) {
-        setPaywall(true)
+      if (msg.toLowerCase().includes('família plus') || msg.toLowerCase().includes('upgrade') || msg.toLowerCase().includes('plano')) {
+        // Surface the upgrade modal instead of an inline paywall card
+        setShowLockedModal(true)
       } else {
         setError(msg)
       }
@@ -54,27 +70,12 @@ export default function AIInsightsPanel() {
     }
   }
 
-  if (paywall) {
-    return (
-      <div className="ai-panel ai-panel-locked">
-        <div className="ai-panel-head">
-          <div className="ai-panel-badge">
-            <Sparkles size={12} strokeWidth={2.5} /> IA · Família Plus
-          </div>
-          <div className="ai-panel-title">Insights clínicos automáticos</div>
-        </div>
-        <p className="ai-panel-body">
-          Disponível no plano <strong>Família Plus</strong>: análise inteligente dos sinais vitais,
-          adesão à medicação, bem-estar e incidentes dos últimos 7 dias.
-        </p>
-        <Link href="/conta" className="ai-panel-cta">
-          Fazer upgrade <ArrowRight size={14} strokeWidth={2.5} />
-        </Link>
-      </div>
-    )
-  }
-
   return (
+    <>
+    <LockedFeatureModal
+      feature={showLockedModal ? { ...AI_FEATURE, icon: <Sparkles size={28} strokeWidth={1.75} />, current: null } : null}
+      onClose={() => setShowLockedModal(false)}
+    />
     <div className="ai-panel">
       <div className="ai-panel-head">
         <div className="ai-panel-badge">
@@ -125,5 +126,6 @@ export default function AIInsightsPanel() {
         </div>
       )}
     </div>
+    </>
   )
 }
