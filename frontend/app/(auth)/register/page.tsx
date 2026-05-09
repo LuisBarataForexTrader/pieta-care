@@ -72,11 +72,28 @@ export default function Register() {
     }
   }, [step, verifyEmail, router])
 
-  function submitAccount(e: React.FormEvent) {
+  async function submitAccount(e: React.FormEvent) {
     e.preventDefault()
     setError('')
     if (form.password.length < 8) { setError('A password deve ter pelo menos 8 caracteres'); return }
-    setStep('elderly')
+    // Surface "Email já registado" here, on the step where the email was
+    // actually entered, instead of after the user fills in elderly_name
+    // and clicks Começar. Lighter UX, no wasted typing.
+    setLoading(true)
+    let blocked = false
+    try {
+      const r = await api.checkEmail(form.email)
+      if (r.taken) {
+        setError('Email já registado. Tente entrar em vez de criar conta.')
+        blocked = true
+      }
+    } catch {
+      // Network glitch — let it through; the register call on step 2
+      // is the canonical check and will surface the error there.
+    } finally {
+      setLoading(false)
+    }
+    if (!blocked) setStep('elderly')
   }
 
   async function submitElderly(e: React.FormEvent) {
@@ -242,7 +259,9 @@ export default function Register() {
                   <input className="field-input" type="password" value={form.password} onChange={e => set('password', e.target.value)} placeholder="Mínimo 8 caracteres" required />
                 </div>
                 {error && <div className="alert-error">{error}</div>}
-                <button className="btn-primary" type="submit" style={{ marginTop: 4 }}>Continuar <ArrowRight size={16} strokeWidth={2.5} /></button>
+                <button className="btn-primary" type="submit" disabled={loading} style={{ marginTop: 4 }}>
+                  {loading ? 'A verificar…' : <>Continuar <ArrowRight size={16} strokeWidth={2.5} /></>}
+                </button>
               </form>
             </>
           ) : (

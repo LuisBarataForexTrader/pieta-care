@@ -80,6 +80,12 @@ export const api = {
   checkVerification: (email: string) =>
     request<{ verified: boolean }>(`/api/v1/auth/verification-status?email=${encodeURIComponent(email)}`),
 
+  /** Returns whether the given email is already registered. Called from
+   *  the registration step 1 so the "Email já registado" error surfaces
+   *  before the user fills in step 2 (the elderly name). */
+  checkEmail: (email: string) =>
+    request<{ taken: boolean }>(`/api/v1/auth/check-email?email=${encodeURIComponent(email)}`),
+
   forgotPassword: (email: string) =>
     request<{ message: string }>('/api/v1/auth/forgot-password', {
       method: 'POST',

@@ -64,6 +64,26 @@ def verification_status(email: str = Query(...), db: Session = Depends(get_db)):
     return {"verified": bool(user and user.is_verified)}
 
 
+@router.get("/check-email")
+def check_email(email: str = Query(...), db: Session = Depends(get_db)):
+    """Returns whether the given email is already registered.
+    Used by the registration flow's first step to surface the
+    "Email já registado" error before the user fills in step 2.
+
+    Note: this exposes account existence the same way that POST /register
+    already does (via the 409 conflict). Not adding rate limiting here
+    because the existing register endpoint is the equivalent attack
+    surface."""
+    normalized = (email or "").strip().lower()
+    if not normalized or "@" not in normalized:
+        return {"taken": False}
+    user = db.query(User).filter(
+        User.email == normalized,
+        User.deleted_at.is_(None),
+    ).first()
+    return {"taken": bool(user)}
+
+
 @router.post("/login", response_model=AuthResponse)
 def login(data: LoginRequest, db: Session = Depends(get_db)):
     try:
