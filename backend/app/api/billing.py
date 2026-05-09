@@ -51,7 +51,7 @@ def checkout(
     user: User = Depends(get_current_user),
 ):
     try:
-        url = create_checkout_session(db, user, data.plan)
+        url = create_checkout_session(db, user, data.plan, trial=data.trial)
         return CheckoutSessionResponse(url=url)
     except BillingError as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)

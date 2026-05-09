@@ -241,8 +241,19 @@ def billing_status(db: Session, user: User) -> BillingStatusResponse:
     )
 
 
-def create_checkout_session(db: Session, user: User, plan: str) -> str:
-    """Create a Stripe-hosted Checkout Session for subscription signup."""
+def create_checkout_session(db: Session, user: User, plan: str, trial: bool = False) -> str:
+    """Create a Stripe-hosted Checkout Session for subscription signup.
+
+    Two flows:
+      - trial=False (default): user pays the full amount now. Used when
+        the customer clicks "Subscrever" / a plan card directly.
+      - trial=True: 14-day Stripe trial. Card is collected and charged
+        automatically when the trial ends. Used by the explicit
+        "Experimentar 14 dias grátis" CTA.
+
+    The in-app trial granted at registration (no card) is handled
+    separately in the User row and does NOT come through here.
+    """
     if not settings.STRIPE_SECRET_KEY:
         raise BillingError("Pagamentos não configurados no servidor", 503)
 
@@ -257,12 +268,10 @@ def create_checkout_session(db: Session, user: User, plan: str) -> str:
     price_id = _get_price_id(plan)
     customer_id = ensure_stripe_customer(db, user)
 
-    # Pre-fill 14-day trial only on first-ever subscription
-    has_subscribed_before = bool(user.subscription_plan)
     subscription_data = {
         "metadata": {"user_id": str(user.id), "plan": plan},
     }
-    if not has_subscribed_before:
+    if trial:
         subscription_data["trial_period_days"] = 14
 
     try:

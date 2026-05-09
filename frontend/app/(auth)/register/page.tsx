@@ -40,7 +40,17 @@ export default function Register() {
               const list = await api.listElderly()
               if (list.length > 0) setElderlyId(list[0].id)
             } catch {}
-            router.replace('/dashboard')
+            // If the user came from /planos with intent=subscribe, route
+            // them straight to /conta which auto-triggers Stripe Checkout
+            // (pay now, no Stripe trial). Otherwise, /dashboard as usual.
+            const params = new URLSearchParams(window.location.search)
+            const wantsPay = params.get('pay') === '1' || params.get('intent') === 'subscribe'
+            const plan = params.get('plan')
+            if (wantsPay && plan) {
+              router.replace(`/conta?checkout=auto&plan=${encodeURIComponent(plan)}`)
+            } else {
+              router.replace('/dashboard')
+            }
             return  // don't reschedule
           } catch {
             // Login failed for some reason - fall through to /login so

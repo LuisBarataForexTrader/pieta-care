@@ -76,7 +76,13 @@ function ContaPageInner() {
       setMsg({ type: 'success', text: 'Subscrição activada. Obrigado por escolher pietas.care!' })
     } else if (checkoutResult === 'cancel') {
       setMsg({ type: 'error', text: 'Checkout cancelado. Podes voltar a tentar quando quiseres.' })
+    } else if (checkoutResult === 'auto') {
+      // Came from /planos with intent=subscribe → go straight to Stripe
+      // Checkout (pay now, no Stripe trial). Use the plan from the URL.
+      const plan = search.get('plan')
+      if (plan) startCheckout(plan)
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [checkoutResult])
 
   async function startCheckout(planKey: string) {

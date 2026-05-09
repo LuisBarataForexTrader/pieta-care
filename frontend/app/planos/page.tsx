@@ -221,7 +221,8 @@ export default function PlanosPage() {
                   ))}
                 </ul>
 
-                <Link href={`/register?plan=${p.key}`} style={{
+                {/* Primary: pay-now */}
+                <Link href={`/register?plan=${p.key}&pay=1`} style={{
                   display: 'block', textAlign: 'center',
                   fontSize: 15, fontWeight: 800,
                   padding: 14, borderRadius: 12,
@@ -232,7 +233,24 @@ export default function PlanosPage() {
                   color: p.highlight && !p.ai ? '#0D2B1E' : '#fff',
                   transition: 'transform 0.15s, box-shadow 0.15s',
                 }}>
-                  Começar 14 dias grátis →
+                  Subscrever — €{p.price}/mês →
+                </Link>
+                {/* Secondary: free 14-day trial (no card) */}
+                <Link href={`/register?plan=${p.key}`} style={{
+                  display: 'block', textAlign: 'center',
+                  fontSize: 13, fontWeight: 700,
+                  padding: '10px 12px', marginTop: 8,
+                  borderRadius: 10,
+                  textDecoration: 'none',
+                  color: p.highlight
+                    ? 'rgba(255,255,255,0.85)'
+                    : (p.ai ? '#7C3AED' : '#166534'),
+                  border: `1px solid ${p.highlight
+                    ? 'rgba(255,255,255,0.25)'
+                    : (p.ai ? 'rgba(124,58,237,0.25)' : 'rgba(22,101,52,0.25)')}`,
+                  transition: 'background 0.15s',
+                }}>
+                  Ou experimente 14 dias grátis
                 </Link>
               </div>
             </div>

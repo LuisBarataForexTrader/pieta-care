@@ -126,10 +126,10 @@ export const api = {
 
   billingStatus: () => request<import('./types').BillingStatus>('/api/v1/billing/status'),
 
-  createCheckoutSession: (plan: string) =>
+  createCheckoutSession: (plan: string, opts?: { trial?: boolean }) =>
     request<{ url: string }>('/api/v1/billing/checkout', {
       method: 'POST',
-      body: JSON.stringify({ plan }),
+      body: JSON.stringify({ plan, trial: opts?.trial ?? false }),
     }),
 
   billingPortal: () => request<{ url: string }>('/api/v1/billing/portal'),

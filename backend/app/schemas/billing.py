@@ -9,6 +9,8 @@ class SubscribeRequest(BaseModel):
 
 class CheckoutSessionRequest(BaseModel):
     plan: str  # familia, familia_plus, cuidador_pro
+    trial: bool = False  # If True, give 14-day Stripe trial (card collected,
+                         # charged after trial). Default False = pay now.
 
 
 class CheckoutSessionResponse(BaseModel):
