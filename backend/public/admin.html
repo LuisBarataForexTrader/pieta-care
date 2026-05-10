@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>pietas.care · Admin</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:           #0A1510;
+  --sidebar:      #0D1A14;
+  --card:         #111E17;
+  --card2:        #152519;
+  --border:       #1C2E24;
+  --text:         #C8E0D0;
+  --muted:        #628272;
+  --accent:       #2A6049;
+  --accent-h:     #1E4A38;
+  --accent-l:     #3D7A5C;
+  --accent-glow:  rgba(42,96,73,.18);
+  --success:      #4CAF7D;
+  --warning:      #E8944A;
+  --danger:       #E05252;
+  --trial:        #7B68EE;
+  --sidebar-w:    220px;
+  --top-h:        56px;
+  --radius:       12px;
+  --radius-s:     8px;
+}
+
+body { font-family: system-ui,-apple-system,'Inter',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+a { color:var(--accent-l); text-decoration:none; }
+
+/* ── Login ─────────────────────────────────────────────────────────────────── */
+#login {
+  display:flex; align-items:center; justify-content:center; min-height:100vh;
+  background: radial-gradient(ellipse at 50% 0%, rgba(42,96,73,.25) 0%, transparent 70%), var(--bg);
+}
+.login-box {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:48px 40px; width:360px; text-align:center;
+}
+.login-logo { display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:32px; }
+.login-logo svg { color:var(--accent-l); }
+.login-logo span { font-size:22px; font-weight:700; letter-spacing:-.3px; }
+.login-box h2 { font-size:16px; color:var(--muted); font-weight:400; margin-bottom:28px; }
+.login-box input {
+  width:100%; padding:12px 14px; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:14px; margin-bottom:12px;
+  outline:none; transition:border .2s;
+}
+.login-box input:focus { border-color:var(--accent); }
+.login-box button {
+  width:100%; padding:12px; background:var(--accent); color:#fff; border:none;
+  border-radius:var(--radius-s); font-size:14px; font-weight:600; cursor:pointer;
+  transition:background .2s;
+}
+.login-box button:hover { background:var(--accent-h); }
+#login-err { color:var(--danger); font-size:13px; margin-top:10px; min-height:18px; }
+
+/* ── App shell ─────────────────────────────────────────────────────────────── */
+#app { display:none; }
+
+.sidebar {
+  position:fixed; top:0; left:0; width:var(--sidebar-w); height:100vh;
+  background:var(--sidebar); border-right:1px solid var(--border);
+  display:flex; flex-direction:column; z-index:100;
+}
+.sidebar-logo {
+  padding:18px 20px; display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-logo svg { color:var(--accent-l); flex-shrink:0; }
+.sidebar-logo span { font-size:15px; font-weight:700; }
+.sidebar-logo small { display:block; font-size:10px; color:var(--muted); font-weight:400; letter-spacing:.5px; text-transform:uppercase; }
+
+nav { flex:1; padding:12px 10px; overflow-y:auto; }
+.nav-item {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-radius:var(--radius-s); cursor:pointer; font-size:13.5px;
+  color:var(--muted); transition:all .15s; position:relative; margin-bottom:2px;
+}
+.nav-item:hover { background:var(--card); color:var(--text); }
+.nav-item.active { background:var(--accent-glow); color:var(--accent-l); }
+.nav-item.active svg { color:var(--accent-l); }
+.nav-item svg { color:var(--muted); flex-shrink:0; }
+.nav-badge {
+  margin-left:auto; background:var(--danger); color:#fff;
+  font-size:10px; font-weight:700; padding:2px 6px; border-radius:99px; min-width:18px; text-align:center;
+}
+.nav-badge.hidden { display:none; }
+
+.sidebar-bottom {
+  padding:12px 10px 16px; border-top:1px solid var(--border);
+}
+.signout-btn {
+  display:flex; align-items:center; gap:10px; padding:10px 12px;
+  border-radius:var(--radius-s); cursor:pointer; font-size:13px;
+  color:var(--muted); transition:all .15s; width:100%; border:none; background:none;
+}
+.signout-btn:hover { background:var(--card); color:var(--danger); }
+
+/* ── Main content ──────────────────────────────────────────────────────────── */
+.main { margin-left:var(--sidebar-w); min-height:100vh; }
+
+.topbar {
+  height:var(--top-h); background:var(--sidebar); border-bottom:1px solid var(--border);
+  display:flex; align-items:center; padding:0 28px; gap:16px; position:sticky; top:0; z-index:50;
+}
+.topbar-title { font-size:16px; font-weight:600; flex:1; }
+.topbar-live { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); }
+.dot-live { width:7px; height:7px; border-radius:50%; background:var(--success); animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{ opacity:1 } 50%{ opacity:.4 } }
+
+.content { padding:28px; }
+
+/* ── Cards & KPIs ──────────────────────────────────────────────────────────── */
+.kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:14px; margin-bottom:24px; }
+.kpi-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  padding:20px 18px; position:relative; overflow:hidden;
+}
+.kpi-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  background:var(--accent); border-radius:var(--radius) var(--radius) 0 0;
+}
+.kpi-card.trial::before { background:var(--trial); }
+.kpi-card.active::before { background:var(--success); }
+.kpi-card.danger::before { background:var(--danger); }
+.kpi-card.warning::before { background:var(--warning); }
+
+.kpi-label { font-size:11px; text-transform:uppercase; letter-spacing:.7px; color:var(--muted); margin-bottom:10px; }
+.kpi-value { font-size:32px; font-weight:700; line-height:1; letter-spacing:-1px; }
+.kpi-sub { font-size:12px; color:var(--muted); margin-top:6px; }
+
+/* ── Charts row ────────────────────────────────────────────────────────────── */
+.charts-row { display:grid; grid-template-columns:2fr 1fr; gap:14px; margin-bottom:24px; }
+.chart-card {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px;
+}
+.chart-title { font-size:13px; font-weight:600; margin-bottom:16px; color:var(--text); }
+.chart-wrap { position:relative; }
+
+/* ── Tables ────────────────────────────────────────────────────────────────── */
+.panel {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  overflow:hidden;
+}
+.panel-header {
+  padding:16px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px; flex-wrap:wrap;
+}
+.panel-title { font-size:14px; font-weight:600; flex:1; }
+.panel-body { padding:0; }
+
+.search-input {
+  padding:8px 12px; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:13px; outline:none;
+  transition:border .2s; width:220px;
+}
+.search-input:focus { border-color:var(--accent); }
+
+select.filter-sel {
+  padding:8px 10px; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:13px; outline:none; cursor:pointer;
+}
+
+table { width:100%; border-collapse:collapse; }
+th {
+  text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:.6px;
+  color:var(--muted); padding:12px 20px; border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+td { padding:13px 20px; border-bottom:1px solid var(--border); font-size:13.5px; vertical-align:middle; }
+tr:last-child td { border-bottom:none; }
+tr:hover td { background:var(--card2); cursor:pointer; }
+
+.badge {
+  display:inline-flex; align-items:center; padding:3px 9px; border-radius:99px;
+  font-size:11px; font-weight:600; letter-spacing:.3px;
+}
+.badge-trial   { background:rgba(123,104,238,.18); color:#A89AEE; }
+.badge-active  { background:rgba(76,175,125,.18); color:var(--success); }
+.badge-cancelled { background:rgba(224,82,82,.18); color:var(--danger); }
+.badge-open    { background:rgba(42,96,73,.25); color:var(--accent-l); }
+.badge-closed  { background:var(--card2); color:var(--muted); }
+.badge-admin   { background:rgba(232,148,74,.18); color:var(--warning); }
+
+.pagination {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:14px 20px; border-top:1px solid var(--border); font-size:13px; color:var(--muted);
+}
+.pag-btns { display:flex; gap:6px; }
+.pag-btn {
+  padding:6px 14px; background:var(--card2); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:13px; cursor:pointer;
+  transition:background .15s;
+}
+.pag-btn:hover:not(:disabled) { background:var(--accent); border-color:var(--accent); }
+.pag-btn:disabled { opacity:.35; cursor:not-allowed; }
+
+/* ── Buttons ───────────────────────────────────────────────────────────────── */
+.btn {
+  display:inline-flex; align-items:center; gap:7px; padding:9px 16px;
+  border-radius:var(--radius-s); font-size:13px; font-weight:600; cursor:pointer;
+  border:none; transition:all .15s;
+}
+.btn-primary { background:var(--accent); color:#fff; }
+.btn-primary:hover { background:var(--accent-h); }
+.btn-ghost { background:var(--card2); color:var(--text); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--accent); color:var(--accent-l); }
+.btn-danger { background:rgba(224,82,82,.15); color:var(--danger); border:1px solid rgba(224,82,82,.3); }
+.btn-danger:hover { background:rgba(224,82,82,.25); }
+.btn-sm { padding:6px 12px; font-size:12px; }
+
+/* ── Support thread view ───────────────────────────────────────────────────── */
+.thread-layout { display:grid; grid-template-columns:280px 1fr; height:calc(100vh - var(--top-h) - 56px); }
+.thread-list { border-right:1px solid var(--border); overflow-y:auto; }
+.thread-item {
+  padding:14px 16px; border-bottom:1px solid var(--border); cursor:pointer; transition:background .15s;
+}
+.thread-item:hover, .thread-item.active { background:var(--card2); }
+.thread-name { font-size:13.5px; font-weight:600; margin-bottom:3px; }
+.thread-email { font-size:12px; color:var(--muted); margin-bottom:4px; }
+.thread-meta { display:flex; align-items:center; justify-content:space-between; }
+.thread-time { font-size:11px; color:var(--muted); }
+.thread-unread {
+  background:var(--danger); color:#fff; font-size:10px; font-weight:700;
+  padding:2px 6px; border-radius:99px; min-width:18px; text-align:center;
+}
+
+.msg-pane { display:flex; flex-direction:column; overflow:hidden; }
+.msg-pane-header {
+  padding:14px 20px; border-bottom:1px solid var(--border);
+  display:flex; align-items:center; gap:12px;
+}
+.msg-pane-header h3 { font-size:14px; font-weight:600; flex:1; }
+.msg-scroll { flex:1; overflow-y:auto; padding:20px; display:flex; flex-direction:column; gap:12px; }
+.msg-bubble {
+  max-width:72%; padding:11px 14px; border-radius:var(--radius);
+  font-size:13.5px; line-height:1.55; white-space:pre-wrap;
+}
+.msg-user { background:var(--card2); border:1px solid var(--border); align-self:flex-start; }
+.msg-admin { background:var(--accent); color:#fff; align-self:flex-end; }
+.msg-ts { font-size:11px; color:var(--muted); margin-top:3px; }
+.msg-reply {
+  padding:12px 16px; border-top:1px solid var(--border);
+  display:flex; gap:10px; align-items:flex-end;
+}
+.msg-reply textarea {
+  flex:1; padding:10px 12px; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:13px; resize:none;
+  outline:none; min-height:42px; max-height:120px; font-family:inherit;
+  transition:border .2s;
+}
+.msg-reply textarea:focus { border-color:var(--accent); }
+.msg-empty { text-align:center; padding:60px 20px; color:var(--muted); font-size:14px; }
+
+/* ── SEO section ───────────────────────────────────────────────────────────── */
+.seo-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:14px; margin-bottom:24px; }
+.seo-stat { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:20px; }
+.seo-stat .kpi-value { font-size:40px; color:var(--accent-l); }
+
+.article-list { display:flex; flex-direction:column; gap:1px; }
+.article-item {
+  display:flex; align-items:center; gap:12px; padding:13px 20px;
+  background:var(--card); border-top:1px solid var(--border); font-size:13.5px;
+}
+.article-item:first-child { border-top:none; }
+.article-slug { flex:1; font-family:monospace; font-size:12.5px; color:var(--accent-l); }
+
+/* ── System section ────────────────────────────────────────────────────────── */
+.sys-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+.env-list { display:flex; flex-direction:column; gap:0; }
+.env-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 20px; border-bottom:1px solid var(--border); font-size:13px;
+}
+.env-row:last-child { border-bottom:none; }
+.env-key { color:var(--muted); font-family:monospace; font-size:12px; }
+.env-ok { color:var(--success); font-weight:600; }
+.env-missing { color:var(--danger); font-weight:600; }
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+.modal-bg {
+  display:none; position:fixed; inset:0; background:rgba(0,0,0,.6);
+  z-index:200; align-items:center; justify-content:center;
+}
+.modal-bg.open { display:flex; }
+.modal {
+  background:var(--card); border:1px solid var(--border); border-radius:var(--radius);
+  width:460px; max-height:90vh; overflow-y:auto; padding:28px;
+}
+.modal h3 { font-size:16px; font-weight:700; margin-bottom:20px; }
+.modal-field { margin-bottom:16px; }
+.modal-field label { display:block; font-size:12px; color:var(--muted); margin-bottom:6px; }
+.modal-field input, .modal-field select {
+  width:100%; padding:10px 12px; background:var(--bg); border:1px solid var(--border);
+  border-radius:var(--radius-s); color:var(--text); font-size:13px; outline:none;
+}
+.modal-field input:focus, .modal-field select:focus { border-color:var(--accent); }
+.modal-actions { display:flex; gap:10px; justify-content:flex-end; margin-top:20px; }
+
+/* ── Loading ───────────────────────────────────────────────────────────────── */
+.skeleton {
+  background:linear-gradient(90deg, var(--card) 25%, var(--card2) 50%, var(--card) 75%);
+  background-size:200% 100%; animation:shimmer 1.4s infinite;
+  border-radius:6px; height:16px;
+}
+@keyframes shimmer { 0%{ background-position:200% 0 } 100%{ background-position:-200% 0 } }
+
+.spinner {
+  width:20px; height:20px; border:2px solid var(--border); border-top-color:var(--accent);
+  border-radius:50%; animation:spin .7s linear infinite; margin:0 auto;
+}
+@keyframes spin { to{ transform:rotate(360deg) } }
+
+.empty-state { text-align:center; padding:48px 20px; color:var(--muted); font-size:14px; }
+.empty-state svg { display:block; margin:0 auto 12px; opacity:.4; }
+</style>
+</head>
+<body>
+
+<!-- ── Login ─────────────────────────────────────────────────────────────── -->
+<div id="login">
+  <div class="login-box">
+    <div class="login-logo">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22C6 17 2 13.418 2 9.5a5.5 5.5 0 0 1 10-3.1A5.5 5.5 0 0 1 22 9.5c0 3.918-4 7.5-10 12.5z"/>
+      </svg>
+      <div>
+        <span>pietas.care</span>
+        <small>Admin</small>
+      </div>
+    </div>
+    <h2>Acesso restrito</h2>
+    <input type="password" id="pwd-input" placeholder="Admin token" autocomplete="current-password">
+    <button onclick="doLogin()">Entrar</button>
+    <div id="login-err"></div>
+  </div>
+</div>
+
+<!-- ── App ───────────────────────────────────────────────────────────────── -->
+<div id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22C6 17 2 13.418 2 9.5a5.5 5.5 0 0 1 10-3.1A5.5 5.5 0 0 1 22 9.5c0 3.918-4 7.5-10 12.5z"/>
+      </svg>
+      <div>
+        <span>pietas.care</span>
+        <small>Admin</small>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="nav('overview')" id="nav-overview">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        Visão Geral
+      </div>
+      <div class="nav-item" onclick="nav('users')" id="nav-users">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Utilizadores
+      </div>
+      <div class="nav-item" onclick="nav('support')" id="nav-support">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        Suporte
+        <span class="nav-badge hidden" id="support-badge">0</span>
+      </div>
+      <div class="nav-item" onclick="nav('seo')" id="nav-seo">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+        SEO / Guias
+      </div>
+      <div class="nav-item" onclick="nav('system')" id="nav-system">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+        Sistema
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <button class="signout-btn" onclick="signOut()">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <span class="topbar-title" id="page-title">Visão Geral</span>
+      <div class="topbar-live"><div class="dot-live"></div> api.pietas.care</div>
+    </div>
+
+    <div class="content">
+
+      <!-- OVERVIEW -->
+      <div id="section-overview">
+        <div class="kpi-grid" id="kpi-grid">
+          <div class="kpi-card"><div class="kpi-label">Total Utilizadores</div><div class="kpi-value" id="kpi-total">—</div><div class="kpi-sub" id="kpi-week">—</div></div>
+          <div class="kpi-card trial"><div class="kpi-label">Trial Activos</div><div class="kpi-value" id="kpi-trial">—</div><div class="kpi-sub">a expirar em breve</div></div>
+          <div class="kpi-card active"><div class="kpi-label">Subscrições Activas</div><div class="kpi-value" id="kpi-active">—</div><div class="kpi-sub" id="kpi-plans">—</div></div>
+          <div class="kpi-card danger"><div class="kpi-label">Cancelados</div><div class="kpi-value" id="kpi-cancelled">—</div><div class="kpi-sub" id="kpi-24h">—</div></div>
+          <div class="kpi-card warning"><div class="kpi-label">Idosos Registados</div><div class="kpi-value" id="kpi-elderly">—</div><div class="kpi-sub">perfis activos</div></div>
+          <div class="kpi-card"><div class="kpi-label">Medicações Hoje</div><div class="kpi-value" id="kpi-meds">—</div><div class="kpi-sub" id="kpi-meds-week">—</div></div>
+        </div>
+
+        <div class="charts-row">
+          <div class="chart-card">
+            <div class="chart-title">Novos utilizadores — últimos 14 dias</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="chart-signups"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <div class="chart-title">Distribuição de planos</div>
+            <div class="chart-wrap" style="height:180px"><canvas id="chart-plans"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- USERS -->
+      <div id="section-users" style="display:none">
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title" id="users-count-label">Utilizadores</span>
+            <input class="search-input" id="users-search" placeholder="Pesquisar email ou nome…" oninput="usersSearch()" />
+            <select class="filter-sel" id="users-filter" onchange="usersSearch()">
+              <option value="">Todos</option>
+              <option value="trial">Trial</option>
+              <option value="active">Activo</option>
+              <option value="cancelled">Cancelado</option>
+            </select>
+          </div>
+          <div id="users-table-wrap">
+            <div class="empty-state"><div class="spinner"></div></div>
+          </div>
+          <div class="pagination" id="users-pag" style="display:none">
+            <span id="pag-info"></span>
+            <div class="pag-btns">
+              <button class="pag-btn" id="pag-prev" onclick="usersPage(-1)">← Anterior</button>
+              <button class="pag-btn" id="pag-next" onclick="usersPage(1)">Próxima →</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SUPPORT -->
+      <div id="section-support" style="display:none">
+        <div class="panel" style="height:calc(100vh - var(--top-h) - 56px); display:flex; flex-direction:column; overflow:hidden;">
+          <div class="panel-header" style="flex-shrink:0">
+            <span class="panel-title">Suporte</span>
+          </div>
+          <div class="thread-layout" style="flex:1; overflow:hidden">
+            <div class="thread-list" id="thread-list">
+              <div class="empty-state"><div class="spinner"></div></div>
+            </div>
+            <div class="msg-pane" id="msg-pane">
+              <div class="msg-empty">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Selecione uma conversa
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEO -->
+      <div id="section-seo" style="display:none">
+        <div class="seo-grid">
+          <div class="seo-stat">
+            <div class="kpi-label">Artigos Publicados</div>
+            <div class="kpi-value" id="seo-count">—</div>
+            <div class="kpi-sub">em pietas.care/guias</div>
+          </div>
+          <div class="seo-stat" style="display:flex; flex-direction:column; justify-content:center; gap:10px;">
+            <a href="https://pietas.care/guias" target="_blank" class="btn btn-ghost btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              Ver /guias ao vivo
+            </a>
+            <a href="https://github.com/LuisBarataForexTrader/pieta-care/actions/workflows/seo-articles.yml" target="_blank" class="btn btn-primary btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              Gerar artigos agora
+            </a>
+            <a href="https://search.google.com/u/1/search-console" target="_blank" class="btn btn-ghost btn-sm">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              Google Search Console
+            </a>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-header">
+            <span class="panel-title">Artigos indexados</span>
+            <button class="btn btn-ghost btn-sm" onclick="loadSeo()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.38"/></svg>
+              Actualizar
+            </button>
+          </div>
+          <div id="seo-list">
+            <div class="empty-state"><div class="spinner"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SYSTEM -->
+      <div id="section-system" style="display:none">
+        <div class="sys-grid">
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Estado da API</span></div>
+            <div id="sys-api" class="env-list">
+              <div class="empty-state"><div class="spinner"></div></div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Variáveis de Ambiente</span></div>
+            <div id="sys-env" class="env-list">
+              <div class="empty-state"><div class="spinner"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ── User detail modal ──────────────────────────────────────────────────── -->
+<div class="modal-bg" id="user-modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <h3 id="modal-name">Utilizador</h3>
+    <div id="modal-body"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal()">Fechar</button>
+      <button class="btn btn-primary" id="modal-save" onclick="saveUser()">Guardar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────────
+const API = '';          // same origin — admin is served from api.pietas.care
+let TOKEN = sessionStorage.getItem('admin_token') || '';
+let currentSection = 'overview';
+let usersSkip = 0;
+const USERS_LIMIT = 50;
+let usersTotal = 0;
+let usersSearchTimer;
+let selectedUser = null;
+let signupsChart, plansChart;
+
+// ── Auth ──────────────────────────────────────────────────────────────────────
+async function doLogin() {
+  const pwd = document.getElementById('pwd-input').value.trim();
+  const err = document.getElementById('login-err');
+  err.textContent = '';
+  if (!pwd) { err.textContent = 'Introduza o token.'; return; }
+  try {
+    const r = await fetch(`${API}/admin/stats`, { headers: { 'x-admin-token': pwd } });
+    if (r.status === 401) { err.textContent = 'Token inválido.'; return; }
+    TOKEN = pwd;
+    sessionStorage.setItem('admin_token', TOKEN);
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    nav('overview');
+  } catch {
+    err.textContent = 'Não foi possível ligar ao servidor.';
+  }
+}
+
+function signOut() {
+  sessionStorage.removeItem('admin_token');
+  TOKEN = '';
+  document.getElementById('login').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+}
+
+document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+if (TOKEN) {
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  setTimeout(() => nav('overview'), 0);
+}
+
+// ── Navigation ────────────────────────────────────────────────────────────────
+const TITLES = { overview:'Visão Geral', users:'Utilizadores', support:'Suporte', seo:'SEO / Guias', system:'Sistema' };
+
+function nav(section) {
+  ['overview','users','support','seo','system'].forEach(s => {
+    document.getElementById(`section-${s}`).style.display = s===section ? 'block' : 'none';
+    document.getElementById(`nav-${s}`).classList.toggle('active', s===section);
+  });
+  if (section === 'support') document.getElementById(`section-${section}`).style.display = 'flex';
+  document.getElementById('page-title').textContent = TITLES[section];
+  currentSection = section;
+  if (section==='overview') loadOverview();
+  if (section==='users')    loadUsers();
+  if (section==='support')  loadThreads();
+  if (section==='seo')      loadSeo();
+  if (section==='system')   loadSystem();
+}
+
+// ── API helper ────────────────────────────────────────────────────────────────
+async function api(path, opts={}) {
+  const res = await fetch(`${API}${path}`, {
+    ...opts,
+    headers: { 'x-admin-token': TOKEN, 'Content-Type':'application/json', ...(opts.headers||{}) },
+    body: opts.body ? JSON.stringify(opts.body) : undefined,
+  });
+  if (res.status === 401) { signOut(); throw new Error('Unauthorized'); }
+  return res.json();
+}
+
+// ── Overview ──────────────────────────────────────────────────────────────────
+async function loadOverview() {
+  const d = await api('/admin/stats');
+  document.getElementById('kpi-total').textContent     = d.users.total;
+  document.getElementById('kpi-week').textContent      = `+${d.users.new_this_week} esta semana`;
+  document.getElementById('kpi-trial').textContent     = d.users.trial;
+  document.getElementById('kpi-active').textContent    = d.users.active;
+  document.getElementById('kpi-cancelled').textContent = d.users.cancelled;
+  document.getElementById('kpi-24h').textContent       = `${d.users.active_24h} activos hoje`;
+  document.getElementById('kpi-elderly').textContent   = d.elderly.total;
+  document.getElementById('kpi-meds').textContent      = d.medication.today;
+  document.getElementById('kpi-meds-week').textContent = `${d.medication.this_week} esta semana`;
+
+  // Support badge
+  const unread = d.support.unread;
+  const badge = document.getElementById('support-badge');
+  badge.textContent = unread;
+  badge.classList.toggle('hidden', unread === 0);
+
+  // Plans string
+  const planParts = Object.entries(d.plans).map(([p,c]) => `${c} ${p}`);
+  document.getElementById('kpi-plans').textContent = planParts.join(' · ') || 'sem plano activo';
+
+  // Signups chart
+  const labels = d.signups_14d.map(x => x.date);
+  const values = d.signups_14d.map(x => x.count);
+  if (signupsChart) signupsChart.destroy();
+  signupsChart = new Chart(document.getElementById('chart-signups'), {
+    type:'line',
+    data:{
+      labels,
+      datasets:[{
+        label:'Novos', data:values,
+        borderColor:'#2A6049', backgroundColor:'rgba(42,96,73,.12)',
+        borderWidth:2, pointRadius:3, pointHoverRadius:5,
+        fill:true, tension:.4,
+        pointBackgroundColor:'#3D7A5C',
+      }]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ display:false } },
+      scales:{
+        x:{ grid:{ color:'#1C2E24' }, ticks:{ color:'#628272', font:{ size:11 } } },
+        y:{ grid:{ color:'#1C2E24' }, ticks:{ color:'#628272', font:{ size:11 }, stepSize:1 }, beginAtZero:true },
+      }
+    }
+  });
+
+  // Plans doughnut
+  const planNames = Object.keys(d.plans);
+  const planVals  = Object.values(d.plans);
+  if (plansChart) plansChart.destroy();
+  if (planNames.length === 0) {
+    document.getElementById('chart-plans').parentElement.innerHTML = '<div class="empty-state" style="padding:40px">Sem subscrições activas</div>';
+  } else {
+    plansChart = new Chart(document.getElementById('chart-plans'), {
+      type:'doughnut',
+      data:{
+        labels: planNames,
+        datasets:[{
+          data: planVals,
+          backgroundColor:['#2A6049','#3D7A5C','#4CAF7D','#7B68EE'],
+          borderWidth:0, hoverOffset:6,
+        }]
+      },
+      options:{
+        responsive:true, maintainAspectRatio:false,
+        plugins:{
+          legend:{ position:'bottom', labels:{ color:'#628272', font:{ size:11 }, boxWidth:10, padding:12 } }
+        },
+        cutout:'68%',
+      }
+    });
+  }
+}
+
+// ── Users ─────────────────────────────────────────────────────────────────────
+function usersSearch() {
+  clearTimeout(usersSearchTimer);
+  usersSearchTimer = setTimeout(() => { usersSkip=0; loadUsers(); }, 300);
+}
+
+function usersPage(dir) {
+  usersSkip = Math.max(0, usersSkip + dir * USERS_LIMIT);
+  loadUsers();
+}
+
+async function loadUsers() {
+  const search = document.getElementById('users-search')?.value || '';
+  const status = document.getElementById('users-filter')?.value || '';
+  const wrap = document.getElementById('users-table-wrap');
+  wrap.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+
+  const qs = new URLSearchParams({ skip: usersSkip, limit: USERS_LIMIT });
+  if (search) qs.set('search', search);
+  if (status) qs.set('status', status);
+
+  const d = await api(`/admin/users?${qs}`);
+  usersTotal = d.total;
+  document.getElementById('users-count-label').textContent = `Utilizadores (${usersTotal})`;
+
+  if (!d.users.length) {
+    wrap.innerHTML = '<div class="empty-state">Sem resultados</div>';
+    document.getElementById('users-pag').style.display = 'none';
+    return;
+  }
+
+  const rows = d.users.map(u => `
+    <tr onclick="openUser(${u.id})">
+      <td><div style="font-weight:600;font-size:13px">${esc(u.full_name)}</div><div style="font-size:11px;color:var(--muted)">${esc(u.email)}</div></td>
+      <td>${statusBadge(u.subscription_status)}</td>
+      <td style="color:var(--muted)">${u.subscription_plan || '—'}</td>
+      <td style="color:var(--muted);font-size:12px">${u.trial_ends_at ? fmtDate(u.trial_ends_at) : '—'}</td>
+      <td style="color:var(--muted);font-size:12px">${fmtDate(u.created_at)}</td>
+      <td style="color:var(--muted);font-size:12px">${u.last_seen_at ? fmtDate(u.last_seen_at) : '—'}</td>
+      <td>${u.is_admin ? '<span class="badge badge-admin">Admin</span>' : ''}</td>
+    </tr>
+  `).join('');
+
+  wrap.innerHTML = `
+    <table>
+      <thead><tr>
+        <th>Utilizador</th><th>Estado</th><th>Plano</th><th>Trial até</th><th>Registado</th><th>Último acesso</th><th></th>
+      </tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+
+  // Pagination
+  const pag = document.getElementById('users-pag');
+  pag.style.display = 'flex';
+  document.getElementById('pag-info').textContent = `${usersSkip+1}–${Math.min(usersSkip+USERS_LIMIT, usersTotal)} de ${usersTotal}`;
+  document.getElementById('pag-prev').disabled = usersSkip === 0;
+  document.getElementById('pag-next').disabled = usersSkip + USERS_LIMIT >= usersTotal;
+}
+
+async function openUser(id) {
+  selectedUser = await api(`/admin/users/${id}`);
+  const u = selectedUser;
+  document.getElementById('modal-name').textContent = u.full_name;
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:grid;gap:4px;margin-bottom:16px;font-size:13px;color:var(--muted)">
+      <div>${esc(u.email)}</div>
+      <div>Registado: ${fmtDate(u.created_at)}</div>
+      <div>Último acesso: ${u.last_seen_at ? fmtDate(u.last_seen_at) : '—'}</div>
+      ${u.elderly_profiles?.length ? `<div>Idosos: ${u.elderly_profiles.map(p=>esc(p.full_name)).join(', ')}</div>` : ''}
+    </div>
+    <div class="modal-field">
+      <label>Estado da subscrição</label>
+      <select id="mu-status">
+        <option value="trial" ${u.subscription_status==='trial'?'selected':''}>Trial</option>
+        <option value="active" ${u.subscription_status==='active'?'selected':''}>Active</option>
+        <option value="cancelled" ${u.subscription_status==='cancelled'?'selected':''}>Cancelled</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Plano</label>
+      <select id="mu-plan">
+        <option value="" ${!u.subscription_plan?'selected':''}>— Nenhum —</option>
+        <option value="familia" ${u.subscription_plan==='familia'?'selected':''}>Família</option>
+        <option value="familia_plus" ${u.subscription_plan==='familia_plus'?'selected':''}>Família Plus</option>
+        <option value="cuidador_pro" ${u.subscription_plan==='cuidador_pro'?'selected':''}>Cuidador Pro</option>
+      </select>
+    </div>
+    <div class="modal-field">
+      <label>Trial expira em</label>
+      <input type="datetime-local" id="mu-trial" value="${u.trial_ends_at ? u.trial_ends_at.slice(0,16) : ''}">
+    </div>
+    <div style="display:flex;align-items:center;gap:16px;margin-top:4px;font-size:13px">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="mu-admin" ${u.is_admin?'checked':''}>
+        Admin
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="mu-verified" ${u.is_verified?'checked':''}>
+        Verificado
+      </label>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+        <input type="checkbox" id="mu-active" ${u.is_active?'checked':''}>
+        Activo
+      </label>
+    </div>
+  `;
+  document.getElementById('user-modal').classList.add('open');
+}
+
+async function saveUser() {
+  if (!selectedUser) return;
+  const data = {
+    subscription_status: document.getElementById('mu-status').value,
+    subscription_plan: document.getElementById('mu-plan').value || null,
+    is_admin: document.getElementById('mu-admin').checked,
+    is_verified: document.getElementById('mu-verified').checked,
+    is_active: document.getElementById('mu-active').checked,
+  };
+  const trial = document.getElementById('mu-trial').value;
+  if (trial) data.trial_ends_at = new Date(trial).toISOString();
+
+  await api(`/admin/users/${selectedUser.id}`, { method:'PATCH', body: data });
+  closeModal();
+  loadUsers();
+}
+
+function closeModal() {
+  document.getElementById('user-modal').classList.remove('open');
+  selectedUser = null;
+}
+
+// ── Support ───────────────────────────────────────────────────────────────────
+let threads = [];
+let activeThread = null;
+
+async function loadThreads() {
+  const list = document.getElementById('thread-list');
+  list.innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+  threads = await api('/admin/support/threads');
+
+  // Update badge
+  const unread = threads.reduce((s,t) => s + (t.admin_unread||0), 0);
+  const badge = document.getElementById('support-badge');
+  badge.textContent = unread;
+  badge.classList.toggle('hidden', unread === 0);
+
+  if (!threads.length) {
+    list.innerHTML = '<div class="empty-state">Sem conversas</div>';
+    return;
+  }
+
+  list.innerHTML = threads.map(t => `
+    <div class="thread-item ${t.id===activeThread?'active':''}" onclick="openThread(${t.id})">
+      <div class="thread-name">${esc(t.user_name || '—')}</div>
+      <div class="thread-email">${esc(t.user_email)}</div>
+      <div class="thread-meta">
+        <span class="thread-time">${t.last_message_at ? fmtDate(t.last_message_at) : '—'}</span>
+        ${t.admin_unread > 0 ? `<span class="thread-unread">${t.admin_unread}</span>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+async function openThread(id) {
+  activeThread = id;
+  // Re-render thread list to update active
+  document.querySelectorAll('.thread-item').forEach(el => el.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  const pane = document.getElementById('msg-pane');
+  pane.innerHTML = '<div style="flex:1;display:flex;align-items:center;justify-content:center"><div class="spinner"></div></div><div class="msg-reply"><textarea id="reply-box" placeholder="Responder…" rows="1"></textarea><button class="btn btn-primary btn-sm" onclick="sendReply()">Enviar</button></div>';
+
+  const d = await api(`/admin/support/threads/${id}`);
+  const u = d.user || {};
+
+  pane.innerHTML = `
+    <div class="msg-pane-header">
+      <div>
+        <h3>${esc(u.name || '—')}</h3>
+        <div style="font-size:12px;color:var(--muted)">${esc(u.email || '')} · ${statusBadge(u.plan || 'trial')}</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="closeThread(${id})">
+        ${d.status==='open' ? 'Fechar conversa' : 'Reabrir conversa'}
+      </button>
+    </div>
+    <div class="msg-scroll" id="msg-scroll">
+      ${d.messages.map(m => `
+        <div>
+          <div class="msg-bubble ${m.is_admin_reply ? 'msg-admin' : 'msg-user'}">${esc(m.content)}</div>
+          <div class="msg-ts" style="${m.is_admin_reply?'text-align:right':''}">${fmtTime(m.created_at)}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="msg-reply">
+      <textarea id="reply-box" placeholder="Responder…" rows="1" onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))sendReply()"></textarea>
+      <button class="btn btn-primary btn-sm" onclick="sendReply()">Enviar</button>
+    </div>
+  `;
+  // Scroll to bottom
+  const scroll = document.getElementById('msg-scroll');
+  if (scroll) scroll.scrollTop = scroll.scrollHeight;
+}
+
+async function sendReply() {
+  const box = document.getElementById('reply-box');
+  const content = box?.value?.trim();
+  if (!content || !activeThread) return;
+  box.value = '';
+  const res = await api(`/admin/support/threads/${activeThread}/reply`, { method:'POST', body:{ content } });
+  if (res.ok) openThread(activeThread);
+}
+
+async function closeThread(id) {
+  const d = threads.find(t => t.id === id);
+  const newStatus = d?.status === 'open' ? 'closed' : 'open';
+  await api(`/admin/support/threads/${id}/status`, { method:'PATCH', body:{ status: newStatus } });
+  loadThreads();
+  if (activeThread === id) openThread(id);
+}
+
+// ── SEO ───────────────────────────────────────────────────────────────────────
+async function loadSeo() {
+  document.getElementById('seo-count').textContent = '…';
+  document.getElementById('seo-list').innerHTML = '<div class="empty-state"><div class="spinner"></div></div>';
+
+  const d = await api('/admin/seo');
+  document.getElementById('seo-count').textContent = d.count;
+
+  if (!d.articles.length) {
+    document.getElementById('seo-list').innerHTML = '<div class="empty-state">Nenhum artigo no sitemap ainda.<br>Faça push para o repo e aguarde o deploy.</div>';
+    return;
+  }
+
+  document.getElementById('seo-list').innerHTML = `
+    <div class="article-list">
+      ${d.articles.map(slug => `
+        <div class="article-item">
+          <span class="article-slug">/guias/${esc(slug)}</span>
+          <a href="https://pietas.care/guias/${encodeURIComponent(slug)}" target="_blank" class="btn btn-ghost btn-sm">Ver</a>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ── System ────────────────────────────────────────────────────────────────────
+async function loadSystem() {
+  const d = await api('/admin/system');
+
+  document.getElementById('sys-api').innerHTML = `
+    <div class="env-row">
+      <span class="env-key">PostgreSQL</span>
+      <span class="${d.database ? 'env-ok':'env-missing'}">${d.database ? 'Ligado' : 'Erro'}</span>
+    </div>
+    <div class="env-row">
+      <span class="env-key">Versão</span>
+      <span style="color:var(--muted)">${d.version}</span>
+    </div>
+    <div class="env-row">
+      <span class="env-key">API</span>
+      <span class="env-ok">Online</span>
+    </div>
+  `;
+
+  document.getElementById('sys-env').innerHTML = Object.entries(d.env_vars).map(([k,v]) => `
+    <div class="env-row">
+      <span class="env-key">${k}</span>
+      <span class="${v ? 'env-ok':'env-missing'}">${v ? 'Configurado' : 'Em falta'}</span>
+    </div>
+  `).join('');
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+function esc(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-PT', { day:'numeric', month:'short', year:'numeric' });
+}
+
+function fmtTime(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-PT', { day:'numeric', month:'short' }) + ' ' +
+         d.toLocaleTimeString('pt-PT', { hour:'2-digit', minute:'2-digit' });
+}
+
+function statusBadge(s) {
+  const map = {
+    trial:     ['badge-trial',    'Trial'],
+    active:    ['badge-active',   'Activo'],
+    cancelled: ['badge-cancelled','Cancelado'],
+    open:      ['badge-open',     'Aberto'],
+    closed:    ['badge-closed',   'Fechado'],
+  };
+  const [cls, label] = map[s] || ['badge-closed', s];
+  return `<span class="badge ${cls}">${label}</span>`;
+}
+</script>
+</body>
+</html>

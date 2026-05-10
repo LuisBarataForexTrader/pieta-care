@@ -9,7 +9,7 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.config import settings
 from app.core.stripe_client import build_price_map
-from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights, feedback, push, toconline as toconline_api
+from app.api import auth, elderly, medication, calendar, document, billing, health, chat, support, ai_insights, feedback, push, toconline as toconline_api, admin as admin_api
 from app.tasks.trial_emails import run_trial_emails
 from app.tasks.weekly_digest import run_weekly_digest
 
@@ -134,6 +134,7 @@ app.include_router(ai_insights.router, prefix="/api/v1")
 app.include_router(feedback.router, prefix="/api/v1")
 app.include_router(push.router, prefix="/api/v1")
 app.include_router(toconline_api.router, prefix="/api/v1")
+app.include_router(admin_api.router)
 
 app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR, check_dir=False), name="uploads")
 
@@ -141,3 +142,11 @@ app.mount("/uploads", StaticFiles(directory=UPLOAD_DIR, check_dir=False), name="
 @app.get("/health")
 def health():
     return {"status": "ok", "version": settings.VERSION}
+
+
+@app.get("/admin", include_in_schema=False)
+def serve_admin():
+    from pathlib import Path
+    from fastapi.responses import FileResponse
+    path = Path(__file__).parent / "public" / "admin.html"
+    return FileResponse(str(path))
