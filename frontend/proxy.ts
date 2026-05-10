@@ -4,6 +4,7 @@ const PUBLIC = [
   '/', '/login', '/register', '/invite',
   '/verificar-email', '/esqueci-password', '/reset-password',
   '/privacidade', '/termos', '/planos',
+  '/guias',
   '/opengraph-image', '/twitter-image',
 ]
 

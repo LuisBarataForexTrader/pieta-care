@@ -1,14 +1,13 @@
 import type { MetadataRoute } from 'next'
+import { getAllArticles } from '@/lib/articles'
 
 const BASE = 'https://pietas.care'
 
-/** Sitemap exposed at /sitemap.xml.
- *  Only public, indexable pages. Authenticated routes (/dashboard, /conta,
- *  …) and admin/QA endpoints are deliberately excluded.
- */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date()
-  return [
+  const articles = getAllArticles()
+
+  const staticPages: MetadataRoute.Sitemap = [
     {
       url: `${BASE}/`,
       lastModified: now,
@@ -20,6 +19,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.9,
+    },
+    {
+      url: `${BASE}/guias`,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 0.8,
     },
     {
       url: `${BASE}/login`,
@@ -40,4 +45,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.3,
     },
   ]
+
+  const articlePages: MetadataRoute.Sitemap = articles.map(article => ({
+    url: `${BASE}/guias/${article.slug}`,
+    lastModified: new Date(article.date),
+    changeFrequency: 'monthly' as const,
+    priority: 0.7,
+  }))
+
+  return [...staticPages, ...articlePages]
 }
