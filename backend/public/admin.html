@@ -336,9 +336,25 @@ tr:hover td { background:var(--card2); cursor:pointer; }
       </div>
     </div>
     <h2>Acesso restrito</h2>
-    <input type="password" id="pwd-input" placeholder="Admin token" autocomplete="current-password">
-    <button onclick="doLogin()">Entrar</button>
-    <div id="login-err"></div>
+    <!-- Login form -->
+    <div id="login-form">
+      <input type="password" id="pwd-input" placeholder="Admin token" autocomplete="current-password">
+      <button onclick="doLogin()">Entrar</button>
+      <div id="login-err"></div>
+      <div style="margin-top:16px">
+        <a href="#" onclick="showForgot();return false;" style="font-size:12px;color:var(--muted)">Esqueceu o token?</a>
+      </div>
+    </div>
+    <!-- Forgot token form -->
+    <div id="forgot-form" style="display:none">
+      <p style="font-size:13px;color:var(--muted);margin-bottom:16px">Introduza o email de admin para receber o token por email.</p>
+      <input type="email" id="forgot-email" placeholder="Email de admin" style="width:100%;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius-s);color:var(--text);font-size:14px;margin-bottom:12px;outline:none;">
+      <button onclick="doSendToken()">Enviar token por email</button>
+      <div id="forgot-msg" style="font-size:13px;margin-top:10px;min-height:18px"></div>
+      <div style="margin-top:12px">
+        <a href="#" onclick="showLogin();return false;" style="font-size:12px;color:var(--muted)">← Voltar ao login</a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -514,6 +530,24 @@ tr:hover td { background:var(--card2); cursor:pointer; }
               <div class="empty-state"><div class="spinner"></div></div>
             </div>
           </div>
+          <div class="panel">
+            <div class="panel-header"><span class="panel-title">Alterar token de admin</span></div>
+            <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+              <p style="font-size:13px;color:var(--muted)">O novo token fica activo imediatamente e é guardado no servidor. Mínimo 16 caracteres.</p>
+              <div class="modal-field" style="margin:0">
+                <label>Novo token</label>
+                <input type="password" id="new-token-input" placeholder="Novo token (mín. 16 chars)">
+              </div>
+              <div class="modal-field" style="margin:0">
+                <label>Confirmar novo token</label>
+                <input type="password" id="new-token-confirm" placeholder="Repetir token">
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <button class="btn btn-primary btn-sm" onclick="doChangeToken()">Alterar token</button>
+                <span id="change-token-msg" style="font-size:13px"></span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -572,6 +606,58 @@ function signOut() {
 }
 
 document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+document.getElementById('forgot-email').addEventListener('keydown', e => { if(e.key==='Enter') doSendToken(); });
+
+function showForgot() {
+  document.getElementById('login-form').style.display = 'none';
+  document.getElementById('forgot-form').style.display = 'block';
+  document.getElementById('forgot-email').focus();
+}
+function showLogin() {
+  document.getElementById('forgot-form').style.display = 'none';
+  document.getElementById('login-form').style.display = 'block';
+}
+
+async function doSendToken() {
+  const email = document.getElementById('forgot-email').value.trim();
+  const msg = document.getElementById('forgot-msg');
+  if (!email) { msg.style.color = 'var(--danger)'; msg.textContent = 'Introduza o email.'; return; }
+  msg.style.color = 'var(--muted)'; msg.textContent = 'A enviar…';
+  try {
+    await fetch(`${API}/admin/send-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    msg.style.color = 'var(--success)';
+    msg.textContent = 'Se o email estiver correcto, o token foi enviado.';
+  } catch {
+    msg.style.color = 'var(--danger)'; msg.textContent = 'Erro de ligação.';
+  }
+}
+
+async function doChangeToken() {
+  const newToken = document.getElementById('new-token-input').value.trim();
+  const confirm  = document.getElementById('new-token-confirm').value.trim();
+  const msg = document.getElementById('change-token-msg');
+  if (newToken.length < 16) { msg.style.color='var(--danger)'; msg.textContent='Mínimo 16 caracteres.'; return; }
+  if (newToken !== confirm)  { msg.style.color='var(--danger)'; msg.textContent='Os tokens não coincidem.'; return; }
+  msg.style.color='var(--muted)'; msg.textContent='A guardar…';
+  try {
+    const r = await api('/admin/change-token', { method:'POST', body:{ new_token: newToken } });
+    if (r.ok) {
+      TOKEN = newToken;
+      sessionStorage.setItem('admin_token', TOKEN);
+      document.getElementById('new-token-input').value = '';
+      document.getElementById('new-token-confirm').value = '';
+      msg.style.color = 'var(--success)'; msg.textContent = 'Token alterado com sucesso.';
+    } else {
+      msg.style.color = 'var(--danger)'; msg.textContent = r.detail || 'Erro.';
+    }
+  } catch {
+    msg.style.color = 'var(--danger)'; msg.textContent = 'Erro de ligação.';
+  }
+}
 
 if (TOKEN) {
   document.getElementById('login').style.display = 'none';

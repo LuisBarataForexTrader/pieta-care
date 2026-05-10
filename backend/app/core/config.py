@@ -46,6 +46,8 @@ class Settings(BaseSettings):
     # Bearer token gating /admin/toconline/* endpoints. Set to a long
     # random string in production env. If empty, admin endpoints 503.
     ADMIN_TOKEN: str = ""
+    # Email that receives the token via the "forgot token" endpoint.
+    ADMIN_EMAIL: str = ""
 
     # Anthropic - used for medication info lookups
     ANTHROPIC_API_KEY: str = ""

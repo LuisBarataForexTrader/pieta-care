@@ -7,6 +7,7 @@ tool, not user-facing.
 """
 
 from datetime import datetime, timedelta
+from pathlib import Path
 import re
 
 import httpx
@@ -16,6 +17,7 @@ from sqlalchemy.orm import Session
 
 from app.core.config import settings
 from app.core.database import get_db
+from app.core.email import send_email
 from app.models.elderly import ElderlyProfile
 from app.models.medication import MedicationLog
 from app.models.support import SupportMessage, SupportThread
@@ -294,6 +296,64 @@ def admin_support_status(
         raise HTTPException(404, "Not found")
     thread.status = data.get("status", thread.status)
     db.commit()
+    return {"ok": True}
+
+
+# ── Token management ─────────────────────────────────────────────────────────
+
+def _update_env_file(key: str, value: str) -> None:
+    env_path = Path(__file__).parent.parent.parent / ".env"
+    if env_path.exists():
+        lines = env_path.read_text().splitlines()
+        updated = False
+        new_lines = []
+        for line in lines:
+            if line.startswith(f"{key}="):
+                new_lines.append(f"{key}={value}")
+                updated = True
+            else:
+                new_lines.append(line)
+        if not updated:
+            new_lines.append(f"{key}={value}")
+        env_path.write_text("\n".join(new_lines) + "\n")
+    else:
+        env_path.write_text(f"{key}={value}\n")
+
+
+@router.post("/change-token")
+def admin_change_token(
+    data: dict = Body(...),
+    _=Depends(_require_token),
+):
+    new_token = (data.get("new_token") or "").strip()
+    if len(new_token) < 16:
+        raise HTTPException(400, "Token deve ter pelo menos 16 caracteres")
+
+    _update_env_file("ADMIN_TOKEN", new_token)
+    settings.ADMIN_TOKEN = new_token
+    return {"ok": True}
+
+
+@router.post("/send-token")
+def admin_send_token(data: dict = Body(...)):
+    """Forgot-token: sends current token to ADMIN_EMAIL if the supplied email matches."""
+    if not settings.ADMIN_EMAIL:
+        raise HTTPException(503, "ADMIN_EMAIL não configurado no servidor")
+
+    email = (data.get("email") or "").strip().lower()
+    if email == settings.ADMIN_EMAIL.lower() and settings.ADMIN_TOKEN:
+        html = f"""
+        <div style="font-family:system-ui;max-width:480px;margin:0 auto;padding:32px;background:#0A1510;color:#C8E0D0;border-radius:12px">
+          <h2 style="color:#3D7A5C;margin-bottom:16px">pietas.care · Admin</h2>
+          <p style="margin-bottom:12px">Foi solicitada a recuperação do token de administrador.</p>
+          <p style="margin-bottom:20px"><strong>Token:</strong></p>
+          <div style="background:#111E17;border:1px solid #1C2E24;border-radius:8px;padding:14px;font-family:monospace;font-size:15px;letter-spacing:.5px;word-break:break-all">{settings.ADMIN_TOKEN}</div>
+          <p style="margin-top:20px;font-size:12px;color:#628272">Se não foi você a solicitar isto, altere o token imediatamente em api.pietas.care/admin → Sistema → Alterar token.</p>
+        </div>
+        """
+        send_email(settings.ADMIN_EMAIL, "pietas.care — Recuperação de token admin", html)
+
+    # Always return ok — don't reveal whether email matched
     return {"ok": True}
 
 
